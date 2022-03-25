@@ -16,12 +16,13 @@ endif()
 
 set(CMAKE_CXX_STANDARD 17)
 if( ${PLATFORM} STREQUAL "LINUX" )
-    set(CMAKE_CXX_FLAGS "-Wno-parentheses -I_3rdparty_/ -Icommon/ -Icalib/ -Idaemon/ -Iendecode -Imanager/ -Istabil -O2 -g")
+    set(CMAKE_CXX_FLAGS "-Wno-parentheses -pthread -I_3rdparty_/ -Icommon/ -Icalib/ -Idaemon/ -Iendecode -Imanager/ -Istabil -O2 -g")
     set (GPUMODE on )
     message(${GPUMODE})    
-    set(SYS_INC_DIR "/usr/local/cuda/include")
+    set(SYS_INC_DIR "/usr/local/cuda/include" "/usr/local/include/")
+    set(SYS_LIB_DIR "/usr/local/bin" "usr/local/lib")
 else ()
-    set(CMAKE_CXX_FLAGS "-Wno-invalid-source-encoding -Wno-deprecated-register -Wno-writable-strings -Wno-parentheses -I_3rdparty_/ -Icommon/ -Icalib/ -Idaemon/ -Iendecode -Imanager/ -Istabil -O2 -g")
+    set(CMAKE_CXX_FLAGS "-Wno-invalid-source-encoding -Wno-deprecated-register -Wno-writable-strings -Wno-parentheses -pthread -I_3rdparty_/ -Icommon/ -Icalib/ -Idaemon/ -Iendecode -Imanager/ -Istabil -O2 -g")
 endif()
 
 add_definitions(-D_DEBUG)
@@ -39,11 +40,11 @@ file(GLOB PRJ_SRC
 
 list(REMOVE_ITEM PRJ_SRC ${PRJ_PATH}/stabil/Detection.cpp)
 
-#if( ${PLATFORM} STREQUAL "MACM1" )
+if( ${PLATFORM} STREQUAL "MACM1" OR ${PLATFORM} STREQUAL "LINUX")
     message("STREQUAL MACM1")
     list(REMOVE_ITEM PRJ_SRC ${PRJ_PATH}/manager/FrTrans.cpp)
 
-#endif()
+endif()
 
 file(GLOB PRJ_INC      ${PRJ_PATH}/calib/
                        ${PRJ_PATH}/common/
@@ -56,14 +57,24 @@ file(GLOB PRJ_INC      ${PRJ_PATH}/calib/
 
 set(CURL_INC_DIR    ${PRJ_PATH}/_3rdparty_/curl/include)
 set(DARKNET_PATH    ${PRJ_PATH}/_3rdparty_/darknet)
-set(DARKNET_LIB     ${DARKNET_PATH}/lib/${PLATFORM}/libdarknet.dylib)
 set(GSL_INC_DIR     ${PRJ_PATH}/_3rdparty_/gsl/include)
-set(GSL_LIB_DIR     ${PRJ_PATH}/_3rdparty_/gsl/lib/${PLATFORM}/libgsl.dylib)
 set(RJSON_INC_DIR   ${PRJ_PATH}/_3rdparty_/rapidjson/include)
 set(SPD_INC_DIR     ${PRJ_PATH}/_3rdparty_/spdlog/include)  
-set(SPD_LIB_DIR     ${PRJ_PATH}/_3rdparty_/spdlog/lib/${PLATFORM}/libspdlog.a)
 set(ZL_INC_DIR      ${PRJ_PATH}/_3rdparty_/ZLToolKit/include)
-set(ZL_LIB_DIR      ${PRJ_PATH}/_3rdparty_/ZLToolKit/lib/${PLATFORM}/libZLToolKit.dylib)
+
+if( ${PLATFORM} STREQUAL "MACM1" OR ${PLATFORM} STREQUAL "MACINTEL")
+    set(DARKNET_LIB     ${DARKNET_PATH}/lib/${PLATFORM}/libdarknet.dylib)
+    set(GSL_LIB_DIR     ${PRJ_PATH}/_3rdparty_/gsl/lib/${PLATFORM}/libgsl.dylib)
+    set(SPD_LIB_DIR     ${PRJ_PATH}/_3rdparty_/spdlog/lib/${PLATFORM}/libspdlog.a)
+    set(ZL_LIB_DIR      ${PRJ_PATH}/_3rdparty_/ZLToolKit/lib/${PLATFORM}/libZLToolKit.dylib)
+
+elseif(${PLATFORM} STREQUAL "LINUX")
+    set(DARKNET_LIB     ${DARKNET_PATH}/lib/${PLATFORM}/libdarknet.so)
+    set(GSL_LIB_DIR     ${PRJ_PATH}/_3rdparty_/gsl/lib/${PLATFORM}/libgsl.so 
+                        ${PRJ_PATH}/_3rdparty_/gsl/lib/${PLATFORM}/libgslcblas.so)
+    set(SPD_LIB_DIR     ${PRJ_PATH}/_3rdparty_/spdlog/lib/${PLATFORM}/libspdlog.so)
+    set(ZL_LIB_DIR      ${PRJ_PATH}/_3rdparty_/ZLToolKit/lib/${PLATFORM}/libZLToolKit.a)
+endif()
 
 message(${ZL_LIB_DIR})
 message(${ZL_INC_DIR})
