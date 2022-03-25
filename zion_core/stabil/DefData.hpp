@@ -16,19 +16,13 @@
 
 #pragma once 
 
-#if defined _WIN_ || _WINDOWS
-#define _IMGDEBUG
-//#define _DEBUG
-#define GPU
-
+#if defined GPU
 #include <opencv2/core/cuda.hpp>
 #include <opencv2/cudawarping.hpp>
 #include <opencv2/cudaimgproc.hpp>
 #include <opencv2/cudaarithm.hpp>
 #include <opencv2/cudafilters.hpp>
 #include <opencv2/cudacodec.hpp>
-#else
-//#define _DEBUG
 #endif
 
 #include <opencv2/core/core.hpp>
