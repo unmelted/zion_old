@@ -315,9 +315,9 @@ int GrayTracking::TrackerInitPost(Point& max, TRACK_OBJ* obj, TRACK_OBJ* roi) {
 
 int GrayTracking::TrackerUpdatePost(TRACK_OBJ* obj, TRACK_OBJ* roi) {
     // add linux compile test..
-    bool ret = false;
-    //bool ret = tracker->update(diff, rect_roi);
-    //CMd_INFO("tracker update {} {} {} {} ", rect_roi.x, rect_roi.y, rect_roi.width, rect_roi.height);
+    //bool ret = false;
+    bool ret = tracker->update(diff, rect_roi);
+    CMd_INFO("tracker update {} {} {} {} ", rect_roi.x, rect_roi.y, rect_roi.width, rect_roi.height);
    
     if (ret == false) {
         CMd_WARN("tracker miss --------------------------------------------");
