@@ -19,8 +19,10 @@
 #include "FrTrans.h"
 #define WIN_TRANS
 #endif
+
 #include <thread>
 #include "Stabilization.hpp"
+
 using namespace std;
 using namespace cv;
 using namespace dove;

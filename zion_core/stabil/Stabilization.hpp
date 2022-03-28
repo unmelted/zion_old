@@ -17,10 +17,10 @@
 #pragma once
 #include <map>
 #include "DefData.hpp"
-#if defined _MAC_
+//#if defined _MAC_
 #include "Detection.hpp"
 #include "CMdLogger.hpp"
-#endif
+//#endif
 #include "ColorTracking.hpp"
 #include "GrayTracking.hpp"
 #include "Algebra.hpp"

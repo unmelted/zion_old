@@ -3,7 +3,7 @@
 ##
 cmake_minimum_required(VERSION 3.7)
 project(zion)
-set (PLATFORM LINUX) # available : MACM1, MACINTEL, WIN, ARM, LINUX
+set (PLATFORM MACM1) # available : MACM1, MACINTEL, WIN, ARM, LINUX
 message(${PLATFORM})
 set (GPUMODE OFF )
 
@@ -42,32 +42,30 @@ file(GLOB PRJ_SRC
     ${PRJ_PATH}/main.cpp
 )
 
-list(REMOVE_ITEM PRJ_SRC ${PRJ_PATH}/stabil/Detection.cpp)
-
 if( ${PLATFORM} STREQUAL "MACM1" OR ${PLATFORM} STREQUAL "LINUX")
-    message("STREQUAL MACM1")
+    message("STREQUAL MACM1 or LINUX - remove FrTrans")
     list(REMOVE_ITEM PRJ_SRC ${PRJ_PATH}/manager/FrTrans.cpp)
 
 endif()
 
+set(CURL_INC_DIR    ${PRJ_PATH}/_3rdparty_/curl/include)
+set(DARKNET_INC_DIR    ${PRJ_PATH}/_3rdparty_/darknet/darknet.h ${PRJ_PATH}/_3rdparty_/darknet/yolo_v2_class.hpp )
+set(GSL_INC_DIR     ${PRJ_PATH}/_3rdparty_/gsl/include)
+set(RJSON_INC_DIR   ${PRJ_PATH}/_3rdparty_/rapidjson/include)
+set(SPD_INC_DIR     ${PRJ_PATH}/_3rdparty_/spdlog/include)  
+set(ZL_INC_DIR      ${PRJ_PATH}/_3rdparty_/ZLToolKit/include)
+
+
 file(GLOB PRJ_INC      ${PRJ_PATH}/calib/
                        ${PRJ_PATH}/common/
-                       #${PRJ_PATH}/common
                        ${PRJ_PATH}/daemon/
                        ${PRJ_PATH}/manager
                        ${PRJ_PATH}/stabil
                        ${PRJ_PATH}/endecode/include
 )
 
-set(CURL_INC_DIR    ${PRJ_PATH}/_3rdparty_/curl/include)
-set(DARKNET_PATH    ${PRJ_PATH}/_3rdparty_/darknet)
-set(GSL_INC_DIR     ${PRJ_PATH}/_3rdparty_/gsl/include)
-set(RJSON_INC_DIR   ${PRJ_PATH}/_3rdparty_/rapidjson/include)
-set(SPD_INC_DIR     ${PRJ_PATH}/_3rdparty_/spdlog/include)  
-set(ZL_INC_DIR      ${PRJ_PATH}/_3rdparty_/ZLToolKit/include)
-
 if( ${PLATFORM} STREQUAL "MACM1" OR ${PLATFORM} STREQUAL "MACINTEL")
-    set(DARKNET_LIB     ${DARKNET_PATH}/lib/${PLATFORM}/libdarknet.dylib)
+    set(DARKNET_LIB     ${PRJ_PATH}/_3rdparty_/darknet/lib/${PLATFORM}/libdarknet.dylib)
     set(GSL_LIB_DIR     ${PRJ_PATH}/_3rdparty_/gsl/lib/${PLATFORM}/libgsl.dylib)
     set(SPD_LIB_DIR     ${PRJ_PATH}/_3rdparty_/spdlog/lib/${PLATFORM}/libspdlog.a)
     set(ZL_LIB_DIR      ${PRJ_PATH}/_3rdparty_/ZLToolKit/lib/${PLATFORM}/libZLToolKit.dylib)
@@ -80,10 +78,18 @@ elseif(${PLATFORM} STREQUAL "LINUX")
     set(ZL_LIB_DIR      ${PRJ_PATH}/_3rdparty_/ZLToolKit/lib/${PLATFORM}/libZLToolKit.a)
 endif()
 
-message(${ZL_LIB_DIR})
-message(${ZL_INC_DIR})
+message(${DARKNET_INC_DIR})
+message(${DARKNET_LIB})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-include_directories(${PRJ_INC} ${CURL_INC_DIR} ${GSL_INC_DIR} ${OpenCV_INCLUDE_DIRS} ${RJSON_INC_DIR} ${SPD_INC_DIR} ${SYS_INC_DIR} ${ZL_INC_DIR} )
-add_executable(zion ${PRJ_SRC})
-target_link_libraries(zion ${GSL_LIB_DIR} ${OpenCV_LIBS} ${SPD_LIB_DIR} ${ZL_LIB_DIR})
+if( ${PLATFORM} STREQUAL "MACM1" OR ${PLATFORM} STREQUAL "MACINTEL")
+    include_directories(${PRJ_INC} ${CURL_INC_DIR} ${GSL_INC_DIR} ${OpenCV_INCLUDE_DIRS} ${RJSON_INC_DIR} ${SPD_INC_DIR} ${SYS_INC_DIR} ${ZL_INC_DIR} ${DARKNET_INC_DIR})
+    add_executable(zion ${PRJ_SRC})    
+    target_link_libraries(zion ${GSL_LIB_DIR} ${OpenCV_LIBS} ${SPD_LIB_DIR} ${ZL_LIB_DIR} ${DARKNET_LIB})
+
+elseif(${PLATFORM} STREQUAL "LINUX")
+    include_directories(${PRJ_INC} ${CURL_INC_DIR} ${GSL_INC_DIR} ${OpenCV_INCLUDE_DIRS} ${RJSON_INC_DIR} ${SPD_INC_DIR} ${SYS_INC_DIR} ${ZL_INC_DIR} )
+    add_executable(zion ${PRJ_SRC})        
+    target_link_libraries(zion ${GSL_LIB_DIR} ${OpenCV_LIBS} ${SPD_LIB_DIR} ${ZL_LIB_DIR})
+endif()
+
