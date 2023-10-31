@@ -6,8 +6,8 @@
 using namespace std;
 using namespace toolkit;
 
-
-struct MTdProtocol {
+struct MTdProtocol
+{
 	std::string Section1;
 	std::string Section2;
 	std::string Section3;
@@ -18,4 +18,4 @@ struct MTdProtocol {
 	std::string Token;
 };
 
-#define CURRENTVERSION "4.1.0.5"
+#define CURRENTVERSION "4.3.0.A"
