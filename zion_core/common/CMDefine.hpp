@@ -1,18 +1,20 @@
-
-/*****************************************************************************
-*                                                                            *
-*                             CMDefine       								 *
-*                                                                            *
-*   Copyright (C) 2021 By 4dreplay, Incoporated. All Rights Reserved.        *
-******************************************************************************
-
-    File Name       : CMDefine.hpp
-    Author(S)       : Me Eunkyung
-    Created         : 17 Jan 2022
-
-    Description     : Base Define Err or Etc
-    Notes           :
-*/
+/*
+ * LIVSMED CONFIDENTIAL
+ *
+ * Copyright (c) 2024 LIVSMED, INC.
+ * All Rights Reserved.
+ *
+ * NOTICE: All information contained herein is, and remains the property
+ * of LIVSMED and its suppliers, if any. The intellectual and technical concepts
+ * contained herein are proprietary to LIVSMED and its suppliers and may be
+ * covered by S.Korea and Foreign Patents, patents in process, and are
+ * protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material is
+ * strictly forbidden unless prior written permission is obtained from LIVSMED.
+ *
+ * Created by Eunkyung Ma(ekma@livsmed.com) on 2024/01/05.
+ *
+ */
 
 #pragma once
 #include <chrono>
@@ -110,22 +112,4 @@ namespace CMD
         }
     } MSG_T;
 
-    typedef enum _event
-    {
-        Default = 1,
-        Hockey = 2,
-        Figure = 3,
-        ShortTrack = 4,
-        SkiJump = 5,
-        Basball = 6,
-        Basketball = 7,
-        Boxing = 8,
-        Football = 9,
-        Golf = 10,
-        Soccer = 11,
-        Taekwondo = 12,
-        Tennis = 13,
-        UFC = 14,
-        Volleyball = 15,
-    } EVENT;
 }

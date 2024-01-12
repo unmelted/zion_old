@@ -1,20 +1,27 @@
-﻿#include "DaemonMgr.h"
+﻿/*
+ * LIVSMED CONFIDENTIAL
+ *
+ * Copyright (c) 2024 LIVSMED, INC.
+ * All Rights Reserved.
+ *
+ * NOTICE: All information contained herein is, and remains the property
+ * of LIVSMED and its suppliers, if any. The intellectual and technical concepts
+ * contained herein are proprietary to LIVSMED and its suppliers and may be
+ * covered by S.Korea and Foreign Patents, patents in process, and are
+ * protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material is
+ * strictly forbidden unless prior written permission is obtained from LIVSMED.
+ *
+ * Created by Eunkyung Ma(ekma@livsmed.com) on 2024/01/05.
+ *
+ */
+
+#include "DaemonMgr.h"
 #include <string.h>
 
 
 DaemonMgr::DaemonMgr()
 {
-#ifdef _WIN32
-	WSADATA wsaData;
-	WORD version;
-	version = MAKEWORD(2, 2);
-	if (WSAStartup(version, &wsaData) < 0)  //���� �ʱ�ȭ
-	{
-		//ErrorL << "WSAStartup Init Error";
-		WSACleanup();
-		exit(0);
-	}
-#endif
 	m_parser.SetDMServer(&m_dmServer);
 	m_dmServer.BeginSocket(CM_CONTROL_DAEMON_PORT, 0);
 	m_dmServer.setHandler(std::bind(&DaemonMgr::Classfication, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
@@ -25,10 +32,9 @@ DaemonMgr::DaemonMgr()
 
 DaemonMgr::~DaemonMgr()
 {
-#ifdef _WIN32
-	WSACleanup();
-#endif
+
 }
+
 int	DaemonMgr::Classfication(char cSeparator, char* pData, int nDataSize)
 {
 	switch (cSeparator)

@@ -1,12 +1,22 @@
-#pragma once
+/*
+ * LIVSMED CONFIDENTIAL
+ *
+ * Copyright (c) 2024 LIVSMED, INC.
+ * All Rights Reserved.
+ *
+ * NOTICE: All information contained herein is, and remains the property
+ * of LIVSMED and its suppliers, if any. The intellectual and technical concepts
+ * contained herein are proprietary to LIVSMED and its suppliers and may be
+ * covered by S.Korea and Foreign Patents, patents in process, and are
+ * protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material is
+ * strictly forbidden unless prior written permission is obtained from LIVSMED.
+ *
+ * Created by Eunkyung Ma(ekma@livsmed.com) on 2024/01/05.
+ *
+ */
 
-//#if defined(_MSC_VER) // Microsoft Visual Studio
-//typedef __int64 Int64;
-//typedef unsigned __int64 UInt64;
-//#else                 // if defined(_MSC_VER) // Other platforms, use long long
-//typedef long long int Int64;
-//typedef unsigned long long int UInt64;
-//#endif // if defined(_MSC_VER)
+#pragma once
 
 #include <map>
 #include <cstdio>
@@ -83,15 +93,6 @@ enum {
     SOCKNUM_SERVER_SIZE,
 };
 
-enum {
-    FRAME_TYPE_None,
-    FRAME_TYPE_IFRAME,
-    FRAME_TYPE_PFRAME,
-    FRAME_TYPE_END,
-	FRAME_TYPE_FRAME,       //File to frame
-	FRAME_TYPE_STREAM,      //Stream to frame
-};
-
 static char arrDaemonObject[20][100] = {
     "MTd",            
     "EMd",            
@@ -151,11 +152,7 @@ struct MTdProtocolHeader
 struct Version {
     Version(std::string versionStr)
     {
-#ifdef _WIN32
-        sscanf_s(versionStr.c_str(), "%d.%d.%d.%d", &major, &minor, &revision, &build);
-#else
         sscanf(versionStr.c_str(), "%d.%d.%d.%d", &major, &minor, &revision, &build);
-#endif
     }
     bool operator<(const Version& otherVersion)
     {

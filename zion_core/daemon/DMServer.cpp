@@ -1,18 +1,20 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-//	DMServer.cpp
-//
-//  4dreplay, Inc. PROPRIETARY INFORMATION.
-//  The following contains information proprietary to 4dreplay, Inc. and may not be copied
-//  nor disclosed except upon written agreement by 4dreplay, Inc.
-//
-//  Copyright (C) 2020 4dreplay, Inc. All rights reserved.
-//
-// @author	changdo kim (cdkim@4dreplay.com)
-// @Date	2020-12-23
-//
-////////////////////////////////////////////////////////////////////////////////
-
+/*
+ * LIVSMED CONFIDENTIAL
+ *
+ * Copyright (c) 2024 LIVSMED, INC.
+ * All Rights Reserved.
+ *
+ * NOTICE: All information contained herein is, and remains the property
+ * of LIVSMED and its suppliers, if any. The intellectual and technical concepts
+ * contained herein are proprietary to LIVSMED and its suppliers and may be
+ * covered by S.Korea and Foreign Patents, patents in process, and are
+ * protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material is
+ * strictly forbidden unless prior written permission is obtained from LIVSMED.
+ *
+ * Created by Eunkyung Ma(ekma@livsmed.com) on 2024/01/05.
+ *
+ */
 #include "DMServer.h"
 
 
@@ -152,10 +154,7 @@ void DMServer::RunSocket()
 		threaddata->nSocket = m_ClientSockets;
 
 		m_clientReceiveThread = new std::thread(&DMServer::handle_clnt, this, (void*)threaddata);
-#ifndef _WIN32
-		m_clientReceiveThread->detach();
-		usleep(100);
-#endif
+
 		////InfoL << "Connected client IP : " << inet_ntoa(clnt_adr.sin_addr);
 		//cout<<"Connected client IP: "<< inet_ntoa(clnt_adr.sin_addr);
 	}
@@ -258,11 +257,9 @@ bool DMServer::SendData(std::string strJson)
 	nBufPos++;
 	memcpy(m_pSendBuffer + nBufPos, strJson.c_str(), nSize);
 	m_Sockmutx.lock();
-#ifdef _WIN32
-	int nSend = send(m_ClientSockets, m_pSendBuffer, nSendSize, 0);
-#else
+
 	int nSend = send(m_ClientSockets, m_pSendBuffer, nSendSize, MSG_NOSIGNAL);
-#endif
+
 	m_Sockmutx.unlock();
 	m_SendMutex.unlock();
 	if (nSend != nSendSize)
@@ -283,13 +280,9 @@ int DMServer::RECV(int clnt_sock, char* pRecv, int nSize, int flags)
 		nRecvSize = nSize;
 	while (1)
 	{
-#ifdef _WIN32
-		if ((nReclen = recv(clnt_sock, pRecv, nRecvSize, 0)) == 0)
-			return 0;
-#else
 		if ((nReclen = recv(clnt_sock, pRecv, nRecvSize, MSG_NOSIGNAL)) == 0)
 			return 0;
-#endif
+
 		if (nReclen <= 0)
 			break;
 

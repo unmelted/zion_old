@@ -1,17 +1,20 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-//	DMServer.h
-//
-//  4dreplay, Inc. PROPRIETARY INFORMATION.
-//  The following contains information proprietary to 4dreplay, Inc. and may not be copied
-//  nor disclosed except upon written agreement by 4dreplay, Inc.
-//
-//  Copyright (C) 2020 4dreplay, Inc. All rights reserved.
-//
-// @author	changdo kim (cdkim@4dreplay.com)
-// @Date	2020-12-23
-//
-////////////////////////////////////////////////////////////////////////////////
+/*
+ * LIVSMED CONFIDENTIAL
+ *
+ * Copyright (c) 2024 LIVSMED, INC.
+ * All Rights Reserved.
+ *
+ * NOTICE: All information contained herein is, and remains the property
+ * of LIVSMED and its suppliers, if any. The intellectual and technical concepts
+ * contained herein are proprietary to LIVSMED and its suppliers and may be
+ * covered by S.Korea and Foreign Patents, patents in process, and are
+ * protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material is
+ * strictly forbidden unless prior written permission is obtained from LIVSMED.
+ *
+ * Created by Eunkyung Ma(ekma@livsmed.com) on 2024/01/05.
+ *
+ */
 
 #pragma once
 #include "iostream"
@@ -21,18 +24,6 @@
 #include <mutex>
 #include <thread>
 #include <list>
-#ifdef _WIN32 // Windows Headers
-
-#pragma warning(disable:4996)
-#define HAVE_STRUCT_TIMESPEC
-#pragma comment (lib, "ws2_32.lib") // Winsock ���̺귯�� �ڵ� ��ũ
-#include <winsock2.h>
-
-#define NET_INVALID_SOCKET	INVALID_SOCKET
-#define NET_SOCKET_ERROR SOCKET_ERROR
-typedef int socklen_t; // Unix Ÿ���� unsigned int Windows �� int
-
-#else // Unix Headers
 
 #include <sys/socket.h> // for socket(), bind(), connect()
 #include <arpa/inet.h> // for sockaddr_in, inet_ntoa()
@@ -44,8 +35,6 @@ typedef int socklen_t; // Unix Ÿ���� unsigned int Windows �� int
 typedef int SOCKET;
 #define NET_INVALID_SOCKET	-1
 #define NET_SOCKET_ERROR -1
-
-#endif
 
 struct ClientSockThreadData
 {
