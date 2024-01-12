@@ -79,7 +79,7 @@ public :
 	std::string GetLocalAddress() { return m_strIP; }
 
 private:
-    std::mutex  m_Sockmutx;
+    std::mutex m_Sockmutx;
     std::mutex m_SendMutex;
 
     bool bMainSocketThread;

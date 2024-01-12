@@ -91,7 +91,7 @@ void* DMServer::RunSocketThread(void* arg)
 	DMServer* pSocketMgr = (DMServer*)arg;
 	((DMServer*)pSocketMgr)->RunSocket();
 
-	InfoL << "BeginSocketThread end";
+	//InfoL << "BeginSocketThread end";
 	return 0;
 }
 
@@ -108,12 +108,12 @@ void DMServer::RunSocket()
 
 	if (::bind(m_ServerSockets, (struct sockaddr*)&serv_adr, sizeof(serv_adr)) == -1)
 	{
-		ErrorL << "bind() error";
+		//ErrorL << "bind() error";
 		return;
 	}
 	if (listen(m_ServerSockets, 5) == -1)
 	{
-		ErrorL << "listen() error";
+		//ErrorL << "listen() error";
 		return;
 	}
 	int nClientSocket = 0;
@@ -130,7 +130,7 @@ void DMServer::RunSocket()
 		{
 			m_Sockmutx.unlock();
 			std::string strAcceptIP = inet_ntoa(clnt_adr.sin_addr);
-			WarnL << "Already Connected MTd IP : " << m_strClientIP << ", Connection Request IP : " << strAcceptIP;
+			//WarnL << "Already Connected MTd IP : " << m_strClientIP << ", Connection Request IP : " << strAcceptIP;
 			CloseSocket(nClientSocket);
 			continue;
 		}
@@ -138,13 +138,13 @@ void DMServer::RunSocket()
 		m_Sockmutx.unlock();
 
 		m_strClientIP = inet_ntoa(clnt_adr.sin_addr);
-		InfoL << "Connected IP : " << m_strClientIP;
+		//InfoL << "Connected IP : " << m_strClientIP;
 
 		m_strIP = GetLocalCompare(m_strClientIP);
-		InfoL << "Local IP Address : " << m_strIP;
+		//InfoL << "Local IP Address : " << m_strIP;
 
 		//clnt_socks[clnt_sock] = clnt_sock;
-		InfoL << "accept socket " << m_ClientSockets;
+		//InfoL << "accept socket " << m_ClientSockets;
 
 		ClientSockThreadData* threaddata = new ClientSockThreadData;
 		threaddata->pthis = this;
@@ -156,10 +156,10 @@ void DMServer::RunSocket()
 		m_clientReceiveThread->detach();
 		usleep(100);
 #endif
-		//InfoL << "Connected client IP : " << inet_ntoa(clnt_adr.sin_addr);
+		////InfoL << "Connected client IP : " << inet_ntoa(clnt_adr.sin_addr);
 		//cout<<"Connected client IP: "<< inet_ntoa(clnt_adr.sin_addr);
 	}
-	InfoL << "Close ServerSocket !!!!!!!!!!!!!!!!!!!!!!!! :" << inet_ntoa(clnt_adr.sin_addr);
+	//InfoL << "Close ServerSocket !!!!!!!!!!!!!!!!!!!!!!!! :" << inet_ntoa(clnt_adr.sin_addr);
 }
 
 void* DMServer::handle_clnt(void* arg)
@@ -186,7 +186,7 @@ void* DMServer::handle_clnt(void* arg)
 		nPacketSize = mtdProtoHeader.nSize;
 		if (nPacketSize < 1 || nPacketSize > 5000000 || mtdProtoHeader.cSeparator >= PACKETTYPE_SIZE)
 		{
-			ErrorL << "Invaild Header Packet!!!, Size : " << nPacketSize << ", Separator : " << mtdProtoHeader.cSeparator;
+			//ErrorL << "Invaild Header Packet!!!, Size : " << nPacketSize << ", Separator : " << mtdProtoHeader.cSeparator;
 			continue;
 		}
 
@@ -232,7 +232,7 @@ void* DMServer::handle_clnt(void* arg)
 	pSocketMgr->m_Sockmutx.unlock();
 	pSocketMgr->CloseSocket(clnt_sock);
 
-	InfoL << "Close Socket IP : " << clnt_IP << ", Type : " << arrDaemonObject[pSocketMgr->m_nSockType] << ", SockNum : " << clnt_sock;
+	//InfoL << "Close Socket IP : " << clnt_IP << ", Type : " << arrDaemonObject[pSocketMgr->m_nSockType] << ", SockNum : " << clnt_sock;
 	return NULL;
 }
 
@@ -267,7 +267,7 @@ bool DMServer::SendData(std::string strJson)
 	m_SendMutex.unlock();
 	if (nSend != nSendSize)
 	{
-		ErrorL << "[ERROR]Send Fail MTD";
+		//ErrorL << "[ERROR]Send Fail MTD";
 		return false;
 	}
 

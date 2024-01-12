@@ -1,6 +1,6 @@
 #include "DaemonParser.h"
 #include "define.h"
-#include "ErrorList.h"
+#include "//ErrorList.h"
 #include <rapidjson/prettywriter.h>
 #include <set>
 #include <future>
@@ -50,7 +50,7 @@ void DaemonParser::ParseThread(void* param, std::string strMessage)
 	if (pMain->IsThreadStop())
 		return;
 
-	InfoL << "Recv : " << strMessage;
+	//InfoL << "Recv : " << strMessage;
 	Document document;
 	document.Parse(strMessage.c_str());
 
@@ -84,7 +84,7 @@ void DaemonParser::ParseThread(void* param, std::string strMessage)
 		std::string strSendString = GetDocumentToString(sendDocument);
 		if (pMain->GetDMServer()->SendData(strSendString.c_str()))
 		{
-			ErrorL << strSendString;
+			//ErrorL << strSendString;
 		}
 		return;
 	}

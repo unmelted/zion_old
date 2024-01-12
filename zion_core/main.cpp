@@ -1,18 +1,18 @@
 ﻿#include <cstdio>
 #include "DaemonMgr.h"
 #include <string.h>
-#include "Util/logger.h"
+//#include "Util/logger.h"
 using namespace toolkit;
 
 //deamon mode
 int main()
 {
-    Logger::Instance().add(std::make_shared<ConsoleChannel>());
-    Logger::Instance().add(std::make_shared<FileChannel>());
-    Logger::Instance().setWriter(std::make_shared<AsyncLogWriter>());
+//    Logger::Instance().add(std::make_shared<ConsoleChannel>());
+//    Logger::Instance().add(std::make_shared<FileChannel>());
+//    Logger::Instance().setWriter(std::make_shared<AsyncLogWriter>());
 
-    InfoL << "Version : " << CURRENTVERSION;
-    InfoL << "v : Version check";
+    //InfoL << "Version : " << CURRENTVERSION;
+    //InfoL << "v : Version check";
 
     DaemonMgr daemonMgr;
     char pStr[100];

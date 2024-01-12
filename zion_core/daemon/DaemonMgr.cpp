@@ -10,7 +10,7 @@ DaemonMgr::DaemonMgr()
 	version = MAKEWORD(2, 2);
 	if (WSAStartup(version, &wsaData) < 0)  //���� �ʱ�ȭ
 	{
-		ErrorL << "WSAStartup Init Error";
+		//ErrorL << "WSAStartup Init Error";
 		WSACleanup();
 		exit(0);
 	}
@@ -38,7 +38,7 @@ int	DaemonMgr::Classfication(char cSeparator, char* pData, int nDataSize)
 		break;
 
 	default:
-		ErrorL << "Invalid Message Separator : " << int(cSeparator) << "\n" << pData;
+		//ErrorL << "Invalid Message Separator : " << int(cSeparator) << "\n" << pData;
 		break;
 	}
 
@@ -58,8 +58,8 @@ int DaemonMgr::RecJson(std::string strMessage)
 	}
 	if (bSuc)
 	{
-		ErrorL << "Json Parsing Fail";
-		ErrorL << strMessage;
+		//ErrorL << "Json Parsing Fail";
+		//ErrorL << strMessage;
 		return 0;
 	}
 
