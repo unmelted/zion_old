@@ -12,7 +12,7 @@
  * Dissemination of this information or reproduction of this material is
  * strictly forbidden unless prior written permission is obtained from LIVSMED.
  *
- * Created by Eunkyung Ma(ekma@livsmed.com) on 2024/01/05.
+ * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
  *
  */
 
@@ -115,13 +115,13 @@ int TaskManager::CommandTask(int mode, std::string arg)
         CMd_DEBUG("CMd Job Queue is fool. working worker + job = : {}", cur_worker);
     cur_worker++;
 
-    if (mode == CMD::POST_STABILIZATION)
+    if (mode == ic::COMMAND_START)
     {
         // ExpUtil in;
         // shared_ptr<VIDEO_INFO> info = make_shared<VIDEO_INFO>();
         // int result = in.ImportVideoInfo(arg, info.get());
         // CMd_INFO(" swipe period size {} ", info->swipe_period.size());
-        // if (result == CMD::ERR_NONE)
+        // if (result == ic::ERR_NONE)
         //     EnqueueJob(&m_future, &TaskManager::RunStabilize, this, info);
         // else
         // {
@@ -129,15 +129,15 @@ int TaskManager::CommandTask(int mode, std::string arg)
         //     m_qTMSG.Dequeue();
         // }
     }
-    else if (mode == CMD::UPDATE_CONFIGURE)
+    else if (mode == ic::COMMAND_STOP)
     {
     }
-    else if (mode == CMD::SEND_VERSION)
+    else if (mode == ic::COMMAND_VERSION)
     {
         SendVersionMessage(arg);
     }
 
-    return CMD::ERR_NONE;
+    return COMMON_ERR_NONE;
 }
 
 void TaskManager::WatchFuture()
@@ -154,7 +154,7 @@ void TaskManager::WatchFuture()
     }
 }
 
-void TaskManager::OnRcvTask(std::shared_ptr<CMD::MSG_T> ptrMsg)
+void TaskManager::OnRcvTask(std::shared_ptr<ic::MSG_T> ptrMsg)
 {
     m_qTMSG.Enqueue(ptrMsg);
 }
@@ -170,10 +170,10 @@ std::string TaskManager::GetDocumentToString(Document &document)
     return ownShipRadarString;
 }
 
-void TaskManager::MakeSendMsg(std::shared_ptr<CMD::MSG_T> ptrMsg, int result)
+void TaskManager::MakeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
 {
 
-    if (result < CMD::ERR_NONE)
+    if (result < COMMON_ERR_NONE)
     {
         CMd_WARN(" Captured future return is ERR {} ", result);
         return;
@@ -182,7 +182,7 @@ void TaskManager::MakeSendMsg(std::shared_ptr<CMD::MSG_T> ptrMsg, int result)
     Document sndDoc(kObjectType);
     Document::AllocatorType &allocator = sndDoc.GetAllocator();
 
-    if (result == CMD::STABIL_COMPLETE)
+    if (result == COMMON_ERR_TEMPORARY)
     {
         nlohmann::json j = nlohmann::json::parse(ptrMsg->txt);
         std::string outfile = j["output"];

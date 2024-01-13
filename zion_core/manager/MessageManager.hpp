@@ -12,13 +12,12 @@
  * Dissemination of this information or reproduction of this material is
  * strictly forbidden unless prior written permission is obtained from LIVSMED.
  *
- * Created by Eunkyung Ma(ekma@livsmed.com) on 2024/01/05.
+ * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
  *
  */
 
 
 #pragma once 
-#include "CMDefine.hpp"
 #include "TaskManager.hpp"
 
 class MsgManager {
@@ -38,12 +37,12 @@ private :
 	std::thread* m_pRMSGThread{ nullptr };
     bool b_SMSGThread;
 	std::thread* m_pSMSGThread{ nullptr };
-	MessageQueue<std::shared_ptr<CMD::MSG_T>> m_qRMSG;
+	MessageQueue<std::shared_ptr<ic::MSG_T>> m_qRMSG;
 	MessageQueue<std::shared_ptr<std::string>> m_qSMSG;    
 	CMdLogger _logger;	
 
 	TaskPool::TaskManager m_taskmanager;
     void* RcvMSGThread(void* arg);
     void* SndMSGThread(void* arg);
-    void SendVersionMessage(std::shared_ptr<CMD::MSG_T> ptrMsg);
+    void SendVersionMessage(std::shared_ptr<ic::MSG_T> ptrMsg);
 };

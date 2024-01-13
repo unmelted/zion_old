@@ -1,4 +1,4 @@
-#Created by Eunkyung Ma(ekma@livsmed.com) on 2024/01/05.
+#Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
 
 cmake_minimum_required(VERSION 3.12)
 project(zion)

@@ -12,7 +12,7 @@
  * Dissemination of this information or reproduction of this material is
  * strictly forbidden unless prior written permission is obtained from LIVSMED.
  *
- * Created by Eunkyung Ma(ekma@livsmed.com) on 2024/01/05.
+ * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
  *
  */
 
@@ -22,7 +22,7 @@
 #include <rapidjson/prettywriter.h>
 #include <set>
 #include <future>
-#include "Configurator.hpp"
+#include "ics_util.hpp"
 #include "CMdLogger.hpp"
 
 //#define PRINT_HTTP_REQ
@@ -73,7 +73,7 @@ void DaemonParser::ParseThread(void* param, std::string strMessage)
 	document.Parse(strMessage.c_str());
 
 	string strError;
-	MTdProtocol mtdProtocol;
+	ic::MTdProtocol mtdProtocol;
 	int nResultCode = GetBasicReturnJson(document, mtdProtocol);
 	Document sendDocument(kObjectType);
 	Document::AllocatorType& allocator = sendDocument.GetAllocator();
@@ -157,7 +157,7 @@ std::string DaemonParser::GetDocumentToString(Document& document)
 	return ownShipRadarString;
 }
 
-int DaemonParser::GetBasicReturnJson(Document& document, MTdProtocol& mtdProtocol)
+int DaemonParser::GetBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol)
 {
 	if (document.HasMember(MTDPROTOCOL_SECTION1) == true)
 		mtdProtocol.Section1 = document[MTDPROTOCOL_SECTION1].GetString();

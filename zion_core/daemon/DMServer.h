@@ -12,7 +12,7 @@
  * Dissemination of this information or reproduction of this material is
  * strictly forbidden unless prior written permission is obtained from LIVSMED.
  *
- * Created by Eunkyung Ma(ekma@livsmed.com) on 2024/01/05.
+ * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
  *
  */
 
@@ -86,7 +86,7 @@ private:
     void RunSocket();
 
     void* RunSocketThread(void* arg);
-    void* handle_clnt(void* arg);
+    void* handle_client(void* arg);
     int RECV(int clnt_sock, char* pRecv, int nSize, int flags);
 
     std::string m_strIP;

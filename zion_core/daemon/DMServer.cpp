@@ -12,7 +12,7 @@
  * Dissemination of this information or reproduction of this material is
  * strictly forbidden unless prior written permission is obtained from LIVSMED.
  *
- * Created by Eunkyung Ma(ekma@livsmed.com) on 2024/01/05.
+ * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
  *
  */
 #include "DMServer.h"
@@ -153,15 +153,15 @@ void DMServer::RunSocket()
 		threaddata->strClientIP = m_strClientIP;
 		threaddata->nSocket = m_ClientSockets;
 
-		m_clientReceiveThread = new std::thread(&DMServer::handle_clnt, this, (void*)threaddata);
+		m_clientReceiveThread = new std::thread(&DMServer::handle_client, this, (void*)threaddata);
 
 		////InfoL << "Connected client IP : " << inet_ntoa(clnt_adr.sin_addr);
-		//cout<<"Connected client IP: "<< inet_ntoa(clnt_adr.sin_addr);
+		cout<<"Connected client IP: "<< inet_ntoa(clnt_adr.sin_addr);
 	}
 	//InfoL << "Close ServerSocket !!!!!!!!!!!!!!!!!!!!!!!! :" << inet_ntoa(clnt_adr.sin_addr);
 }
 
-void* DMServer::handle_clnt(void* arg)
+void* DMServer::handle_client(void* arg)
 {
 	ClientSockThreadData* threadData = (ClientSockThreadData*)arg;
 	int clnt_sock = threadData->nSocket;
@@ -175,13 +175,18 @@ void* DMServer::handle_clnt(void* arg)
 		int nPacketSize = 0;
 		MTdProtocolHeader mtdProtoHeader;
 		bool nRecvOK = true;
+
 		if ((str_len = pSocketMgr->RECV(clnt_sock, (char*)&mtdProtoHeader, sizeof(mtdProtoHeader), 0)) == 0)
 		{
 			nRecvOK = false;
 			break;
 		}
+        cout << " check 1 " <<endl;
+        cout << "handle_client : " << (char*)&mtdProtoHeader << " : size : " << mtdProtoHeader.nSize << endl;
 		if (str_len < sizeof(MTdProtocolHeader))
 			continue;
+        cout << " check 2 " <<endl;
+
 		nPacketSize = mtdProtoHeader.nSize;
 		if (nPacketSize < 1 || nPacketSize > 5000000 || mtdProtoHeader.cSeparator >= PACKETTYPE_SIZE)
 		{
@@ -200,10 +205,16 @@ void* DMServer::handle_clnt(void* arg)
 				break;
 			}
 		}
+        
+        cout << " check 3 " <<endl;
+        cout <<" pdata .. : " << pData << endl;
 
 		if (pSocketMgr->m_onClassfication != 0)
 		{
+            cout << " check 3 " <<endl;
 			int nErrorCode = pSocketMgr->m_onClassfication(mtdProtoHeader.cSeparator, pData, nPacketSize);
+            cout << " check 5 " << nErrorCode <<endl;
+
 			//if (nErrorCode != MTD_PROTOCOL_OK)
 			//{
 			//	std::string strMessage = GetErrorMessage(nErrorCode);
@@ -288,7 +299,7 @@ int DMServer::RECV(int clnt_sock, char* pRecv, int nSize, int flags)
 
 		pRecv += nReclen;
 		nTotalRecvSize += nReclen;
-		nRemainSize -= nReclen;
+        nRemainSize -= nReclen;
 		if (nRemainSize <= 0)
 			break;
 

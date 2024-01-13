@@ -12,7 +12,7 @@
  * Dissemination of this information or reproduction of this material is
  * strictly forbidden unless prior written permission is obtained from LIVSMED.
  *
- * Created by Eunkyung Ma(ekma@livsmed.com) on 2024/01/05.
+ * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
  *
  */
 
@@ -42,7 +42,7 @@ private:
 	DaemonParser m_parser;
 	MsgManager m_manger;
 
-	void GetBasicReturnJson(Document& document, MTdProtocol& mtdProtocol);
+	void GetBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol);
 	int	Classfication(char cSeparator, char* pData, int nDataSize);
 	int RecJson(std::string strMessage);
 };

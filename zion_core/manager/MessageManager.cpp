@@ -12,7 +12,7 @@
  * Dissemination of this information or reproduction of this material is
  * strictly forbidden unless prior written permission is obtained from LIVSMED.
  *
- * Created by Eunkyung Ma(ekma@livsmed.com) on 2024/01/05.
+ * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
  *
  */
 #include "MessageManager.hpp"
@@ -62,7 +62,7 @@ MsgManager::~MsgManager()
 void *MsgManager::RcvMSGThread(void *arg)
 {
 
-	std::shared_ptr<CMD::MSG_T> msg = nullptr;
+	std::shared_ptr<ic::MSG_T> msg = nullptr;
 	while (b_RMSGThread)
 	{
 		if (m_qRMSG.IsQueue())
@@ -81,7 +81,7 @@ void *MsgManager::RcvMSGThread(void *arg)
 				string section3 = j["Section3"];
 				string action = j["Action"];
 				// if (action == "Stabilization" || section3 == "Stabilize") {
-				// 	m_taskmanager.CommandTask(CMD::POST_STABILIZATION, msg->txt);
+				// 	m_taskmanager.CommandTask(ic::POST_STABILIZATION, msg->txt);
 				// }
 			}
 		}
@@ -94,8 +94,8 @@ void *MsgManager::RcvMSGThread(void *arg)
 void MsgManager::OnRcvMessage(std::string pData)
 {
 
-	std::shared_ptr<CMD::MSG_T> ptrMsg = std::shared_ptr<CMD::MSG_T>(new CMD::MSG_T);
-	ptrMsg->type = CMD::PACKET_TYPE::TEXT;
+	std::shared_ptr<ic::MSG_T> ptrMsg = std::shared_ptr<ic::MSG_T>(new ic::MSG_T);
+	ptrMsg->type = ic::PACKET_TYPE::TEXT;
 	ptrMsg->txt = pData;
 	m_qRMSG.Enqueue(ptrMsg);
 }

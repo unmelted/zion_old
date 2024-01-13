@@ -12,7 +12,7 @@
  * Dissemination of this information or reproduction of this material is
  * strictly forbidden unless prior written permission is obtained from LIVSMED.
  *
- * Created by Eunkyung Ma(ekma@livsmed.com) on 2024/01/05.
+ * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
  *
  */
 
@@ -82,7 +82,7 @@ int DaemonMgr::RecJson(std::string strMessage)
 	return 1;
 }
 
-void DaemonMgr::GetBasicReturnJson(Document& document, MTdProtocol& mtdProtocol)
+void DaemonMgr::GetBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol)
 {
 	std::string strTp;
 	if (document.HasMember("Section1") == true)
