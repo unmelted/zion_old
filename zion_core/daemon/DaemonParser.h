@@ -23,7 +23,7 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 #include "Util/logger.h"
-#include "define.h"
+#include "ics_define.h"
 #include "DMServer.h"
 #include "curl/curl.h"
 

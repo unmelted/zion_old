@@ -18,7 +18,7 @@
 
 
 #pragma once 
-#include "TaskManager.hpp"
+#include "task_manager.hpp"
 
 class MsgManager {
 
@@ -41,7 +41,7 @@ private :
 	MessageQueue<std::shared_ptr<std::string>> m_qSMSG;    
 	CMdLogger _logger;	
 
-	TaskPool::TaskManager m_taskmanager;
+    TaskManager m_taskmanager;
     void* RcvMSGThread(void* arg);
     void* SndMSGThread(void* arg);
     void SendVersionMessage(std::shared_ptr<ic::MSG_T> ptrMsg);

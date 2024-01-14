@@ -173,7 +173,7 @@ void* DMServer::handle_client(void* arg)
 	{
 		int str_len = 0;
 		int nPacketSize = 0;
-		MTdProtocolHeader mtdProtoHeader;
+		ic::MTdProtocolHeader mtdProtoHeader;
 		bool nRecvOK = true;
 
 		if ((str_len = pSocketMgr->RECV(clnt_sock, (char*)&mtdProtoHeader, sizeof(mtdProtoHeader), 0)) == 0)
@@ -183,12 +183,12 @@ void* DMServer::handle_client(void* arg)
 		}
         cout << " check 1 " <<endl;
         cout << "handle_client : " << (char*)&mtdProtoHeader << " : size : " << mtdProtoHeader.nSize << endl;
-		if (str_len < sizeof(MTdProtocolHeader))
+		if (str_len < sizeof(ic::MTdProtocolHeader))
 			continue;
         cout << " check 2 " <<endl;
 
 		nPacketSize = mtdProtoHeader.nSize;
-		if (nPacketSize < 1 || nPacketSize > 5000000 || mtdProtoHeader.cSeparator >= PACKETTYPE_SIZE)
+		if (nPacketSize < 1 || nPacketSize > 5000000 || mtdProtoHeader.cSeparator >= ic::PACKETTYPE_SIZE)
 		{
 			//ErrorL << "Invaild Header Packet!!!, Size : " << nPacketSize << ", Separator : " << mtdProtoHeader.cSeparator;
 			continue;
@@ -249,7 +249,7 @@ void* DMServer::handle_client(void* arg)
 bool DMServer::SendData(std::string strJson)
 {
 	int nSize = (int)strlen(strJson.c_str());
-	char cType = PACKETTYPE_JSON;
+	char cType = ic::PACKETTYPE_JSON;
 	m_SendMutex.lock();
 
 	int nSendSize = sizeof(int) + 1 + nSize;

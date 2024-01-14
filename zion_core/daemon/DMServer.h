@@ -20,17 +20,16 @@
 #include "iostream"
 #include <functional>
 #include <cstring>
-#include "define.h"
 #include <mutex>
 #include <thread>
 #include <list>
-
 #include <sys/socket.h> // for socket(), bind(), connect()
 #include <arpa/inet.h> // for sockaddr_in, inet_ntoa()
 #include <unistd.h> // for close()
 #include <stdlib.h> // for exit()
 # include <sys/ioctl.h>
 # include <net/if.h>
+#include "ics_define.h"
 
 typedef int SOCKET;
 #define NET_INVALID_SOCKET	-1

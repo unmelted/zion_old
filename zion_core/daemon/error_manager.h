@@ -17,8 +17,8 @@
  */
 
 
-#ifndef __ERROR_LIST_H__
-#define __ERROR_LIST_H__
+#ifndef __ERROR_MANAGER_H__
+#define __ERROR_MANAGER_H__
 
 #include <string>
 
@@ -86,4 +86,4 @@ enum ErrorMTd {
 
 std::string GetErrorCodeToString(const int nErrorCode);
 
-#endif // __ERROR_LIST_H__
+#endif // __ERROR_MANAGER_H__

@@ -17,8 +17,7 @@
  */
 
 #include "DaemonParser.h"
-#include "define.h"
-#include "//ErrorList.h"
+#include "error_manager.h"
 #include <rapidjson/prettywriter.h>
 #include <set>
 #include <future>

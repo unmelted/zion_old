@@ -16,7 +16,7 @@
  *
  */
 
-#include "ErrorList.h"
+#include "error_manager.h"
 
 void GetCommonErrorString(const int nErrorCode, std::string& strError)
 {

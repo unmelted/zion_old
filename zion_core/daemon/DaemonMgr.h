@@ -19,10 +19,10 @@
 #pragma once
 
 #include "DMServer.h"
-#include "define.h"
+#include "ics_define.h"
 #include <functional>
 #include "DaemonParser.h"
-#include "MessageManager.hpp"
+#include "message_manager.hpp"
 
 #define RAPIDJSON_HAS_STDSTRING 1
 #include <rapidjson/document.h>

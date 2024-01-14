@@ -23,6 +23,34 @@
 #include <string>
 #include <time.h>
 #include <cstring>
+#include <chrono>
+#include <condition_variable>
+#include <functional>
+#include <future>
+#include <mutex>
+#include <queue>
+#include <thread>
+#include <vector>
+#include <algorithm>
+#include <iostream>
+#include <deque>
+#include <set>
+#include <cstdint>
+#include <map>
+
+
+#define RAPIDJSON_HAS_STDSTRING 1
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/prettywriter.h>
+#include "DMServer.h"
+#include "CMdLogger.hpp"
+#include "json.hpp"
+#include "message_queue.h"
+#include "ics_util.hpp"
+
+#include "error_manager.h"
 
 
 #define MESSAGELTRANSFER_DAEMON_PORT        0x4D01
@@ -50,9 +78,72 @@
 #define LOGVIEWER_PORT                      0x4D26
 
 #define VP_BUFFER_MAXSIZE	10
+#define TASKPOOL_SIZE 3
+#define CURRENTVERSION "0.0.1.T"
+
+
+using namespace std;
+
+namespace ic
+{
+enum
+{
+    COMMAND_NONE = 0,
+    COMMAND_VERSION,
+    COMMAND_START,
+    COMMAND_STOP,
+    COMMAND_RESTART,
+    COMMAND_STATUS,
+};
+
+struct MTdProtocol
+{
+    std::string Section1;
+    std::string Section2;
+    std::string Section3;
+    std::string SendState;
+    std::string From;
+    std::string To;
+    std::string action;
+    std::string Token;
+};
+
+
+typedef struct PACKET_TYPE
+{
+    static const int TEXT = 0;
+    static const int BINARY = 1;
+} PACKET_TYPE;
+
+
+typedef struct _MSG_T
+{
+    int32_t type;
+    std::string txt;
+    char* bin;
+    int32_t bin_size;
+
+    _MSG_T(void)
+            : type(PACKET_TYPE::TEXT)
+            , txt{}
+            , bin(nullptr)
+            , bin_size(0)
+    {
+    }
+
+    ~_MSG_T(void)
+    {
+        if (bin && bin_size > 0)
+            free(bin);
+        bin = nullptr;
+        bin_size = 0;
+    }
+} MSG_T;
+
 
 // Packet Separator Type
-enum {
+enum
+{
     PACKETTYPE_JSON,
     PACKETTYPE_BINALY,
     PACKETTYPE_ABAILABLE_INQUIRY_VP = 20,
@@ -64,7 +155,8 @@ enum {
 };
 
 //Client Port
-enum {
+enum
+{
     MESSAGELTRANSFER_DAEMON,
     ENTERPRISE_MONITOR_DAEMON,
     SWITCH_CONTROL_DAEMON,
@@ -82,42 +174,28 @@ enum {
 };
 
 // Server Port
-enum {
+enum
+{
     SOCKNUM_CONTROLLER_APP,
     SOCKNUM_PRODUCING_APP,
     SOCKNUM_VAR_APP,
     SOCKNUM_EMS_APP,
     SOCKNUM_DAEMONVIEWER_APP,
     SOCKNUM_BUFFERVIWER_APP,
-	SOCKNUM_LOGVIEWER_APP,
+    SOCKNUM_LOGVIEWER_APP,
     SOCKNUM_SERVER_SIZE,
 };
 
-static char arrDaemonObject[20][100] = {
-    "MTd",            
-    "EMd",            
-    "SCd",            
-    "CCd",            
-    "GCd",
-    "SPd",
-    "PCd",            
-    "PreSd",
-    "PostSd",
-    "VPd",
-    "VPd",
-    "VPd",
-    "CMd"
-};
+static char arrDaemonObject[20][100] = {"MTd", "EMd", "SCd", "CCd", "GCd", "SPd", "PCd", "PreSd", "PostSd", "VPd", "VPd", "VPd", "CMd"};
 
 
-static char arrModelObject[11][100] = {
-    "4DDM",                     // Controller Daemon
-    "4DPD",                     // Producing Daemon
-    "VARApp",                   // VAR Daemon
-    "EMSApp",                   // EMS Daemon
-    "DaemonViewer",             // DaemonViwer
-    "4DBUFFER",             // DaemonBufferViewer
-	"4DLOG",                    // LogViewer
+static char arrModelObject[11][100] = {"4DDM",                     // Controller Daemon
+                                       "4DPD",                     // Producing Daemon
+                                       "VARApp",                   // VAR Daemon
+                                       "EMSApp",                   // EMS Daemon
+                                       "DaemonViewer",             // DaemonViwer
+                                       "4DBUFFER",             // DaemonBufferViewer
+                                       "4DLOG",                    // LogViewer
 };
 
 #define MTDPROTOCOL_SECTION1    "Section1"
@@ -140,20 +218,22 @@ static char arrModelObject[11][100] = {
 #define MTDHEADERSIZE           5
 //#define MTDPROTOCOL                           "YJS"
 
-#pragma pack(push, 1)  
+#pragma pack(push, 1)
 struct MTdProtocolHeader
 {
     int nSize;
     char cSeparator;
 };
 
-#pragma pack(pop)  
+#pragma pack(pop)
 
-struct Version {
+class Version
+{
     Version(std::string versionStr)
     {
         sscanf(versionStr.c_str(), "%d.%d.%d.%d", &major, &minor, &revision, &build);
     }
+
     bool operator<(const Version& otherVersion)
     {
         if (major < otherVersion.major)
@@ -166,12 +246,13 @@ struct Version {
             return true;
         return false;
     }
-    bool operator == (const Version& other)
+
+    bool operator==(const Version& other)
     {
-        return major == other.major
-            && minor == other.minor
-            && revision == other.revision
-            && build == other.build;
+        return major == other.major && minor == other.minor && revision == other.revision && build == other.build;
     }
+
     int major, minor, revision, build;
 };
+
+}

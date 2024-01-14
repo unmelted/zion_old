@@ -60,7 +60,7 @@ public:
         mCondition.notify_one();
     }
 
-    T Dequeue(void) 
+    T Dequeue()
     {
         std::unique_lock<std::mutex> lock(mMutex);
         while ((mIsLoop) && (mQueue.empty())) 

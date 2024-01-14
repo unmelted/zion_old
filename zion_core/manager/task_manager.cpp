@@ -16,10 +16,9 @@
  *
  */
 
-#include "TaskManager.hpp"
-#include "MessageManager.hpp"
+#include "task_manager.hpp"
+#include "message_manager.hpp"
 
-using namespace TaskPool;
 using namespace rapidjson;
 
 TaskManager::TaskManager(size_t num_worker_, MsgManager *a)
