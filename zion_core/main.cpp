@@ -1,5 +1,5 @@
 ﻿#include <cstdio>
-#include "DaemonMgr.h"
+#include "server_manager.h"
 #include <string.h>
 //#include "Util/logger.h"
 using namespace toolkit;

@@ -16,13 +16,13 @@
  *
  */
 
-#include "DaemonParser.h"
+#include "message_parser.h"
 #include "error_manager.h"
-#include <rapidjson/prettywriter.h>
+#include "_3rdparty_/rapidjson/include/rapidjson/prettywriter.h"
 #include <set>
 #include <future>
 #include "ics_util.hpp"
-#include "CMdLogger.hpp"
+#include "logger.hpp"
 
 //#define PRINT_HTTP_REQ
 //#define PRINT_HTTP_RES

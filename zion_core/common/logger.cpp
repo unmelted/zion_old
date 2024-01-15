@@ -20,7 +20,7 @@
 #include <sstream>
 #include <iomanip>
 #include <string>
-#include "CMdLogger.hpp"
+#include "logger.hpp"
 #include "ics_util.hpp"
 #include "json.hpp"
 using json = nlohmann::json;

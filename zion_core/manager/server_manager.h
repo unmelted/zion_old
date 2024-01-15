@@ -18,17 +18,17 @@
 
 #pragma once
 
-#include "DMServer.h"
+#include "server.h"
 #include "ics_define.h"
 #include <functional>
-#include "DaemonParser.h"
+#include "message_parser.h"
 #include "message_manager.hpp"
 
 #define RAPIDJSON_HAS_STDSTRING 1
-#include <rapidjson/document.h>
-#include <rapidjson/writer.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/prettywriter.h>
+#include "_3rdparty_/rapidjson/include/rapidjson/document.h"
+#include "_3rdparty_/rapidjson/include/rapidjson/writer.h"
+#include "_3rdparty_/rapidjson/include/rapidjson/stringbuffer.h"
+#include "_3rdparty_/rapidjson/include/rapidjson/prettywriter.h"
 using namespace rapidjson; 
 
 class DaemonMgr

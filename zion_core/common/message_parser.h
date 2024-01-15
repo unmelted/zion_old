@@ -19,12 +19,12 @@
 #pragma once
 
 #define RAPIDJSON_HAS_STDSTRING 1
-#include <rapidjson/document.h>
-#include <rapidjson/writer.h>
-#include <rapidjson/stringbuffer.h>
+#include "_3rdparty_/rapidjson/include/rapidjson/document.h"
+#include "_3rdparty_/rapidjson/include/rapidjson/writer.h"
+#include "_3rdparty_/rapidjson/include/rapidjson/stringbuffer.h"
 #include "Util/logger.h"
 #include "ics_define.h"
-#include "DMServer.h"
+#include "server.h"
 #include "curl/curl.h"
 
 using namespace rapidjson;

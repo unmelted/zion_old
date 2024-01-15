@@ -15,7 +15,7 @@
  * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
  *
  */
-#include "DMServer.h"
+#include "server.h"
 
 
 DMServer::DMServer()
@@ -57,12 +57,8 @@ DMServer::~DMServer()
 
 void DMServer::CloseSocket(int nSock)
 {
-#ifdef WIN32
-	closesocket(nSock);
-#else
 	//close(nSock);
 	shutdown(nSock, SHUT_RDWR);
-#endif
 }
 
 bool DMServer::IsConnected()

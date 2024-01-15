@@ -16,7 +16,7 @@
  *
  */
 
-#include "DaemonMgr.h"
+#include "server_manager.h"
 #include <string.h>
 
 

@@ -22,7 +22,7 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
-#include "CMdLogger.hpp"
+#include "logger.hpp"
 
 class Configurator {
 

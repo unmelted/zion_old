@@ -13,7 +13,6 @@ add_definitions(-D_DEBUG)
 set(PRJ_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 file(GLOB PRJ_SRC
     common/*.cpp
-    daemon/*.cpp
     manager/*.cpp
     main.cpp
 )

@@ -40,12 +40,12 @@
 
 
 #define RAPIDJSON_HAS_STDSTRING 1
-#include <rapidjson/document.h>
-#include <rapidjson/writer.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/prettywriter.h>
-#include "DMServer.h"
-#include "CMdLogger.hpp"
+#include "_3rdparty_/rapidjson/include/rapidjson/document.h"
+#include "_3rdparty_/rapidjson/include/rapidjson/writer.h"
+#include "_3rdparty_/rapidjson/include/rapidjson/stringbuffer.h"
+#include "_3rdparty_/rapidjson/include/rapidjson/prettywriter.h"
+#include "server.h"
+#include "logger.hpp"
 #include "json.hpp"
 #include "message_queue.h"
 #include "ics_util.hpp"
