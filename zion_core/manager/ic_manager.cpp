@@ -22,10 +22,10 @@
 
 ICManager::ICManager()
 {
-	msg_parser.setDMServer(&icServer);
+	msg_parser.setICServer(&icServer);
 	icServer.beginSocket(CM_CONTROL_DAEMON_PORT, 0);
 	icServer.setHandler(std::bind(&ICManager::classfication, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
-	msg_manager.setDMServer(&icServer);
+	msg_manager.setICServer(&icServer);
 
 	Configurator::get().setDirectory();
 }

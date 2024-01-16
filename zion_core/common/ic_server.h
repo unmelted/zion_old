@@ -23,6 +23,7 @@
 #include <mutex>
 #include <thread>
 #include <list>
+#include <unordered_map>
 #include <sys/socket.h> // for socket(), bind(), connect()
 #include <arpa/inet.h> // for sockaddr_in, inet_ntoa()
 #include <unistd.h> // for close()
@@ -34,6 +35,12 @@
 typedef int SOCKET;
 #define NET_INVALID_SOCKET	-1
 #define NET_SOCKET_ERROR -1
+
+struct ClientInfo
+{
+    std::string clientIp;
+    int clientSocket;
+};
 
 struct ClientSockThreadData
 {
@@ -50,9 +57,8 @@ public :
     ~ICServer();
 
     bool beginSocket(int nPort, int nType);
-    //void sendData(char* pData, int nSize);
-    bool sendData(std::string strJson);
-
+    bool sendData(const std::string& clientName, std::string strJson);
+    void addClient(const std::string& clientName, const std::string& clientIp, int clientSocket);
     bool isConnected();
 
     typedef std::function<int(char cSeparator, char* pData, int nDataSize)> callback;
@@ -64,7 +70,7 @@ public :
 
 	std::list<std::string> getIPList();
 	std::string getLocalCompare(std::string strIP);
-	std::string getLocalAddress() { return m_strIP; }
+
 
 private:
     void closeSocket(int nSock);
@@ -80,7 +86,10 @@ private:
 
     bool bMainSocketThread;
     std::thread* m_mainSocketThread;
+
     std::thread* m_clientReceiveThread;
+    std::vector<int> m_ClientSocketsList;
+    std::unordered_map<std::string, struct ClientInfo> m_clientMap;
 
     int m_ServerSockets;
     int m_ClientSockets;

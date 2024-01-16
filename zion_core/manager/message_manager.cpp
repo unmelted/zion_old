@@ -29,12 +29,13 @@ MsgManager::MsgManager()
 	m_taskmanager.setSndQue(f1);
 }
 
-ICServer *MsgManager::setDMServer()
+ICServer *MsgManager::getICServer()
 {
 	return icServer;
 }
 
-void MsgManager::setDMServer(ICServer *dmServer)
+
+void MsgManager::setICServer(ICServer *dmServer)
 {
 	icServer = dmServer;
 }
@@ -118,7 +119,8 @@ void *MsgManager::sndMSGThread(void *arg)
 		{
 			msg = m_qSMSG.Dequeue();
 			CMd_INFO(" SndMsg thread msg : {} ", msg->c_str());
-			setDMServer()->sendData(msg->c_str());
+            std::string temp_clientname;
+			getICServer()->sendData(temp_clientname, msg->c_str());
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(3));
 	}

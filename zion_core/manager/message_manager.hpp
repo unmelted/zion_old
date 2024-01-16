@@ -28,8 +28,8 @@ public:
     ~MsgManager();
 	void onRcvMessage(std::string pData);
 	void onRcvSndMessage(std::string msg);
-	void setDMServer(ICServer* dmServer);
-	ICServer* setDMServer();
+	void setICServer(ICServer* dmServer);
+	ICServer* getICServer();
 
 private :
     void* rcvMSGThread(void* arg);

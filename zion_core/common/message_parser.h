@@ -35,7 +35,7 @@ class MessageParser
 public:
 	MessageParser();
 	~MessageParser();
-	void setDMServer(ICServer* dmServer);
+	void setICServer(ICServer* dmServer);
 	ICServer* getDMServer();
 	bool isThreadStop();
 	void runParse(std::string strMessage);
