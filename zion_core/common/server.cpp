@@ -184,7 +184,7 @@ void* DMServer::handle_client(void* arg)
         cout << " check 2 " <<endl;
 
 		nPacketSize = mtdProtoHeader.nSize;
-		if (nPacketSize < 1 || nPacketSize > 5000000 || mtdProtoHeader.cSeparator >= ic::PACKETTYPE_SIZE)
+		if (nPacketSize < 1 || nPacketSize > 5000000 || mtdProtoHeader.cSeparator >= (int)ic::PACKET_SEPARATOR::PACKETTYPE_SIZE)
 		{
 			//ErrorL << "Invaild Header Packet!!!, Size : " << nPacketSize << ", Separator : " << mtdProtoHeader.cSeparator;
 			continue;
@@ -245,7 +245,7 @@ void* DMServer::handle_client(void* arg)
 bool DMServer::SendData(std::string strJson)
 {
 	int nSize = (int)strlen(strJson.c_str());
-	char cType = ic::PACKETTYPE_JSON;
+	char cType = (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON;
 	m_SendMutex.lock();
 
 	int nSendSize = sizeof(int) + 1 + nSize;

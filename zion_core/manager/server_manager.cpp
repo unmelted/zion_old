@@ -39,7 +39,7 @@ int	DaemonMgr::Classfication(char cSeparator, char* pData, int nDataSize)
 {
 	switch (cSeparator)
 	{
-        case ic::PACKETTYPE_JSON:
+        case (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON:
 		RecJson(pData);
 		break;
 

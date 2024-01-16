@@ -114,7 +114,7 @@ int TaskManager::CommandTask(int mode, std::string arg)
         CMd_DEBUG("CMd Job Queue is fool. working worker + job = : {}", cur_worker);
     cur_worker++;
 
-    if (mode == ic::COMMAND_START)
+    if (mode == (int)ic::COMMAND_TYPE::COMMAND_START)
     {
         // ExpUtil in;
         // shared_ptr<VIDEO_INFO> info = make_shared<VIDEO_INFO>();
@@ -128,10 +128,10 @@ int TaskManager::CommandTask(int mode, std::string arg)
         //     m_qTMSG.Dequeue();
         // }
     }
-    else if (mode == ic::COMMAND_STOP)
+    else if (mode == (int)ic::COMMAND_TYPE::COMMAND_STOP)
     {
     }
-    else if (mode == ic::COMMAND_VERSION)
+    else if (mode == (int)ic::COMMAND_TYPE::COMMAND_VERSION)
     {
         SendVersionMessage(arg);
     }

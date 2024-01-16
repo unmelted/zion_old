@@ -86,7 +86,7 @@ using namespace std;
 
 namespace ic
 {
-enum
+enum class COMMAND_TYPE
 {
     COMMAND_NONE = 0,
     COMMAND_VERSION,
@@ -142,7 +142,7 @@ typedef struct _MSG_T
 
 
 // Packet Separator Type
-enum
+enum class PACKET_SEPARATOR
 {
     PACKETTYPE_JSON,
     PACKETTYPE_BINALY,
@@ -155,7 +155,7 @@ enum
 };
 
 //Client Port
-enum
+enum class CLIENT_PORT
 {
     MESSAGELTRANSFER_DAEMON,
     ENTERPRISE_MONITOR_DAEMON,
@@ -174,17 +174,17 @@ enum
 };
 
 // Server Port
-enum
-{
-    SOCKNUM_CONTROLLER_APP,
-    SOCKNUM_PRODUCING_APP,
-    SOCKNUM_VAR_APP,
-    SOCKNUM_EMS_APP,
-    SOCKNUM_DAEMONVIEWER_APP,
-    SOCKNUM_BUFFERVIWER_APP,
-    SOCKNUM_LOGVIEWER_APP,
-    SOCKNUM_SERVER_SIZE,
-};
+//enum class SOCKNUM
+//{
+//    SOCKNUM_CONTROLLER_APP,
+//    SOCKNUM_PRODUCING_APP,
+//    SOCKNUM_VAR_APP,
+//    SOCKNUM_EMS_APP,
+//    SOCKNUM_DAEMONVIEWER_APP,
+//    SOCKNUM_BUFFERVIWER_APP,
+//    SOCKNUM_LOGVIEWER_APP,
+//    SOCKNUM_SERVER_SIZE,
+//};
 
 static char arrDaemonObject[20][100] = {"MTd", "EMd", "SCd", "CCd", "GCd", "SPd", "PCd", "PreSd", "PostSd", "VPd", "VPd", "VPd", "CMd"};
 
