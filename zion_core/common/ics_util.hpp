@@ -37,15 +37,15 @@ public:
         
     } TIMER;
    
-    static Configurator& Get();
-    void SetDirectory();   
-    std::string GenerateToken();     
+    static Configurator& get();
+    void setDirectory();
+    std::string generateToken();
     std::string getCurrentDateTime(std::string s);   
-    void UpdateConfiture(int mode, int category, double value); 
+    void updateConfiture(int mode, int category, double value);
 
-    void StartTimer(TIMER *times);
-    int EndTimer(TIMER *times);
-    float LapTimer(TIMER *times);
+    void startTimer(TIMER *times);
+    int endTimer(TIMER *times);
+    float lapTimer(TIMER *times);
 
     struct Path {
         static inline const std::filesystem::path LOG {std::filesystem::current_path().append("log") };

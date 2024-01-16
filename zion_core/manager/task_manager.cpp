@@ -185,7 +185,7 @@ void TaskManager::makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
     {
         nlohmann::json j = nlohmann::json::parse(ptrMsg->txt);
         std::string outfile = j["output"];
-        std::string str_token = Configurator::Get().GenerateToken();
+        std::string str_token = Configurator::get().generateToken();
         CMd_INFO(" Generated token {} ", str_token.c_str());
 
         sndDoc.AddMember(MTDPROTOCOL_SECTION1, "4DReplay", allocator);
@@ -213,7 +213,7 @@ void TaskManager::sendVersionMessage(std::string ptrMsg)
     Value ver(kObjectType);
     Value cmd(kObjectType);
     cmd.AddMember("verion", CURRENTVERSION, allocator);
-    cmd.AddMember("date", Configurator::Get().getCurrentDateTime("now"), allocator);
+    cmd.AddMember("date", Configurator::get().getCurrentDateTime("now"), allocator);
     ver.AddMember("CMd", cmd, allocator);
 
     sndDoc.AddMember(MTDPROTOCOL_SECTION1, document[MTDPROTOCOL_SECTION1], allocator);

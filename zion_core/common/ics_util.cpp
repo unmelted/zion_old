@@ -19,12 +19,12 @@
 
 #include "ics_util.hpp"
 
-Configurator&  Configurator::Get() {
+Configurator&  Configurator::get() {
     static Configurator _instance;
     return _instance;
 }
 
-void Configurator::SetDirectory() {
+void Configurator::setDirectory() {
     std::filesystem::create_directories(Path::LOG);
     std::filesystem::create_directories(Path::ANLS);
     std::filesystem::create_directories(Path::DUMP);
@@ -44,7 +44,7 @@ std::string Configurator::getCurrentDateTime(std::string s)
     return std::string(buf);
 }
 
-std::string Configurator::GenerateToken() {
+std::string Configurator::generateToken() {
     char tk[100];
     std::string base = getCurrentDateTime("date");
     if(serial >= 9999)
@@ -55,13 +55,13 @@ std::string Configurator::GenerateToken() {
     return str_tk;    
 }
 
-void Configurator::StartTimer(TIMER *times)
+void Configurator::startTimer(TIMER *times)
 {
     times->last_check = true;
     times->last_time = clock();
 }
 
-int Configurator::EndTimer(TIMER *times)
+int Configurator::endTimer(TIMER *times)
 {
     if(times->last_check == 0) return -1;
     int ms = clock() - times->last_time;
@@ -69,7 +69,7 @@ int Configurator::EndTimer(TIMER *times)
     return ms;
 }
 
-float Configurator::LapTimer(TIMER *times)
+float Configurator::lapTimer(TIMER *times)
 {
     if(times->last_check == 0) return -1;
     clock_t ctime = clock();

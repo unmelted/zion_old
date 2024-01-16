@@ -76,7 +76,7 @@ void CMdLogger::Init()
 	console_link->add_sink(console_link);
 
 	std::string fileName("log/CMd_");
-	fileName += Configurator::Get().getCurrentDateTime("date") + "_" + std::to_string(GetLogV()) + ".txt";
+	fileName += Configurator::get().getCurrentDateTime("date") + "_" + std::to_string(GetLogV()) + ".txt";
 
 	auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(fileName, 1024 * 1000 * 10, 10);
 	file_sink->set_level(spdlog::level::trace);
