@@ -28,15 +28,15 @@ public:
     ~MsgManager();
 	void onRcvMessage(std::string pData);
 	void onRcvSndMessage(std::string msg);
-	void setDMServer(DMServer* dmServer);
-	DMServer* setDMServer();
+	void setDMServer(ICServer* dmServer);
+	ICServer* setDMServer();
 
 private :
     void* rcvMSGThread(void* arg);
     void* sndMSGThread(void* arg);
     void sendVersionMessage(std::shared_ptr<ic::MSG_T> ptrMsg);
 
-    DMServer* m_dmServer;
+    ICServer* m_dmServer;
     bool b_RMSGThread;
     std::thread* m_pRMSGThread{ nullptr };
     bool b_SMSGThread;

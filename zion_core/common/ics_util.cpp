@@ -50,7 +50,7 @@ std::string Configurator::generateToken() {
     if(serial >= 9999)
         serial = 0;
     serial ++;  
-    sprintf(tk, "%s_%04d", base.c_str(), serial);
+    snprintf(tk, sizeof(tk), "%s_%04d", base.c_str(), serial);
     std::string str_tk(tk);   
     return str_tk;    
 }

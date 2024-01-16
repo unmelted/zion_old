@@ -44,7 +44,7 @@
 #include "_3rdparty_/rapidjson/include/rapidjson/writer.h"
 #include "_3rdparty_/rapidjson/include/rapidjson/stringbuffer.h"
 #include "_3rdparty_/rapidjson/include/rapidjson/prettywriter.h"
-#include "server.h"
+#include "ic_server.h"
 #include "logger.hpp"
 #include "json.hpp"
 #include "message_queue.h"

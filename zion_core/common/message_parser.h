@@ -22,9 +22,9 @@
 #include "_3rdparty_/rapidjson/include/rapidjson/document.h"
 #include "_3rdparty_/rapidjson/include/rapidjson/writer.h"
 #include "_3rdparty_/rapidjson/include/rapidjson/stringbuffer.h"
-#include "Util/logger.h"
+//#include "Util/logger.h"
 #include "ics_define.h"
-#include "server.h"
+#include "ic_server.h"
 #include "curl/curl.h"
 
 using namespace rapidjson;
@@ -35,8 +35,8 @@ class DaemonParser
 public:
 	DaemonParser();
 	~DaemonParser();
-	void setDMServer(DMServer* dmServer);
-	DMServer* getDMServer();
+	void setDMServer(ICServer* dmServer);
+	ICServer* getDMServer();
 	bool isThreadStop();
 	void runParse(std::string strMessage);
 
@@ -46,7 +46,7 @@ private:
 	std::string getDocumentToString(Document& document);
 
 private:
-    DMServer* m_dmServer;
+    ICServer* m_dmServer;
     bool m_bThreadStop;
 
 };

@@ -29,12 +29,12 @@ MsgManager::MsgManager()
 	m_taskmanager.setSndQue(f1);
 }
 
-DMServer *MsgManager::setDMServer()
+ICServer *MsgManager::setDMServer()
 {
 	return m_dmServer;
 }
 
-void MsgManager::setDMServer(DMServer *dmServer)
+void MsgManager::setDMServer(ICServer *dmServer)
 {
 	m_dmServer = dmServer;
 }

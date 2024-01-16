@@ -134,13 +134,13 @@ void DaemonParser::parseThread(void* param, std::string strMessage)
 }
 
 
-DMServer* DaemonParser::getDMServer()
+ICServer* DaemonParser::getDMServer()
 {
 	return m_dmServer;
 }
 
 
-void DaemonParser::setDMServer(DMServer* dmServer)
+void DaemonParser::setDMServer(ICServer* dmServer)
 {
 	m_dmServer = dmServer;
 }
