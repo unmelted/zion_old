@@ -172,7 +172,7 @@ void* ICServer::handle_client(void* arg)
 		ic::MTdProtocolHeader mtdProtoHeader;
 		bool nRecvOK = true;
 
-		if ((str_len = pSocketMgr->RECV(clnt_sock, (char*)&mtdProtoHeader, sizeof(mtdProtoHeader), 0)) == 0)
+		if ((str_len = pSocketMgr->receive(clnt_sock, (char*)&mtdProtoHeader, sizeof(mtdProtoHeader), 0)) == 0)
 		{
 			nRecvOK = false;
 			break;
@@ -195,7 +195,7 @@ void* ICServer::handle_client(void* arg)
 		{
 			pData = new char[nPacketSize + 1];
 			memset(pData, 0, nPacketSize + 1);
-			if ((str_len = pSocketMgr->RECV(clnt_sock, (char*)pData, nPacketSize, 0)) == 0)
+			if ((str_len = pSocketMgr->receive(clnt_sock, (char*)pData, nPacketSize, 0)) == 0)
 			{
 				nRecvOK = false;
 				break;
@@ -279,7 +279,7 @@ bool ICServer::sendData(std::string strJson)
 
 }
 
-int ICServer::RECV(int clnt_sock, char* pRecv, int nSize, int flags)
+int ICServer::receive(int clnt_sock, char* pRecv, int nSize, int flags)
 {
 	int nReclen = 0, nTotalRecvSize = 0, nRemainSize = nSize;
 	int nRecvSize = 1024;

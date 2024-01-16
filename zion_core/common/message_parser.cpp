@@ -39,31 +39,31 @@ namespace
 	}
 }
 
-DaemonParser::DaemonParser()
+MessageParser::MessageParser()
 {
 
 }
 
-DaemonParser::~DaemonParser()
+MessageParser::~MessageParser()
 {
 
 }
 
-void DaemonParser::runParse(std::string strMessage)
+void MessageParser::runParse(std::string strMessage)
 {
-	std::thread th(&DaemonParser::parseThread, this, this, strMessage);
+	std::thread th(&MessageParser::parseThread, this, this, strMessage);
 
 	th.join();
 }
 
-bool DaemonParser::isThreadStop()
+bool MessageParser::isThreadStop()
 {
 	return m_bThreadStop;
 }
 
-void DaemonParser::parseThread(void* param, std::string strMessage)
+void MessageParser::parseThread(void* param, std::string strMessage)
 {
-	DaemonParser* pMain = (DaemonParser*)param;
+	MessageParser* pMain = (MessageParser*)param;
 	if (pMain->isThreadStop())
 		return;
 
@@ -134,18 +134,18 @@ void DaemonParser::parseThread(void* param, std::string strMessage)
 }
 
 
-ICServer* DaemonParser::getDMServer()
+ICServer* MessageParser::getDMServer()
 {
-	return m_dmServer;
+	return icServer;
 }
 
 
-void DaemonParser::setDMServer(ICServer* dmServer)
+void MessageParser::setDMServer(ICServer* dmServer)
 {
-	m_dmServer = dmServer;
+	icServer = dmServer;
 }
 
-std::string DaemonParser::getDocumentToString(Document& document)
+std::string MessageParser::getDocumentToString(Document& document)
 {
 	StringBuffer strbuf;
 	strbuf.Clear();
@@ -156,7 +156,7 @@ std::string DaemonParser::getDocumentToString(Document& document)
 	return ownShipRadarString;
 }
 
-int DaemonParser::getBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol)
+int MessageParser::getBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol)
 {
 	if (document.HasMember(MTDPROTOCOL_SECTION1) == true)
 		mtdProtocol.Section1 = document[MTDPROTOCOL_SECTION1].GetString();

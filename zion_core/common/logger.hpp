@@ -37,8 +37,8 @@ public:
 	CMdLogger();
 	~CMdLogger();
 
-	static void Init();
-    static int GetLogV();
+	static void init();
+    static int getLogV();
 };
 
 //#define SPd_INFO(...)	 ::Logger::GetConsoleLogger()->info(__VA_ARGS__);SPDLOG_INFO(__VA_ARGS__); ::Logger::GetFileLogger()->info(__VA_ARGS__);

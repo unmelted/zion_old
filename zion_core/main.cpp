@@ -12,7 +12,7 @@ int main()
     //InfoL << "Version : " << CURRENTVERSION;
     //InfoL << "v : Version check";
 
-    ICManager icMgr;
+    ICManager icManager;
     char pStr[100];
     while (1)
     {

@@ -42,9 +42,9 @@ private:
 	int	classfication(char cSeparator, char* pData, int nDataSize);
 	int recJson(std::string strMessage);
 
-    ICServer m_dmServer;
-    DaemonParser m_parser;
-    MsgManager m_manger;
+    ICServer icServer;
+    MessageParser msg_parser;
+    MsgManager msg_manager;
 
 };
 

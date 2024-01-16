@@ -29,12 +29,12 @@
 
 using namespace rapidjson;
 
-class DaemonParser
+class MessageParser
 {
 
 public:
-	DaemonParser();
-	~DaemonParser();
+	MessageParser();
+	~MessageParser();
 	void setDMServer(ICServer* dmServer);
 	ICServer* getDMServer();
 	bool isThreadStop();
@@ -46,7 +46,7 @@ private:
 	std::string getDocumentToString(Document& document);
 
 private:
-    ICServer* m_dmServer;
+    ICServer* icServer;
     bool m_bThreadStop;
 
 };

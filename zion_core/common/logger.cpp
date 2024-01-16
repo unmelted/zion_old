@@ -43,7 +43,7 @@ std::shared_ptr<spdlog::logger> CMdLogger::_logger;
 
 CMdLogger::CMdLogger()
 {
-	Init();
+	init();
 }
 
 CMdLogger::~CMdLogger()
@@ -51,7 +51,7 @@ CMdLogger::~CMdLogger()
 	CMd_INFO("Logger End!");
 }
 
-int CMdLogger::GetLogV() {
+int CMdLogger::getLogV() {
 
 	json j;
 	int log_init = 1;
@@ -67,7 +67,7 @@ int CMdLogger::GetLogV() {
 	return log_init;
 }
 
-void CMdLogger::Init()
+void CMdLogger::init()
 {
 	spdlog::flush_every(std::chrono::seconds(1));
 	auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
@@ -76,7 +76,7 @@ void CMdLogger::Init()
 	console_link->add_sink(console_link);
 
 	std::string fileName("log/CMd_");
-	fileName += Configurator::get().getCurrentDateTime("date") + "_" + std::to_string(GetLogV()) + ".txt";
+	fileName += Configurator::get().getCurrentDateTime("date") + "_" + std::to_string(getLogV()) + ".txt";
 
 	auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(fileName, 1024 * 1000 * 10, 10);
 	file_sink->set_level(spdlog::level::trace);
