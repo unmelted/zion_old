@@ -33,13 +33,22 @@ public:
     ~TaskManager();
 
     template <class F, class... Args>
-    void EnqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args);
-    void OnRcvTask(std::shared_ptr<ic::MSG_T> pData);
-    int CommandTask(int mode, std::string arg); // shared_ptr<VIDEO_INFO> arg);
-    void SetSndQue(std::function<void(MsgManager &, const std::string msg)> que)
+    void enqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args);
+    void onRcvTask(std::shared_ptr<ic::MSG_T> pData);
+    int commandTask(int mode, std::string arg); // shared_ptr<VIDEO_INFO> arg);
+    void setSndQue(std::function<void(MsgManager &, const std::string msg)> que)
     {
         fSendQue = que;
     };
+
+private:
+    void workerThread();
+    void watchFuture();
+    // int RunStabilize(shared_ptr<VIDEO_INFO> arg);
+    void makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result);
+
+    void sendVersionMessage(std::string ptrMsg);
+    std::string getDocumentToString(Document &document);
 
 private:
     size_t num_worker;
@@ -56,12 +65,6 @@ private:
     MsgManager *m_msgmanager;
     bool stop_all;
     bool watching;
-    void WorkerThread();
-    void WatchFuture();
-    // int RunStabilize(shared_ptr<VIDEO_INFO> arg);
-    void MakeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result);
 
-    void SendVersionMessage(std::string ptrMsg);
-    std::string GetDocumentToString(Document &document);
 };
 

@@ -49,22 +49,22 @@ DaemonParser::~DaemonParser()
 
 }
 
-void DaemonParser::RunParse(std::string strMessage)
+void DaemonParser::runParse(std::string strMessage)
 {
-	std::thread th(&DaemonParser::ParseThread, this, this, strMessage);
+	std::thread th(&DaemonParser::parseThread, this, this, strMessage);
 
 	th.join();
 }
 
-bool DaemonParser::IsThreadStop()
+bool DaemonParser::isThreadStop()
 {
 	return m_bThreadStop;
 }
 
-void DaemonParser::ParseThread(void* param, std::string strMessage)
+void DaemonParser::parseThread(void* param, std::string strMessage)
 {
 	DaemonParser* pMain = (DaemonParser*)param;
-	if (pMain->IsThreadStop())
+	if (pMain->isThreadStop())
 		return;
 
 	//InfoL << "Recv : " << strMessage;
@@ -73,7 +73,7 @@ void DaemonParser::ParseThread(void* param, std::string strMessage)
 
 	string strError;
 	ic::MTdProtocol mtdProtocol;
-	int nResultCode = GetBasicReturnJson(document, mtdProtocol);
+	int nResultCode = getBasicReturnJson(document, mtdProtocol);
 	Document sendDocument(kObjectType);
 	Document::AllocatorType& allocator = sendDocument.GetAllocator();
 
@@ -97,9 +97,9 @@ void DaemonParser::ParseThread(void* param, std::string strMessage)
 
 	if (nResultCode != SUCCESS)
 	{
-		sendDocument[MTDPROTOCOL_ERRORMSG].SetString(GetErrorCodeToString(nResultCode), allocator);
-		std::string strSendString = GetDocumentToString(sendDocument);
-		if (pMain->GetDMServer()->SendData(strSendString.c_str()))
+		sendDocument[MTDPROTOCOL_ERRORMSG].SetString(getErrorCodeToString(nResultCode), allocator);
+		std::string strSendString = getDocumentToString(sendDocument);
+		if (pMain->getDMServer()->sendData(strSendString.c_str()))
 		{
 			//ErrorL << strSendString;
 		}
@@ -129,23 +129,23 @@ void DaemonParser::ParseThread(void* param, std::string strMessage)
 		}
 	}
 
-	std::string strSendString = GetDocumentToString(sendDocument);
-	pMain->GetDMServer()->SendData(strSendString.c_str());
+	std::string strSendString = getDocumentToString(sendDocument);
+	pMain->getDMServer()->sendData(strSendString.c_str());
 }
 
 
-DMServer* DaemonParser::GetDMServer()
+DMServer* DaemonParser::getDMServer()
 {
 	return m_dmServer;
 }
 
 
-void DaemonParser::SetDMServer(DMServer* dmServer)
+void DaemonParser::setDMServer(DMServer* dmServer)
 {
 	m_dmServer = dmServer;
 }
 
-std::string DaemonParser::GetDocumentToString(Document& document)
+std::string DaemonParser::getDocumentToString(Document& document)
 {
 	StringBuffer strbuf;
 	strbuf.Clear();
@@ -156,7 +156,7 @@ std::string DaemonParser::GetDocumentToString(Document& document)
 	return ownShipRadarString;
 }
 
-int DaemonParser::GetBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol)
+int DaemonParser::getBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol)
 {
 	if (document.HasMember(MTDPROTOCOL_SECTION1) == true)
 		mtdProtocol.Section1 = document[MTDPROTOCOL_SECTION1].GetString();

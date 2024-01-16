@@ -23,18 +23,18 @@ MsgManager::MsgManager()
 {
 	b_RMSGThread = true;
 	b_SMSGThread = true;
-	m_pRMSGThread = new std::thread(&MsgManager::RcvMSGThread, this, this);
-	m_pSMSGThread = new std::thread(&MsgManager::SndMSGThread, this, this);
-	std::function<void(MsgManager &, const std::string msg)> f1 = &MsgManager::OnRcvSndMessage;
-	m_taskmanager.SetSndQue(f1);
+	m_pRMSGThread = new std::thread(&MsgManager::rcvMSGThread, this, this);
+	m_pSMSGThread = new std::thread(&MsgManager::sndMSGThread, this, this);
+	std::function<void(MsgManager &, const std::string msg)> f1 = &MsgManager::onRcvSndMessage;
+	m_taskmanager.setSndQue(f1);
 }
 
-DMServer *MsgManager::GetDMServer()
+DMServer *MsgManager::setDMServer()
 {
 	return m_dmServer;
 }
 
-void MsgManager::SetDMServer(DMServer *dmServer)
+void MsgManager::setDMServer(DMServer *dmServer)
 {
 	m_dmServer = dmServer;
 }
@@ -59,7 +59,7 @@ MsgManager::~MsgManager()
 	}
 }
 
-void *MsgManager::RcvMSGThread(void *arg)
+void *MsgManager::rcvMSGThread(void *arg)
 {
 
 	std::shared_ptr<ic::MSG_T> msg = nullptr;
@@ -68,10 +68,10 @@ void *MsgManager::RcvMSGThread(void *arg)
 		if (m_qRMSG.IsQueue())
 		{
 			msg = m_qRMSG.Dequeue();
-			m_taskmanager.OnRcvTask(msg);
+			m_taskmanager.onRcvTask(msg);
 			if (msg != nullptr)
 			{
-				CMd_INFO("RcvMSGThread : {} ", msg->txt);
+				CMd_INFO("rcvMSGThread : {} ", msg->txt);
 				json j = json::parse(msg->txt);
 				if (j.contains("Action") == false || j.contains("Section3") == false)
 				{
@@ -81,7 +81,7 @@ void *MsgManager::RcvMSGThread(void *arg)
 				string section3 = j["Section3"];
 				string action = j["Action"];
 				// if (action == "Stabilization" || section3 == "Stabilize") {
-				// 	m_taskmanager.CommandTask(ic::POST_STABILIZATION, msg->txt);
+				// 	m_taskmanager.commandTask(ic::POST_STABILIZATION, msg->txt);
 				// }
 			}
 		}
@@ -91,7 +91,7 @@ void *MsgManager::RcvMSGThread(void *arg)
 	return nullptr;
 }
 
-void MsgManager::OnRcvMessage(std::string pData)
+void MsgManager::onRcvMessage(std::string pData)
 {
 
 	std::shared_ptr<ic::MSG_T> ptrMsg = std::shared_ptr<ic::MSG_T>(new ic::MSG_T);
@@ -100,14 +100,14 @@ void MsgManager::OnRcvMessage(std::string pData)
 	m_qRMSG.Enqueue(ptrMsg);
 }
 
-void MsgManager::OnRcvSndMessage(std::string msg)
+void MsgManager::onRcvSndMessage(std::string msg)
 {
-	// CMd_INFO("OnRcvSndMessage : {}", msg );
+	// CMd_INFO("onRcvSndMessage : {}", msg );
 	std::shared_ptr<std::string> pmsg = make_shared<std::string>(msg);
 	m_qSMSG.Enqueue(pmsg);
 }
 
-void *MsgManager::SndMSGThread(void *arg)
+void *MsgManager::sndMSGThread(void *arg)
 {
 
 	std::shared_ptr<std::string> msg = nullptr;
@@ -118,7 +118,7 @@ void *MsgManager::SndMSGThread(void *arg)
 		{
 			msg = m_qSMSG.Dequeue();
 			CMd_INFO(" SndMsg thread msg : {} ", msg->c_str());
-			GetDMServer()->SendData(msg->c_str());
+			setDMServer()->sendData(msg->c_str());
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(3));
 	}

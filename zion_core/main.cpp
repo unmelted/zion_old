@@ -28,7 +28,7 @@ int main()
         // }
         // else if (strcmp(pStr, "1") == 0)
         // {
-        //     //socketMgr.SendData("{\"hello\" : \"world\",\"t\" : true,\"f\" : false,\"n\" : null,\"i\" : 123,\"pi\" : 3.1416,\"a\" : [1, 2, 3, 4],\"To\" : \"ProducingApp\"} ");
+        //     //socketMgr.sendData("{\"hello\" : \"world\",\"t\" : true,\"f\" : false,\"n\" : null,\"i\" : 123,\"pi\" : 3.1416,\"a\" : [1, 2, 3, 4],\"To\" : \"ProducingApp\"} ");
         //     printf("Connect CCD\n");
         // }
 

@@ -84,6 +84,6 @@ enum class ErrorMTd {
 	MTD_ERR_END = (MTD_ERR_START + MAX_ERR_COUNT),
 };
 
-std::string GetErrorCodeToString(const int nErrorCode);
+std::string getErrorCodeToString(const int nErrorCode);
 
 #endif // __ERROR_MANAGER_H__

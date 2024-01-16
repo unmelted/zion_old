@@ -55,7 +55,7 @@ void GetMtdErrorString(const int nErrorCode, std::string& strError)
 	}
 }
 
-std::string GetErrorCodeToString(const int nErrorCode)
+std::string getErrorCodeToString(const int nErrorCode)
 {
 	std::string strError = "";
 	if (nErrorCode != (int)ErrorCommon::COMMON_ERR_NONE) {

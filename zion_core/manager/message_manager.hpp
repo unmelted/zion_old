@@ -26,23 +26,24 @@ public:
 
     MsgManager();
     ~MsgManager();
-	void OnRcvMessage(std::string pData);
-	void OnRcvSndMessage(std::string msg);
-	void SetDMServer(DMServer* dmServer);
-	DMServer* GetDMServer();
+	void onRcvMessage(std::string pData);
+	void onRcvSndMessage(std::string msg);
+	void setDMServer(DMServer* dmServer);
+	DMServer* setDMServer();
 
 private :
-	DMServer* m_dmServer;
+    void* rcvMSGThread(void* arg);
+    void* sndMSGThread(void* arg);
+    void sendVersionMessage(std::shared_ptr<ic::MSG_T> ptrMsg);
+
+    DMServer* m_dmServer;
     bool b_RMSGThread;
-	std::thread* m_pRMSGThread{ nullptr };
+    std::thread* m_pRMSGThread{ nullptr };
     bool b_SMSGThread;
-	std::thread* m_pSMSGThread{ nullptr };
-	MessageQueue<std::shared_ptr<ic::MSG_T>> m_qRMSG;
-	MessageQueue<std::shared_ptr<std::string>> m_qSMSG;    
-	CMdLogger _logger;	
+    std::thread* m_pSMSGThread{ nullptr };
+    MessageQueue<std::shared_ptr<ic::MSG_T>> m_qRMSG;
+    MessageQueue<std::shared_ptr<std::string>> m_qSMSG;
+    CMdLogger _logger;
 
     TaskManager m_taskmanager;
-    void* RcvMSGThread(void* arg);
-    void* SndMSGThread(void* arg);
-    void SendVersionMessage(std::shared_ptr<ic::MSG_T> ptrMsg);
 };

@@ -22,10 +22,10 @@
 
 DaemonMgr::DaemonMgr()
 {
-	m_parser.SetDMServer(&m_dmServer);
-	m_dmServer.BeginSocket(CM_CONTROL_DAEMON_PORT, 0);
-	m_dmServer.setHandler(std::bind(&DaemonMgr::Classfication, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
-	m_manger.SetDMServer(&m_dmServer);	
+	m_parser.setDMServer(&m_dmServer);
+	m_dmServer.beginSocket(CM_CONTROL_DAEMON_PORT, 0);
+	m_dmServer.setHandler(std::bind(&DaemonMgr::classfication, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
+	m_manger.setDMServer(&m_dmServer);
 
 	Configurator::Get().SetDirectory();
 }
@@ -35,12 +35,12 @@ DaemonMgr::~DaemonMgr()
 
 }
 
-int	DaemonMgr::Classfication(char cSeparator, char* pData, int nDataSize)
+int	DaemonMgr::classfication(char cSeparator, char* pData, int nDataSize)
 {
 	switch (cSeparator)
 	{
         case (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON:
-		RecJson(pData);
+		recJson(pData);
 		break;
 
 	default:
@@ -52,7 +52,7 @@ int	DaemonMgr::Classfication(char cSeparator, char* pData, int nDataSize)
 }
 
 
-int DaemonMgr::RecJson(std::string strMessage)
+int DaemonMgr::recJson(std::string strMessage)
 {
 	Document document;
 	bool bSuc = false;
@@ -70,19 +70,19 @@ int DaemonMgr::RecJson(std::string strMessage)
 	}
 
 	std::string sec3 = document[MTDPROTOCOL_SECTION3].GetString();
-	CMd_INFO("RecJson sec3 : {} compare {}", sec3, sec3.compare("Version"));
+	CMd_INFO("recJson sec3 : {} compare {}", sec3, sec3.compare("Version"));
 	if(sec3.compare("Version") == 0) {
-		m_parser.RunParse(strMessage);
+		m_parser.runParse(strMessage);
 	}
 	else if(sec3.compare("Stabilize") == 0) {
-		m_parser.RunParse(strMessage);		
-		m_manger.OnRcvMessage(strMessage);
+		m_parser.runParse(strMessage);
+		m_manger.onRcvMessage(strMessage);
 	}
 
 	return 1;
 }
 
-void DaemonMgr::GetBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol)
+void DaemonMgr::getBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol)
 {
 	std::string strTp;
 	if (document.HasMember("Section1") == true)

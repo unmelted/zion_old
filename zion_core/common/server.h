@@ -49,11 +49,11 @@ public :
     DMServer();
     ~DMServer();
 
-    bool BeginSocket(int nPort, int nType);
-    //void SendData(char* pData, int nSize);
-    bool SendData(std::string strJson);
+    bool beginSocket(int nPort, int nType);
+    //void sendData(char* pData, int nSize);
+    bool sendData(std::string strJson);
 
-    bool IsConnected();
+    bool isConnected();
 
     typedef std::function<int(char cSeparator, char* pData, int nDataSize)> callback;
     callback m_onClassfication;
@@ -62,11 +62,19 @@ public :
         m_onClassfication = std::move(f);
     }
 
-	std::list<std::string> GetIPList();
-	std::string GetLocalCompare(std::string strIP);
-	std::string GetLocalAddress() { return m_strIP; }
+	std::list<std::string> getIPList();
+	std::string getLocalCompare(std::string strIP);
+	std::string getLocalAddress() { return m_strIP; }
 
 private:
+    void closeSocket(int nSock);
+    void runSocket();
+
+    void* runSocketThread(void* arg);
+    void* handle_client(void* arg);
+    int RECV(int clnt_sock, char* pRecv, int nSize, int flags);
+
+
     std::mutex m_Sockmutx;
     std::mutex m_SendMutex;
 
@@ -81,15 +89,8 @@ private:
     int m_nSendBufferSize;
     char* m_pSendBuffer;
 
-    void CloseSocket(int nSock);
-    void RunSocket();
-
-    void* RunSocketThread(void* arg);
-    void* handle_client(void* arg);
-    int RECV(int clnt_sock, char* pRecv, int nSize, int flags);
-
     std::string m_strIP;
     std::string m_strClientIP;
-    
+
 };
 

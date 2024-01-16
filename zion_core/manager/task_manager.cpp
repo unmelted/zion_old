@@ -31,10 +31,10 @@ TaskManager::TaskManager(size_t num_worker_, MsgManager *a)
     for (size_t i = 0; i < num_worker; ++i)
     {
         worker.emplace_back([this]()
-                            { this->WorkerThread(); });
+                            { this->workerThread(); });
     }
 
-    watcher = new std::thread(&TaskManager::WatchFuture, this);
+    watcher = new std::thread(&TaskManager::watchFuture, this);
 }
 
 TaskManager::~TaskManager()
@@ -59,7 +59,7 @@ TaskManager::~TaskManager()
 }
 
 template <class F, class... Args>
-void TaskManager::EnqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args)
+void TaskManager::enqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args)
 {
     if (stop_all)
     {
@@ -78,7 +78,7 @@ void TaskManager::EnqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args)
     fu->Enqueue(job_result_future.get());
 }
 
-void TaskManager::WorkerThread()
+void TaskManager::workerThread()
 {
     while (true)
     {
@@ -107,7 +107,7 @@ void TaskManager::WorkerThread()
 //     return result;
 // }
 
-int TaskManager::CommandTask(int mode, std::string arg)
+int TaskManager::commandTask(int mode, std::string arg)
 {
 
     if (cur_worker == num_worker)
@@ -133,32 +133,32 @@ int TaskManager::CommandTask(int mode, std::string arg)
     }
     else if (mode == (int)ic::COMMAND_TYPE::COMMAND_VERSION)
     {
-        SendVersionMessage(arg);
+        sendVersionMessage(arg);
     }
 
     return (int)ErrorCommon::COMMON_ERR_NONE;
 }
 
-void TaskManager::WatchFuture()
+void TaskManager::watchFuture()
 {
 
     while (watching)
     {
         if (m_future.IsQueue())
         {
-            MakeSendMsg(m_qTMSG.Dequeue(), m_future.Dequeue());
+            makeSendMsg(m_qTMSG.Dequeue(), m_future.Dequeue());
             cur_worker--;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 
-void TaskManager::OnRcvTask(std::shared_ptr<ic::MSG_T> ptrMsg)
+void TaskManager::onRcvTask(std::shared_ptr<ic::MSG_T> ptrMsg)
 {
     m_qTMSG.Enqueue(ptrMsg);
 }
 
-std::string TaskManager::GetDocumentToString(Document &document)
+std::string TaskManager::getDocumentToString(Document &document)
 {
     StringBuffer strbuf;
     strbuf.Clear();
@@ -169,7 +169,7 @@ std::string TaskManager::GetDocumentToString(Document &document)
     return ownShipRadarString;
 }
 
-void TaskManager::MakeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
+void TaskManager::makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
 {
 
     if (result < (int)ErrorCommon::COMMON_ERR_NONE)
@@ -199,11 +199,11 @@ void TaskManager::MakeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
         sndDoc.AddMember("output", outfile, allocator);
     }
 
-    std::string strSendString = GetDocumentToString(sndDoc);
-    m_msgmanager->OnRcvSndMessage(strSendString);
+    std::string strSendString = getDocumentToString(sndDoc);
+    m_msgmanager->onRcvSndMessage(strSendString);
 }
 
-void TaskManager::SendVersionMessage(std::string ptrMsg)
+void TaskManager::sendVersionMessage(std::string ptrMsg)
 {
     Document document;
     document.Parse(ptrMsg.c_str());
@@ -227,6 +227,6 @@ void TaskManager::SendVersionMessage(std::string ptrMsg)
     sndDoc.AddMember("Version", ver, allocator);
     sndDoc.AddMember(MTDPROTOCOL_RESULTCODE, (int)ErrorCommon::COMMON_ERR_NONE, allocator);
     sndDoc.AddMember(MTDPROTOCOL_ERRORMSG, "SUCCESS", allocator);
-    std::string strSendString = GetDocumentToString(sndDoc);
-    m_msgmanager->OnRcvSndMessage(strSendString);
+    std::string strSendString = getDocumentToString(sndDoc);
+    m_msgmanager->onRcvSndMessage(strSendString);
 }

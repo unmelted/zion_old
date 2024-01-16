@@ -31,21 +31,22 @@ using namespace rapidjson;
 
 class DaemonParser
 {
-private:
-	DMServer* m_dmServer;
-	bool m_bThreadStop;
 
 public:
 	DaemonParser();
 	~DaemonParser();
+	void setDMServer(DMServer* dmServer);
+	DMServer* getDMServer();
+	bool isThreadStop();
+	void runParse(std::string strMessage);
 
-	void SetDMServer(DMServer* dmServer);
-
-	DMServer* GetDMServer();
-	bool IsThreadStop();
-	void RunParse(std::string strMessage);
 private:
-	void ParseThread(void* param, std::string strMessage);
-	int GetBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol);
-	std::string GetDocumentToString(Document& document);
+	void parseThread(void* param, std::string strMessage);
+	int getBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol);
+	std::string getDocumentToString(Document& document);
+
+private:
+    DMServer* m_dmServer;
+    bool m_bThreadStop;
+
 };

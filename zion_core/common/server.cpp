@@ -36,8 +36,8 @@ DMServer::DMServer()
 DMServer::~DMServer()
 {
 	bMainSocketThread = false;
-	CloseSocket(m_ServerSockets);
-	CloseSocket(m_ClientSockets);
+	closeSocket(m_ServerSockets);
+	closeSocket(m_ClientSockets);
 
 	if (m_mainSocketThread != nullptr)
 	{
@@ -55,13 +55,13 @@ DMServer::~DMServer()
 
 }
 
-void DMServer::CloseSocket(int nSock)
+void DMServer::closeSocket(int nSock)
 {
 	//close(nSock);
 	shutdown(nSock, SHUT_RDWR);
 }
 
-bool DMServer::IsConnected()
+bool DMServer::isConnected()
 {
 	if (m_ClientSockets > 0)
 		return true;
@@ -70,7 +70,7 @@ bool DMServer::IsConnected()
 }
 
 
-bool DMServer::BeginSocket(int nPort, int nType)
+bool DMServer::beginSocket(int nPort, int nType)
 {
 	if (bMainSocketThread == true)
 		return false;
@@ -78,22 +78,22 @@ bool DMServer::BeginSocket(int nPort, int nType)
 	m_ServerPorts = nPort;
 	m_nSockType = nType;
 	bMainSocketThread = true;
-	m_mainSocketThread = new std::thread(&DMServer::RunSocketThread, this, this);
+	m_mainSocketThread = new std::thread(&DMServer::runSocketThread, this, this);
 
 	return true;
 }
 
 
-void* DMServer::RunSocketThread(void* arg)
+void* DMServer::runSocketThread(void* arg)
 {
 	DMServer* pSocketMgr = (DMServer*)arg;
-	((DMServer*)pSocketMgr)->RunSocket();
+	((DMServer*)pSocketMgr)->runSocket();
 
-	//InfoL << "BeginSocketThread end";
+	//InfoL << "beginSocketThread end";
 	return 0;
 }
 
-void DMServer::RunSocket()
+void DMServer::runSocket()
 {
 	struct sockaddr_in serv_adr, clnt_adr;
 	int clnt_adr_sz;
@@ -129,7 +129,7 @@ void DMServer::RunSocket()
 			m_Sockmutx.unlock();
 			std::string strAcceptIP = inet_ntoa(clnt_adr.sin_addr);
 			//WarnL << "Already Connected MTd IP : " << m_strClientIP << ", Connection Request IP : " << strAcceptIP;
-			CloseSocket(nClientSocket);
+			closeSocket(nClientSocket);
 			continue;
 		}
 		m_ClientSockets = nClientSocket;
@@ -138,7 +138,7 @@ void DMServer::RunSocket()
 		m_strClientIP = inet_ntoa(clnt_adr.sin_addr);
 		//InfoL << "Connected IP : " << m_strClientIP;
 
-		m_strIP = GetLocalCompare(m_strClientIP);
+		m_strIP = getLocalCompare(m_strClientIP);
 		//InfoL << "Local IP Address : " << m_strIP;
 
 		//clnt_socks[clnt_sock] = clnt_sock;
@@ -222,7 +222,7 @@ void* DMServer::handle_client(void* arg)
 			//	if (pMessage != 0)
 			//		delete[] pMessage;
 
-			//	pSocketMgr->SendData(strErrorReturn);
+			//	pSocketMgr->sendData(strErrorReturn);
 			//}
 		}
 
@@ -236,13 +236,13 @@ void* DMServer::handle_client(void* arg)
 	pSocketMgr->m_Sockmutx.lock();
 	pSocketMgr->m_ClientSockets = 0;
 	pSocketMgr->m_Sockmutx.unlock();
-	pSocketMgr->CloseSocket(clnt_sock);
+	pSocketMgr->closeSocket(clnt_sock);
 
 	//InfoL << "Close Socket IP : " << clnt_IP << ", Type : " << arrDaemonObject[pSocketMgr->m_nSockType] << ", SockNum : " << clnt_sock;
 	return NULL;
 }
 
-bool DMServer::SendData(std::string strJson)
+bool DMServer::sendData(std::string strJson)
 {
 	int nSize = (int)strlen(strJson.c_str());
 	char cType = (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON;
@@ -306,7 +306,7 @@ int DMServer::RECV(int clnt_sock, char* pRecv, int nSize, int flags)
 	return nTotalRecvSize;
 }
 
-std::list<std::string> DMServer::GetIPList()
+std::list<std::string> DMServer::getIPList()
 {
 	std::list<std::string> lstIPAddress;
 
@@ -361,11 +361,11 @@ std::list<std::string> DMServer::GetIPList()
 	return lstIPAddress;
 }
 
-std::string DMServer::GetLocalCompare(std::string strIP)
+std::string DMServer::getLocalCompare(std::string strIP)
 {
 	std::string _strIP;
 
-	std::list<std::string> _list = GetIPList();
+	std::list<std::string> _list = getIPList();
 	std::list<std::string>::iterator iter;
 
 	std::string strC = strIP.substr(0, strIP.rfind('.'));

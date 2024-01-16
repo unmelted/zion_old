@@ -38,12 +38,13 @@ public:
 	~DaemonMgr();
 
 private:
-	DMServer m_dmServer;
-	DaemonParser m_parser;
-	MsgManager m_manger;
+	void getBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol);
+	int	classfication(char cSeparator, char* pData, int nDataSize);
+	int recJson(std::string strMessage);
 
-	void GetBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol);
-	int	Classfication(char cSeparator, char* pData, int nDataSize);
-	int RecJson(std::string strMessage);
+    DMServer m_dmServer;
+    DaemonParser m_parser;
+    MsgManager m_manger;
+
 };
 
