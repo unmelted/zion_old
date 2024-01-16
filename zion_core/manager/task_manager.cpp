@@ -136,7 +136,7 @@ int TaskManager::CommandTask(int mode, std::string arg)
         SendVersionMessage(arg);
     }
 
-    return COMMON_ERR_NONE;
+    return (int)ErrorCommon::COMMON_ERR_NONE;
 }
 
 void TaskManager::WatchFuture()
@@ -172,7 +172,7 @@ std::string TaskManager::GetDocumentToString(Document &document)
 void TaskManager::MakeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
 {
 
-    if (result < COMMON_ERR_NONE)
+    if (result < (int)ErrorCommon::COMMON_ERR_NONE)
     {
         CMd_WARN(" Captured future return is ERR {} ", result);
         return;
@@ -181,7 +181,7 @@ void TaskManager::MakeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
     Document sndDoc(kObjectType);
     Document::AllocatorType &allocator = sndDoc.GetAllocator();
 
-    if (result == COMMON_ERR_TEMPORARY)
+    if (result == (int)ErrorCommon::COMMON_ERR_TEMPORARY)
     {
         nlohmann::json j = nlohmann::json::parse(ptrMsg->txt);
         std::string outfile = j["output"];
@@ -225,7 +225,7 @@ void TaskManager::SendVersionMessage(std::string ptrMsg)
     sndDoc.AddMember(MTDPROTOCOL_TO, document[MTDPROTOCOL_FROM], allocator);
     sndDoc.AddMember(MTDPROTOCOL_ACTION, document[MTDPROTOCOL_ACTION], allocator);
     sndDoc.AddMember("Version", ver, allocator);
-    sndDoc.AddMember(MTDPROTOCOL_RESULTCODE, COMMON_ERR_NONE, allocator);
+    sndDoc.AddMember(MTDPROTOCOL_RESULTCODE, (int)ErrorCommon::COMMON_ERR_NONE, allocator);
     sndDoc.AddMember(MTDPROTOCOL_ERRORMSG, "SUCCESS", allocator);
     std::string strSendString = GetDocumentToString(sndDoc);
     m_msgmanager->OnRcvSndMessage(strSendString);

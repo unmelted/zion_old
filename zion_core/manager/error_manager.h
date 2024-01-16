@@ -25,7 +25,7 @@
 #define SUCCESS			1000
 #define MAX_ERR_COUNT	10000
 
-enum ErrorCodeIndex{
+enum class ErrorCodeIndex{
 	ERR_INDEX_COMMON	= 0,
 	ERR_INDEX_MTD		= 1 * MAX_ERR_COUNT,
 	ERR_INDEX_PCD		= 2 * MAX_ERR_COUNT,
@@ -39,7 +39,7 @@ enum ErrorCodeIndex{
 
 ////////////////////////////////////////////////////////
 // Common
-enum ErrorCommon {
+enum class ErrorCommon {
 	COMMON_ERR_NONE = SUCCESS,
 
 	COMMON_ERR_PARSE_FAIL = 1001,
@@ -66,13 +66,13 @@ enum ErrorCommon {
 	COMMON_ERR_TYPE_NAME_STRING,
     COMMON_ERR_TEMPORARY,
 
-	COMMON_ERR_END = (ERR_INDEX_COMMON + MAX_ERR_COUNT),
+	COMMON_ERR_END = ((int)ErrorCodeIndex::ERR_INDEX_COMMON + MAX_ERR_COUNT),
 };
 
 ////////////////////////////////////////////////////////
 // MTd
-enum ErrorMTd {
-	MTD_ERR_START = ERR_INDEX_MTD,
+enum class ErrorMTd {
+	MTD_ERR_START = (int)ErrorCodeIndex::ERR_INDEX_MTD,
 	///////////////////////////////////
 
 	MTD_ERR_DAEMON_NOT_CONNECTED,

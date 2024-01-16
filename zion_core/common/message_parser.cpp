@@ -81,7 +81,7 @@ void DaemonParser::ParseThread(void* param, std::string strMessage)
 	{
 		std::string strSendState = document[MTDPROTOCOL_SENDSTATE].GetString();
 		if (strSendState.compare(MTDPROTOCOL_SENDSTATE_RESPONSE) == 0) // Return ó��
-			nResultCode = COMMON_ERR_UNKNOWN_SENDSTATE;
+			nResultCode = (int)ErrorCommon::COMMON_ERR_UNKNOWN_SENDSTATE;
 	}
 
 	sendDocument.AddMember(MTDPROTOCOL_SECTION1, mtdProtocol.Section1, allocator);
@@ -161,42 +161,42 @@ int DaemonParser::GetBasicReturnJson(Document& document, ic::MTdProtocol& mtdPro
 	if (document.HasMember(MTDPROTOCOL_SECTION1) == true)
 		mtdProtocol.Section1 = document[MTDPROTOCOL_SECTION1].GetString();
 	else
-		return COMMON_ERR_NOT_FOUND_SEC1;
+		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SEC1;
 
 	if (document.HasMember(MTDPROTOCOL_SECTION2) == true)
 		mtdProtocol.Section2 = document[MTDPROTOCOL_SECTION2].GetString();
 	else
-		return COMMON_ERR_NOT_FOUND_SEC2;
+		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SEC2;
 
 	if (document.HasMember(MTDPROTOCOL_SECTION3) == true)
 		mtdProtocol.Section3 = document[MTDPROTOCOL_SECTION3].GetString();
 	else
-		return COMMON_ERR_NOT_FOUND_SEC3;
+		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SEC3;
 
 	if (document.HasMember(MTDPROTOCOL_SENDSTATE) == true)
 		mtdProtocol.SendState = document[MTDPROTOCOL_SENDSTATE].GetString();
 	else
-		return COMMON_ERR_NOT_FOUND_SENDSTATE;
+		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SENDSTATE;
 
 	if (document.HasMember(MTDPROTOCOL_TOKEN) == true)
 		mtdProtocol.Token = document[MTDPROTOCOL_TOKEN].GetString();
 	else
-		return COMMON_ERR_NOT_FOUND_TOKEN;
+		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_TOKEN;
 
 	if (document.HasMember(MTDPROTOCOL_FROM) == true)
 		mtdProtocol.From = document[MTDPROTOCOL_FROM].GetString();
 	else
-		return COMMON_ERR_NOT_FOUND_FROM;
+		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_FROM;
 
 	if (document.HasMember(MTDPROTOCOL_TO) == true)
 		mtdProtocol.To = document[MTDPROTOCOL_TO].GetString();
 	else
-		return COMMON_ERR_NOT_FOUND_TO;
+		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_TO;
 
 	if (document.HasMember(MTDPROTOCOL_ACTION) == true)
 		mtdProtocol.action = document[MTDPROTOCOL_ACTION].GetString();
 	else
-		return COMMON_ERR_NOT_FOUND_ACTION;
+		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_ACTION;
 
 	return SUCCESS;
 }

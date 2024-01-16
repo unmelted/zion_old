@@ -55,11 +55,11 @@ public:
     };
 
     struct ConfigureValue{
-        enum cfg_mode {
+        enum class cfg_mode {
             SERVER      = 10,
             STABIL      = 11,
         };
-        enum category {
+        enum class category {
             ROI_WIDTH    = 100,
             ROI_HEIGHT   = 101,
             SWIPE_PT_X   = 102,
