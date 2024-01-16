@@ -132,7 +132,7 @@ void ICServer::runSocket()
 		m_strIP = getLocalCompare(m_strClientIP);
         cout << "Connected client IP: " << inet_ntoa(clnt_adr.sin_addr);
         cout << "Local IP Address: " << m_strIP;
-
+        addClient("name_temp", m_strClientIP, m_ClientSockets);
 
 		ClientSockThreadData* threaddata = new ClientSockThreadData;
 		threaddata->pthis = this;

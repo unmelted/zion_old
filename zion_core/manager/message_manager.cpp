@@ -119,7 +119,7 @@ void *MsgManager::sndMSGThread(void *arg)
 		{
 			msg = m_qSMSG.Dequeue();
 			CMd_INFO(" SndMsg thread msg : {} ", msg->c_str());
-            std::string temp_clientname;
+            std::string temp_clientname = "name_temp";
 			getICServer()->sendData(temp_clientname, msg->c_str());
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(3));
