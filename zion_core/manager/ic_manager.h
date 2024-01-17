@@ -38,8 +38,7 @@ public:
 	~ICManager();
 
 private:
-	int	classfication(char cSeparator, char* pData, int nDataSize);
-	int validateJson(std::string strMessage);
+	int validateJson(char cSeparator, char* pData, int nDataSize);
 
     ICServer icServer_;
     MessageParser msg_parser;

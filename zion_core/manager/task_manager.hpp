@@ -56,8 +56,8 @@ private:
     std::thread *watcher_{nullptr};
     std::queue<std::function<void()>> jobs;
     std::condition_variable cv_job_;
-    std::mutex jobMutex;
-    MessageQueue<int> m_future;
+    std::mutex jobMutex_;
+    MessageQueue<int> future_;
     MessageQueue<std::shared_ptr<ic::MSG_T>> m_qTMSG;
     std::function<void(MsgManager &, const std::string msg)> fSendQue;
 

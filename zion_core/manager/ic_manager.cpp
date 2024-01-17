@@ -23,8 +23,8 @@
 ICManager::ICManager()
 {
 	msg_parser.setICServer(&icServer_);
-	icServer_.beginSocket(CM_CONTROL_DAEMON_PORT, 0);
-	icServer_.setHandler(std::bind(&ICManager::classfication, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
+	icServer_.beginSocket(ROBOT_CONTROL_PORT, 0);
+	icServer_.setHandler(std::bind(&ICManager::validateJson, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
 	msg_manager.setICServer(&icServer_);
 
 	Configurator::get().setDirectory();
@@ -35,27 +35,18 @@ ICManager::~ICManager()
 
 }
 
-int	ICManager::classfication(char cSeparator, char* pData, int nDataSize)
-{
-	switch (cSeparator)
-	{
-        case (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON:
-		validateJson(pData);
-		break;
 
-	default:
-		//ErrorL << "Invalid Message Separator : " << int(cSeparator) << "\n" << pData;
-		break;
-	}
-
-	return 0;
-}
-
-
-int ICManager::validateJson(std::string strMessage)
+int ICManager::validateJson(char cSeparator, char* pData, int nDataSize)
 {
     std::cout << "validateJson start " << endl;
 
+    if( cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON)
+    {
+        std::cout << " validateJson cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON " << endl;
+        return 0;
+    }
+
+    std::string strMessage = pData;
 	Document document;
 	bool bSuc = false;
 	try {

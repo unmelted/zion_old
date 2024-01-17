@@ -70,7 +70,7 @@ void TaskManager::enqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args)
     auto job = std::make_shared<std::packaged_task<return_type()>>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
     std::future<return_type> job_result_future = job->get_future();
     {
-        std::lock_guard<std::mutex> lock(jobMutex);
+        std::lock_guard<std::mutex> lock(jobMutex_);
         jobs.push([job]()
                   { (*job)(); });
     }
@@ -82,7 +82,7 @@ void TaskManager::workerThread()
 {
     while (true)
     {
-        std::unique_lock<std::mutex> lock(jobMutex);
+        std::unique_lock<std::mutex> lock(jobMutex_);
         cv_job_.wait(lock, [this]()
                     { return !this->jobs.empty() || stop_all_; });
         if (stop_all_ && this->jobs.empty())
@@ -121,7 +121,7 @@ int TaskManager::commandTask(int mode, std::string arg)
         // int result = in.ImportVideoInfo(arg, info.get());
         // CMd_INFO(" swipe period size {} ", info->swipe_period.size());
         // if (result == ic::ERR_NONE)
-        //     EnqueueJob(&m_future, &TaskManager::RunStabilize, this, info);
+        //     EnqueueJob(&future_, &TaskManager::RunStabilize, this, info);
         // else
         // {
         //     CMd_WARN(" Stabilization Message is not compatible ERR: {} ", result);
@@ -144,9 +144,9 @@ void TaskManager::watchFuture()
 
     while (watching_)
     {
-        if (m_future.IsQueue())
+        if (future_.IsQueue())
         {
-            makeSendMsg(m_qTMSG.Dequeue(), m_future.Dequeue());
+            makeSendMsg(m_qTMSG.Dequeue(), future_.Dequeue());
             cur_worker_--;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
