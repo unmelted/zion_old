@@ -89,13 +89,30 @@ struct Protocol
     std::string Type;
     std::string Command;
     std::string SubCommand;
-    std::string SendState;
+    std::string Action;
+    std::string Token;
     std::string From;
     std::string To;
-    std::string action;
-    std::string Token;
+    std::string Data;
+
 };
 
+
+#define PROTOCOL_SECTION1    "Type"
+#define PROTOCOL_SECTION2    "Command"
+#define PROTOCOL_SECTION3    "SubCommand"
+#define PROTOCOL_ACTION      "Action"
+#define PROTOCOL_TOKEN       "Token"
+//#define PROTOCOL_SENDSTATE   "SendState"
+#define PROTOCOL_FROM        "From"
+#define PROTOCOL_TO          "To"
+#define PROTOCOL_DATA        "Data"
+
+#define PROTOCOL_RESULTCODE  "ResultCode"
+#define PROTOCOL_ERRORMSG    "ErrorMsg"
+
+#define PROTOCOL_SENDSTATE_REQUEST       "request"
+#define PROTOCOL_SENDSTATE_RESPONSE      "response"
 
 typedef struct PACKET_TYPE
 {
@@ -142,22 +159,6 @@ enum class PACKET_SEPARATOR
     PACKETTYPE_SIZE,
 };
 
-#define PROTOCOL_SECTION1    "Type"
-#define PROTOCOL_SECTION2    "Command"
-#define PROTOCOL_SECTION3    "SubCommand"
-#define PROTOCOL_SENDSTATE   "SendState"
-#define PROTOCOL_FROM        "From"
-#define PROTOCOL_TO          "To"
-#define PROTOCOL_ACTION      "Action"
-#define PROTOCOL_TOKEN       "Token"
-#define PROTOCOL_RESULTCODE  "ResultCode"
-#define PROTOCOL_ERRORMSG    "ErrorMsg"
-
-#define PROTOCOL_SENDSTATE_REQUEST       "request"
-#define PROTOCOL_SENDSTATE_RESPONSE      "response"
-
-#define MTDHEADERSIZE           5
-//#define MTDPROTOCOL                           "YJS"
 
 #pragma pack(push, 1)
 struct ProtocolHeader

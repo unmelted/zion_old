@@ -77,21 +77,21 @@ void MessageParser::parseThread(void* param, std::string strMessage)
 	Document sendDocument(kObjectType);
 	Document::AllocatorType& allocator = sendDocument.GetAllocator();
 
-	if (document.HasMember(PROTOCOL_SENDSTATE))
-	{
-		std::string sendState = document[PROTOCOL_SENDSTATE].GetString();
-		if (sendState.compare(PROTOCOL_SENDSTATE_RESPONSE) == 0) // Return ó��
-			nResultCode = (int)ErrorCommon::COMMON_ERR_UNKNOWN_SENDSTATE;
-	}
+//	if (document.HasMember(PROTOCOL_SENDSTATE))
+//	{
+//		std::string sendState = document[PROTOCOL_SENDSTATE].GetString();
+//		if (sendState.compare(PROTOCOL_SENDSTATE_RESPONSE) == 0) // Return ó��
+//			nResultCode = (int)ErrorCommon::COMMON_ERR_UNKNOWN_SENDSTATE;
+//	}
 
 	sendDocument.AddMember(PROTOCOL_SECTION1, protocol.Type, allocator);
 	sendDocument.AddMember(PROTOCOL_SECTION2, protocol.Command, allocator);
 	sendDocument.AddMember(PROTOCOL_SECTION3, protocol.SubCommand, allocator);
-	sendDocument.AddMember(PROTOCOL_SENDSTATE, "response", allocator);
+	sendDocument.AddMember(PROTOCOL_ACTION, protocol.Action, allocator);
 	sendDocument.AddMember(PROTOCOL_TOKEN, protocol.Token, allocator);
 	sendDocument.AddMember(PROTOCOL_FROM, protocol.To, allocator);
 	sendDocument.AddMember(PROTOCOL_TO, protocol.From, allocator);
-	sendDocument.AddMember(PROTOCOL_ACTION, protocol.action, allocator);
+	sendDocument.AddMember(PROTOCOL_DATA, protocol.Data, allocator);
 	sendDocument.AddMember(PROTOCOL_RESULTCODE, nResultCode, allocator);
 	sendDocument.AddMember(PROTOCOL_ERRORMSG, "", allocator);
 
@@ -110,14 +110,14 @@ void MessageParser::parseThread(void* param, std::string strMessage)
 	string strSection1 = protocol.Type;
 	string strSection2 = protocol.Command;
 	string strSection3 = protocol.SubCommand;
-	string strAction = protocol.action;
+	string strAction = protocol.Action;
 	CMd_DEBUG("sction {} {} {}", strSection1, strSection2, strSection3);
 
-	if (strSection1.compare("Daemon") == 0)
+	if (strSection1.compare("Daemon"))
 	{
-		if (strSection2.compare("Information") == 0)
+		if (strSection2.compare("Information"))
 		{
-			if (strSection3.compare("Version") == 0)
+			if (strSection3.compare("Version"))
 			{
 				Value ver(kObjectType);
 				Value cmd(kObjectType);
@@ -175,8 +175,8 @@ int MessageParser::getBasicReturnJson(Document& document, ic::Protocol& protocol
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SEC3;
 
-	if (document.HasMember(PROTOCOL_SENDSTATE))
-		protocol.SendState = document[PROTOCOL_SENDSTATE].GetString();
+	if (document.HasMember(PROTOCOL_ACTION))
+		protocol.Action = document[PROTOCOL_ACTION].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SENDSTATE;
 
@@ -195,8 +195,8 @@ int MessageParser::getBasicReturnJson(Document& document, ic::Protocol& protocol
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_TO;
 
-	if (document.HasMember(PROTOCOL_ACTION))
-		protocol.action = document[PROTOCOL_ACTION].GetString();
+	if (document.HasMember(PROTOCOL_DATA))
+		protocol.Data = document[PROTOCOL_DATA].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_ACTION;
 

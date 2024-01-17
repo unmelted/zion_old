@@ -19,14 +19,14 @@
 using json = nlohmann::json;
 
 MsgManager::MsgManager()
-	: m_taskmanager(TASKPOOL_SIZE, this)
+	: taskmanager_(TASKPOOL_SIZE, this)
 {
-	b_RMSGThread = true;
-	b_SMSGThread = true;
-	m_pRMSGThread = new std::thread(&MsgManager::rcvMSGThread, this, this);
-	m_pSMSGThread = new std::thread(&MsgManager::sndMSGThread, this, this);
+	isRMSGThread_ = true;
+	isSMSGThread_ = true;
+	pRMSGThread_ = new std::thread(&MsgManager::rcvMSGThread, this, this);
+	pSMSGThread_ = new std::thread(&MsgManager::sndMSGThread, this, this);
 	std::function<void(MsgManager &, const std::string msg)> f1 = &MsgManager::onRcvSndMessage;
-	m_taskmanager.setSndQue(f1);
+	taskmanager_.setSndQue(f1);
 }
 
 ICServer *MsgManager::getICServer()
@@ -43,20 +43,20 @@ void MsgManager::setICServer(ICServer *dmServer)
 MsgManager::~MsgManager()
 {
 
-	b_RMSGThread = false;
-	if (m_pRMSGThread != nullptr)
+	isRMSGThread_ = false;
+	if (pRMSGThread_ != nullptr)
 	{
-		m_pRMSGThread->join();
-		delete m_pRMSGThread;
-		m_pRMSGThread = nullptr;
+		pRMSGThread_->join();
+		delete pRMSGThread_;
+		pRMSGThread_ = nullptr;
 	}
 
-	b_SMSGThread = false;
-	if (m_pSMSGThread != nullptr)
+	isSMSGThread_ = false;
+	if (pSMSGThread_ != nullptr)
 	{
-		m_pSMSGThread->join();
-		delete m_pSMSGThread;
-		m_pSMSGThread = nullptr;
+		pSMSGThread_->join();
+		delete pSMSGThread_;
+		pSMSGThread_ = nullptr;
 	}
 }
 
@@ -64,12 +64,12 @@ void *MsgManager::rcvMSGThread(void *arg)
 {
 
 	std::shared_ptr<ic::MSG_T> msg = nullptr;
-	while (b_RMSGThread)
+	while (isRMSGThread_)
 	{
 		if (m_qRMSG.IsQueue())
 		{
 			msg = m_qRMSG.Dequeue();
-			m_taskmanager.onRcvTask(msg);
+			taskmanager_.onRcvTask(msg);
 			if (msg != nullptr)
 			{
 				CMd_INFO("rcvMSGThread : {} ", msg->txt);
@@ -82,7 +82,7 @@ void *MsgManager::rcvMSGThread(void *arg)
 				string section3 = j["SubCommand"];
 				string action = j["Action"];
 				// if (action == "Stabilization" || section3 == "Stabilize") {
-				// 	m_taskmanager.commandTask(ic::POST_STABILIZATION, msg->txt);
+				// 	taskmanager_.commandTask(ic::POST_STABILIZATION, msg->txt);
 				// }
 			}
 		}
@@ -112,7 +112,7 @@ void *MsgManager::sndMSGThread(void *arg)
 {
 
 	std::shared_ptr<std::string> msg = nullptr;
-	while (b_SMSGThread)
+	while (isSMSGThread_)
 	{
 
 		if (m_qSMSG.IsQueue())

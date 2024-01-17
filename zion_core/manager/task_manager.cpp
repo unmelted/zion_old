@@ -22,7 +22,9 @@
 using namespace rapidjson;
 
 TaskManager::TaskManager(size_t num_worker_, MsgManager *a)
-    : num_worker_(num_worker_), stop_all_(false), watching_(true)
+: num_worker_(num_worker_)
+, stop_all_(false)
+, watching_(true)
 {
 
     msgmanager_ = a;
@@ -95,17 +97,6 @@ void TaskManager::workerThread()
         job();
     }
 }
-
-// int TaskManager::RunStabilize(shared_ptr<VIDEO_INFO> arg)
-// {
-//     int result = -1;
-//     CMd_DEBUG(" Stabil Swipe period size {}", arg->swipe_period.size());
-//     unique_ptr<Dove> stblz(new Dove());
-//     stblz->SetInfo(arg.get());
-//     result = stblz->Process();
-//     CMd_INFO("Run stabilize Done. Result : {}" , result);
-//     return result;
-// }
 
 int TaskManager::commandTask(int mode, std::string arg)
 {
@@ -191,11 +182,11 @@ void TaskManager::makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
         sndDoc.AddMember(PROTOCOL_SECTION1, "4DReplay", allocator);
         sndDoc.AddMember(PROTOCOL_SECTION2, "CM", allocator);
         sndDoc.AddMember(PROTOCOL_SECTION3, "StabilizeDone", allocator);
-        sndDoc.AddMember(PROTOCOL_SENDSTATE, "request", allocator);
+        sndDoc.AddMember(PROTOCOL_ACTION, "action", allocator);
         sndDoc.AddMember(PROTOCOL_TOKEN, str_token, allocator); // token..
         sndDoc.AddMember(PROTOCOL_FROM, "CMd", allocator);
         sndDoc.AddMember(PROTOCOL_TO, "4DPD", allocator);
-        sndDoc.AddMember(PROTOCOL_ACTION, "set", allocator);
+        sndDoc.AddMember(PROTOCOL_DATA, "set", allocator);
         sndDoc.AddMember("output", outfile, allocator);
     }
 
@@ -219,11 +210,11 @@ void TaskManager::sendVersionMessage(std::string ptrMsg)
     sndDoc.AddMember(PROTOCOL_SECTION1, document[PROTOCOL_SECTION1], allocator);
     sndDoc.AddMember(PROTOCOL_SECTION2, document[PROTOCOL_SECTION2], allocator);
     sndDoc.AddMember(PROTOCOL_SECTION3, document[PROTOCOL_SECTION3], allocator);
-    sndDoc.AddMember(PROTOCOL_SENDSTATE, "response", allocator);
+    sndDoc.AddMember(PROTOCOL_ACTION, "response", allocator);
     sndDoc.AddMember(PROTOCOL_TOKEN, document[PROTOCOL_TOKEN], allocator);
     sndDoc.AddMember(PROTOCOL_FROM, document[PROTOCOL_TO], allocator);
     sndDoc.AddMember(PROTOCOL_TO, document[PROTOCOL_FROM], allocator);
-    sndDoc.AddMember(PROTOCOL_ACTION, document[PROTOCOL_ACTION], allocator);
+    sndDoc.AddMember(PROTOCOL_DATA, document[PROTOCOL_ACTION], allocator);
     sndDoc.AddMember("Version", ver, allocator);
     sndDoc.AddMember(PROTOCOL_RESULTCODE, (int)ErrorCommon::COMMON_ERR_NONE, allocator);
     sndDoc.AddMember(PROTOCOL_ERRORMSG, "SUCCESS", allocator);

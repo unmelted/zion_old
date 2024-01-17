@@ -259,7 +259,7 @@ bool ICServer::sendData(const std::string& clientName, std::string strJson)
     }
     else
     {
-        // 클라이언트 정보를 찾지 못한 경우 처리
+        // todo : add error handling when client is not found
     }
 
 	sockMutex_.unlock();

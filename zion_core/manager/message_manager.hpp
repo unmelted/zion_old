@@ -34,16 +34,15 @@ public:
 private :
     void* rcvMSGThread(void* arg);
     void* sndMSGThread(void* arg);
-    void sendVersionMessage(std::shared_ptr<ic::MSG_T> ptrMsg);
 
     ICServer* icServer_;
-    bool b_RMSGThread;
-    std::thread* m_pRMSGThread{ nullptr };
-    bool b_SMSGThread;
-    std::thread* m_pSMSGThread{ nullptr };
+    bool isRMSGThread_;
+    std::thread* pRMSGThread_{ nullptr };
+    bool isSMSGThread_;
+    std::thread* pSMSGThread_{ nullptr };
     MessageQueue<std::shared_ptr<ic::MSG_T>> m_qRMSG;
     MessageQueue<std::shared_ptr<std::string>> m_qSMSG;
     CMdLogger _logger;
 
-    TaskManager m_taskmanager;
+    TaskManager taskmanager_;
 };
