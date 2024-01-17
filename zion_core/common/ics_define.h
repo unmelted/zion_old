@@ -186,17 +186,6 @@ enum class CLIENT_PORT
 //    SOCKNUM_SERVER_SIZE,
 //};
 
-static char arrDaemonObject[20][100] = {"MTd", "EMd", "SCd", "CCd", "GCd", "SPd", "PCd", "PreSd", "PostSd", "VPd", "VPd", "VPd", "CMd"};
-
-
-static char arrModelObject[11][100] = {"4DDM",                     // Controller Daemon
-                                       "4DPD",                     // Producing Daemon
-                                       "VARApp",                   // VAR Daemon
-                                       "EMSApp",                   // EMS Daemon
-                                       "DaemonViewer",             // DaemonViwer
-                                       "4DBUFFER",             // DaemonBufferViewer
-                                       "4DLOG",                    // LogViewer
-};
 
 #define MTDPROTOCOL_SECTION1    "Section1"
 #define MTDPROTOCOL_SECTION2    "Section2"
@@ -219,7 +208,7 @@ static char arrModelObject[11][100] = {"4DDM",                     // Controller
 //#define MTDPROTOCOL                           "YJS"
 
 #pragma pack(push, 1)
-struct MTdProtocolHeader
+struct ProtocolHeader
 {
     int nSize;
     char cSeparator;

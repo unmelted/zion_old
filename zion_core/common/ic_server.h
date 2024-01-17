@@ -44,10 +44,9 @@ struct ClientInfo
 
 struct ClientSockThreadData
 {
+    std::string clientIp;
     void* pthis;
-    int nType;
-    int nSocket;
-    std::string strClientIP;
+    int socket;
 };
 
 class ICServer
@@ -63,7 +62,8 @@ public :
     typedef std::function<int(char cSeparator, char* pData, int nDataSize)> callback;
     callback m_onClassfication;
 
-    void setHandler(callback f) {
+    void setHandler(callback f)
+    {
         m_onClassfication = std::move(f);
     }
 
@@ -83,12 +83,12 @@ private:
     std::mutex sockMutex_;
     std::mutex sendMutex_;
 
-    bool bMainSocketThread;
-    std::thread* m_mainSocketThread;
+    bool isMainSocketThread_;
+    std::thread* mainSocketThread_;
 
-    std::thread* m_clientReceiveThread;
-    std::vector<int> clientSocketsList;
-    std::unordered_map<std::string, struct ClientInfo> m_clientMap;
+    std::thread* clientReceiveThread_;
+    std::vector<int> clientSocketsList_;
+    std::unordered_map<std::string, struct ClientInfo> clientMap_;
 
     int m_ServerSockets;
     int m_ServerPorts;

@@ -20,9 +20,9 @@
 
 ICServer::ICServer()
 {
-	bMainSocketThread = false;
-	m_mainSocketThread = nullptr;
-	m_clientReceiveThread = nullptr;
+	isMainSocketThread_ = false;
+	mainSocketThread_ = nullptr;
+	clientReceiveThread_ = nullptr;
 	m_ServerSockets = 0;
     m_ServerPorts = 0;
     m_nSendBufferSize = 0;
@@ -32,25 +32,25 @@ ICServer::ICServer()
 
 ICServer::~ICServer()
 {
-	bMainSocketThread = false;
+	isMainSocketThread_ = false;
 
-    for(int socket : clientSocketsList)
+    for(int socket : clientSocketsList_)
     {
         closeSocket(socket);
     }
 
 	closeSocket(m_ServerSockets);
 
-	if (m_mainSocketThread != nullptr)
+	if (mainSocketThread_ != nullptr)
 	{
-		m_mainSocketThread->join();
-		m_mainSocketThread = nullptr;
+		mainSocketThread_->join();
+		mainSocketThread_ = nullptr;
 	}
 
-	if (m_clientReceiveThread != nullptr)
+	if (clientReceiveThread_ != nullptr)
 	{
-		m_clientReceiveThread->join();
-		m_clientReceiveThread = nullptr;
+		clientReceiveThread_->join();
+		clientReceiveThread_ = nullptr;
 	}
 	if (m_pSendBuffer != nullptr)
 		delete[] m_pSendBuffer;
@@ -65,12 +65,12 @@ void ICServer::closeSocket(int nSock)
 
 bool ICServer::beginSocket(int nPort, int nType)
 {
-	if (bMainSocketThread)
+	if (isMainSocketThread_)
 		return false;
 
 	m_ServerPorts = nPort;
-	bMainSocketThread = true;
-	m_mainSocketThread = new std::thread(&ICServer::runSocketThread, this, this);
+	isMainSocketThread_ = true;
+	mainSocketThread_ = new std::thread(&ICServer::runSocketThread, this, this);
 
 	return true;
 }
@@ -108,7 +108,7 @@ void ICServer::runSocket()
 	}
 
 
-	while (bMainSocketThread)
+	while (isMainSocketThread_)
 	{
 		clnt_adr_sz = sizeof(clnt_adr);
 		int clientSocket = (int)(accept(m_ServerSockets, (struct sockaddr*)&clnt_adr, (socklen_t*)&clnt_adr_sz));
@@ -117,67 +117,65 @@ void ICServer::runSocket()
 			continue;
 
 		sockMutex_.lock();
-        clientSocketsList.push_back(clientSocket);
+        clientSocketsList_.push_back(clientSocket);
         sockMutex_.unlock();
 
-        std::string strClientIP = inet_ntoa(clnt_adr.sin_addr);
-		std::string strIP = getLocalCompare(strClientIP);
+        std::string clientIP = inet_ntoa(clnt_adr.sin_addr);
+		std::string strIP = getLocalCompare(clientIP);
 
         if (strIP.compare(""))
             continue;
 
-        cout << "Connected client IP: " << strClientIP << endl;
+        cout << "Connected client IP: " << clientIP << endl;
         cout << "Local IP Address: " << strIP << endl;
-        addClient("name_temp", strClientIP, clientSocket);
+        addClient("name_temp", clientIP, clientSocket);
 
 		ClientSockThreadData* threaddata = new ClientSockThreadData;
 		threaddata->pthis = this;
-		threaddata->strClientIP = strClientIP;
-		threaddata->nSocket = clientSocket;
+		threaddata->clientIp = clientIP;
+		threaddata->socket = clientSocket;
 
         std::thread(&ICServer::handle_client, this, (void*)threaddata).detach();
 
 	}
 
     sockMutex_.lock();
-    for(int socket : clientSocketsList)
+    for(int socket : clientSocketsList_)
     {
         closeSocket(socket);
     }
-    clientSocketsList.clear();
+    clientSocketsList_.clear();
     sockMutex_.unlock();
 }
 
 void* ICServer::handle_client(void* arg)
 {
 	ClientSockThreadData* threadData = (ClientSockThreadData*)arg;
-	int clnt_sock = threadData->nSocket;
-	std::string clnt_IP = threadData->strClientIP;
+	int clnt_sock = threadData->socket;
+	std::string clnt_IP = threadData->clientIp;
 	ICServer* pSocketMgr = (ICServer*)threadData->pthis;
 	delete threadData;
 
-	while (pSocketMgr->bMainSocketThread)
+	while (pSocketMgr->isMainSocketThread_)
 	{
 		int str_len = 0;
 		int nPacketSize = 0;
-		ic::MTdProtocolHeader mtdProtoHeader;
-		bool nRecvOK = true;
+		ic::ProtocolHeader header;
 
-		if ((str_len = pSocketMgr->receive(clnt_sock, (char*)&mtdProtoHeader, sizeof(mtdProtoHeader), 0)) == 0)
+		if ((str_len = pSocketMgr->receive(clnt_sock, (char*)&header, sizeof(header), 0)) == 0)
 		{
-			nRecvOK = false;
 			break;
 		}
         cout << " check 1 " <<endl;
-        cout << "handle_client : " << (char*)&mtdProtoHeader << " : size : " << mtdProtoHeader.nSize << endl;
-		if (str_len < sizeof(ic::MTdProtocolHeader))
+        cout << "handle_client : " << (char*)&header << " : size : " << header.nSize << endl;
+		if (str_len < sizeof(ic::ProtocolHeader))
 			continue;
         cout << " check 2 " <<endl;
 
-		nPacketSize = mtdProtoHeader.nSize;
-		if (nPacketSize < 1 || nPacketSize > 5000000 || mtdProtoHeader.cSeparator >= (int)ic::PACKET_SEPARATOR::PACKETTYPE_SIZE)
+		nPacketSize = header.nSize;
+		if (nPacketSize < 1 || nPacketSize > 5000000 || header.cSeparator >= (int)ic::PACKET_SEPARATOR::PACKETTYPE_SIZE)
 		{
-			//ErrorL << "Invaild Header Packet!!!, Size : " << nPacketSize << ", Separator : " << mtdProtoHeader.cSeparator;
+			//ErrorL << "Invaild Header Packet!!!, Size : " << nPacketSize << ", Separator : " << header.cSeparator;
 			continue;
 		}
 
@@ -188,7 +186,6 @@ void* ICServer::handle_client(void* arg)
 			memset(pData, 0, nPacketSize + 1);
 			if ((str_len = pSocketMgr->receive(clnt_sock, (char*)pData, nPacketSize, 0)) == 0)
 			{
-				nRecvOK = false;
 				break;
 			}
 		}
@@ -199,7 +196,7 @@ void* ICServer::handle_client(void* arg)
 		if (pSocketMgr->m_onClassfication != 0)
 		{
             cout << " check 3 " <<endl;
-			int nErrorCode = pSocketMgr->m_onClassfication(mtdProtoHeader.cSeparator, pData, nPacketSize);
+			int nErrorCode = pSocketMgr->m_onClassfication(header.cSeparator, pData, nPacketSize);
             cout << " check 5 " << nErrorCode <<endl;
 
 			//if (nErrorCode != MTD_PROTOCOL_OK)
@@ -226,7 +223,6 @@ void* ICServer::handle_client(void* arg)
 
 	pSocketMgr->closeSocket(clnt_sock);
 
-	//InfoL << "Close Socket IP : " << clnt_IP << ", Type : " << arrDaemonObject[pSocketMgr->m_nSockType] << ", SockNum : " << clnt_sock;
 	return NULL;
 }
 
@@ -255,8 +251,8 @@ bool ICServer::sendData(const std::string& clientName, std::string strJson)
 	sockMutex_.lock();
 
     int nSend = -1;
-    auto clientInfoIterator = m_clientMap.find(clientName);
-    if (clientInfoIterator != m_clientMap.end())
+    auto clientInfoIterator = clientMap_.find(clientName);
+    if (clientInfoIterator != clientMap_.end())
     {
         struct ClientInfo& clientInfo = clientInfoIterator->second;
         nSend = send(clientInfo.clientSocket, m_pSendBuffer, nSendSize, 0);
@@ -286,7 +282,7 @@ void ICServer::addClient(const std::string& clientName, const std::string& clien
     clientInfo.clientIp = clientIp;
     clientInfo.clientSocket = clientSocket;
 
-    m_clientMap[clientName] = clientInfo;
+    clientMap_[clientName] = clientInfo;
 
     sockMutex_.unlock();
 }

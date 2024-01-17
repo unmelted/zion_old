@@ -38,11 +38,10 @@ public:
 	~ICManager();
 
 private:
-	void getBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol);
 	int	classfication(char cSeparator, char* pData, int nDataSize);
-	int recJson(std::string strMessage);
+	int validateJson(std::string strMessage);
 
-    ICServer icServer;
+    ICServer icServer_;
     MessageParser msg_parser;
     MsgManager msg_manager;
 

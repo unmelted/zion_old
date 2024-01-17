@@ -46,7 +46,7 @@ private:
 	std::string getDocumentToString(Document& document);
 
 private:
-    ICServer* icServer;
-    bool m_bThreadStop;
+    ICServer* icServer_;
+    bool isThreadStop_;
 
 };

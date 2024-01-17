@@ -36,7 +36,7 @@ private :
     void* sndMSGThread(void* arg);
     void sendVersionMessage(std::shared_ptr<ic::MSG_T> ptrMsg);
 
-    ICServer* icServer;
+    ICServer* icServer_;
     bool b_RMSGThread;
     std::thread* m_pRMSGThread{ nullptr };
     bool b_SMSGThread;

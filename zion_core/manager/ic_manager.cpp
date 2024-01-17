@@ -22,10 +22,10 @@
 
 ICManager::ICManager()
 {
-	msg_parser.setICServer(&icServer);
-	icServer.beginSocket(CM_CONTROL_DAEMON_PORT, 0);
-	icServer.setHandler(std::bind(&ICManager::classfication, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
-	msg_manager.setICServer(&icServer);
+	msg_parser.setICServer(&icServer_);
+	icServer_.beginSocket(CM_CONTROL_DAEMON_PORT, 0);
+	icServer_.setHandler(std::bind(&ICManager::classfication, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
+	msg_manager.setICServer(&icServer_);
 
 	Configurator::get().setDirectory();
 }
@@ -40,7 +40,7 @@ int	ICManager::classfication(char cSeparator, char* pData, int nDataSize)
 	switch (cSeparator)
 	{
         case (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON:
-		recJson(pData);
+		validateJson(pData);
 		break;
 
 	default:
@@ -52,7 +52,7 @@ int	ICManager::classfication(char cSeparator, char* pData, int nDataSize)
 }
 
 
-int ICManager::recJson(std::string strMessage)
+int ICManager::validateJson(std::string strMessage)
 {
 	Document document;
 	bool bSuc = false;
@@ -70,7 +70,7 @@ int ICManager::recJson(std::string strMessage)
 	}
 
 	std::string sec3 = document[MTDPROTOCOL_SECTION3].GetString();
-	CMd_INFO("recJson sec3 : {} compare {}", sec3, sec3.compare("Version"));
+	CMd_INFO("validateJson sec3 : {} compare {}", sec3, sec3.compare("Version"));
 	if(sec3.compare("Version") == 0) {
 		msg_parser.runParse(strMessage);
 	}
@@ -80,29 +80,4 @@ int ICManager::recJson(std::string strMessage)
 	}
 
 	return 1;
-}
-
-void ICManager::getBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol)
-{
-	std::string strTp;
-	if (document.HasMember("Section1"))
-		mtdProtocol.Section1 = document["Section1"].GetString();
-
-	if (document.HasMember("Sectoin2"))
-		mtdProtocol.Section2 = document["Sectoin2"].GetString();
-
-	if (document.HasMember("Sectoin3"))
-		mtdProtocol.Section3 = document["Sectoin3"].GetString();
-	
-	if (document.HasMember("SendState"))
-		mtdProtocol.SendState = document["SendState"].GetString();
-
-	if (document.HasMember("From"))
-		mtdProtocol.From = document["From"].GetString();
-
-	if (document.HasMember("To"))
-		mtdProtocol.To = document["To"].GetString();
-
-	if (document.HasMember("action"))
-		mtdProtocol.action = document["action"].GetString();
 }

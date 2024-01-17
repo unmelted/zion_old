@@ -31,13 +31,13 @@ MsgManager::MsgManager()
 
 ICServer *MsgManager::getICServer()
 {
-	return icServer;
+	return icServer_;
 }
 
 
 void MsgManager::setICServer(ICServer *dmServer)
 {
-	icServer = dmServer;
+	icServer_ = dmServer;
 }
 
 MsgManager::~MsgManager()

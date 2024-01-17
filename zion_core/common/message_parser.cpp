@@ -58,7 +58,7 @@ void MessageParser::runParse(std::string strMessage)
 
 bool MessageParser::isThreadStop()
 {
-	return m_bThreadStop;
+	return isThreadStop_;
 }
 
 void MessageParser::parseThread(void* param, std::string strMessage)
@@ -138,13 +138,13 @@ void MessageParser::parseThread(void* param, std::string strMessage)
 
 ICServer* MessageParser::getDMServer()
 {
-	return icServer;
+	return icServer_;
 }
 
 
 void MessageParser::setICServer(ICServer* dmServer)
 {
-	icServer = dmServer;
+	icServer_ = dmServer;
 }
 
 std::string MessageParser::getDocumentToString(Document& document)
@@ -160,42 +160,42 @@ std::string MessageParser::getDocumentToString(Document& document)
 
 int MessageParser::getBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol)
 {
-	if (document.HasMember(MTDPROTOCOL_SECTION1) == true)
+	if (document.HasMember(MTDPROTOCOL_SECTION1))
 		mtdProtocol.Section1 = document[MTDPROTOCOL_SECTION1].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SEC1;
 
-	if (document.HasMember(MTDPROTOCOL_SECTION2) == true)
+	if (document.HasMember(MTDPROTOCOL_SECTION2))
 		mtdProtocol.Section2 = document[MTDPROTOCOL_SECTION2].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SEC2;
 
-	if (document.HasMember(MTDPROTOCOL_SECTION3) == true)
+	if (document.HasMember(MTDPROTOCOL_SECTION3))
 		mtdProtocol.Section3 = document[MTDPROTOCOL_SECTION3].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SEC3;
 
-	if (document.HasMember(MTDPROTOCOL_SENDSTATE) == true)
+	if (document.HasMember(MTDPROTOCOL_SENDSTATE))
 		mtdProtocol.SendState = document[MTDPROTOCOL_SENDSTATE].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SENDSTATE;
 
-	if (document.HasMember(MTDPROTOCOL_TOKEN) == true)
+	if (document.HasMember(MTDPROTOCOL_TOKEN))
 		mtdProtocol.Token = document[MTDPROTOCOL_TOKEN].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_TOKEN;
 
-	if (document.HasMember(MTDPROTOCOL_FROM) == true)
+	if (document.HasMember(MTDPROTOCOL_FROM))
 		mtdProtocol.From = document[MTDPROTOCOL_FROM].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_FROM;
 
-	if (document.HasMember(MTDPROTOCOL_TO) == true)
+	if (document.HasMember(MTDPROTOCOL_TO))
 		mtdProtocol.To = document[MTDPROTOCOL_TO].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_TO;
 
-	if (document.HasMember(MTDPROTOCOL_ACTION) == true)
+	if (document.HasMember(MTDPROTOCOL_ACTION))
 		mtdProtocol.action = document[MTDPROTOCOL_ACTION].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_ACTION;
