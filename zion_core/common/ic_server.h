@@ -59,7 +59,6 @@ public :
     bool beginSocket(int nPort, int nType);
     bool sendData(const std::string& clientName, std::string strJson);
     void addClient(const std::string& clientName, const std::string& clientIp, int clientSocket);
-    bool isConnected();
 
     typedef std::function<int(char cSeparator, char* pData, int nDataSize)> callback;
     callback m_onClassfication;
@@ -81,25 +80,19 @@ private:
     int receive(int clnt_sock, char* pRecv, int nSize, int flags);
 
 
-    std::mutex m_Sockmutx;
-    std::mutex m_SendMutex;
+    std::mutex sockMutex_;
+    std::mutex sendMutex_;
 
     bool bMainSocketThread;
     std::thread* m_mainSocketThread;
 
     std::thread* m_clientReceiveThread;
-    std::vector<int> m_ClientSocketsList;
+    std::vector<int> clientSocketsList;
     std::unordered_map<std::string, struct ClientInfo> m_clientMap;
 
     int m_ServerSockets;
-    int m_ClientSockets;
     int m_ServerPorts;
-    int m_nSockType;
     int m_nSendBufferSize;
     char* m_pSendBuffer;
-
-    std::string m_strIP;
-    std::string m_strClientIP;
-
 };
 

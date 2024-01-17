@@ -24,20 +24,22 @@ ICServer::ICServer()
 	m_mainSocketThread = nullptr;
 	m_clientReceiveThread = nullptr;
 	m_ServerSockets = 0;
-	m_ClientSockets = 0;
-	m_ServerPorts = 0;
-	m_nSockType = 0;
-	m_strIP = "";
-	m_nSendBufferSize = 0;
+    m_ServerPorts = 0;
+    m_nSendBufferSize = 0;
 	m_pSendBuffer = nullptr;
-	m_strClientIP = "";
+
 }
 
 ICServer::~ICServer()
 {
 	bMainSocketThread = false;
+
+    for(int socket : clientSocketsList)
+    {
+        closeSocket(socket);
+    }
+
 	closeSocket(m_ServerSockets);
-	closeSocket(m_ClientSockets);
 
 	if (m_mainSocketThread != nullptr)
 	{
@@ -61,22 +63,12 @@ void ICServer::closeSocket(int nSock)
 	shutdown(nSock, SHUT_RDWR);
 }
 
-bool ICServer::isConnected()
-{
-	if (m_ClientSockets > 0)
-		return true;
-	else
-		return false;
-}
-
-
 bool ICServer::beginSocket(int nPort, int nType)
 {
-	if (bMainSocketThread == true)
+	if (bMainSocketThread)
 		return false;
 
 	m_ServerPorts = nPort;
-	m_nSockType = nType;
 	bMainSocketThread = true;
 	m_mainSocketThread = new std::thread(&ICServer::runSocketThread, this, this);
 
@@ -119,37 +111,41 @@ void ICServer::runSocket()
 	while (bMainSocketThread)
 	{
 		clnt_adr_sz = sizeof(clnt_adr);
-		int nClientSocket = (int)(accept(m_ServerSockets, (struct sockaddr*)&clnt_adr, (socklen_t*)&clnt_adr_sz));
+		int clientSocket = (int)(accept(m_ServerSockets, (struct sockaddr*)&clnt_adr, (socklen_t*)&clnt_adr_sz));
 
-		if (nClientSocket <= 0)
+		if (clientSocket <= 0)
 			continue;
 
-		m_Sockmutx.lock();
-        m_ClientSocketsList.push_back(nClientSocket);
-        m_Sockmutx.unlock();
+		sockMutex_.lock();
+        clientSocketsList.push_back(clientSocket);
+        sockMutex_.unlock();
 
-        m_strClientIP = inet_ntoa(clnt_adr.sin_addr);
-		m_strIP = getLocalCompare(m_strClientIP);
-        cout << "Connected client IP: " << inet_ntoa(clnt_adr.sin_addr);
-        cout << "Local IP Address: " << m_strIP;
-        addClient("name_temp", m_strClientIP, m_ClientSockets);
+        std::string strClientIP = inet_ntoa(clnt_adr.sin_addr);
+		std::string strIP = getLocalCompare(strClientIP);
+
+        if (strIP.compare(""))
+            continue;
+
+        cout << "Connected client IP: " << strClientIP << endl;
+        cout << "Local IP Address: " << strIP << endl;
+        addClient("name_temp", strClientIP, clientSocket);
 
 		ClientSockThreadData* threaddata = new ClientSockThreadData;
 		threaddata->pthis = this;
-		threaddata->strClientIP = m_strClientIP;
-		threaddata->nSocket = m_ClientSockets;
+		threaddata->strClientIP = strClientIP;
+		threaddata->nSocket = clientSocket;
 
         std::thread(&ICServer::handle_client, this, (void*)threaddata).detach();
 
 	}
 
-    m_Sockmutx.lock();
-    for(int socket : m_ClientSocketsList)
+    sockMutex_.lock();
+    for(int socket : clientSocketsList)
     {
         closeSocket(socket);
     }
-    m_ClientSocketsList.clear();
-    m_Sockmutx.unlock();
+    clientSocketsList.clear();
+    sockMutex_.unlock();
 }
 
 void* ICServer::handle_client(void* arg)
@@ -228,9 +224,6 @@ void* ICServer::handle_client(void* arg)
 		}
 	}
 
-	pSocketMgr->m_Sockmutx.lock();
-	pSocketMgr->m_ClientSockets = 0;
-	pSocketMgr->m_Sockmutx.unlock();
 	pSocketMgr->closeSocket(clnt_sock);
 
 	//InfoL << "Close Socket IP : " << clnt_IP << ", Type : " << arrDaemonObject[pSocketMgr->m_nSockType] << ", SockNum : " << clnt_sock;
@@ -241,7 +234,7 @@ bool ICServer::sendData(const std::string& clientName, std::string strJson)
 {
 	int nSize = (int)strlen(strJson.c_str());
 	char cType = (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON;
-	m_SendMutex.lock();
+	sendMutex_.lock();
 
 	int nSendSize = sizeof(int) + 1 + nSize;
 	if (m_nSendBufferSize < nSendSize)
@@ -259,7 +252,7 @@ bool ICServer::sendData(const std::string& clientName, std::string strJson)
 	nBufPos++;
 
 	memcpy(m_pSendBuffer + nBufPos, strJson.c_str(), nSize);
-	m_Sockmutx.lock();
+	sockMutex_.lock();
 
     int nSend = -1;
     auto clientInfoIterator = m_clientMap.find(clientName);
@@ -273,8 +266,8 @@ bool ICServer::sendData(const std::string& clientName, std::string strJson)
         // 클라이언트 정보를 찾지 못한 경우 처리
     }
 
-	m_Sockmutx.unlock();
-	m_SendMutex.unlock();
+	sockMutex_.unlock();
+	sendMutex_.unlock();
 	if (nSend != nSendSize)
 	{
 		//ErrorL << "[ERROR]Send Fail MTD";
@@ -287,7 +280,7 @@ bool ICServer::sendData(const std::string& clientName, std::string strJson)
 
 void ICServer::addClient(const std::string& clientName, const std::string& clientIp, int clientSocket)
 {
-    m_Sockmutx.lock();
+    sockMutex_.lock();
 
     struct ClientInfo clientInfo;
     clientInfo.clientIp = clientIp;
@@ -295,7 +288,7 @@ void ICServer::addClient(const std::string& clientName, const std::string& clien
 
     m_clientMap[clientName] = clientInfo;
 
-    m_Sockmutx.unlock();
+    sockMutex_.unlock();
 }
 
 int ICServer::receive(int clnt_sock, char* pRecv, int nSize, int flags)
@@ -329,25 +322,6 @@ std::list<std::string> ICServer::getIPList()
 {
 	std::list<std::string> lstIPAddress;
 
-#ifdef WIN32
-	char name[255];
-	PHOSTENT pHostinfo;
-	if (gethostname(name, sizeof(name)) == 0)
-	{
-		if ((pHostinfo = gethostbyname(name)) != NULL)
-		{
-			if (pHostinfo)
-			{
-				for (int i = 0; pHostinfo->h_addr_list[i] != NULL; i++)
-				{
-					IN_ADDR in;
-					memcpy(&in, pHostinfo->h_addr_list[i], pHostinfo->h_length);
-					lstIPAddress.push_back(inet_ntoa(in));
-				}
-			}
-		}
-	}
-#else
 	int             sock, nRet, nFamily = PF_INET;
 	size_t          nNIC;
 	const size_t    nMaxNIC = 256;
@@ -376,13 +350,13 @@ std::list<std::string> ICServer::getIPList()
 			lstIPAddress.push_back(inet_ntoa(sin->sin_addr));
 		}
 	}
-#endif
+
 	return lstIPAddress;
 }
 
 std::string ICServer::getLocalCompare(std::string strIP)
 {
-	std::string _strIP;
+	std::string _strIP = "";
 
 	std::list<std::string> _list = getIPList();
 	std::list<std::string>::iterator iter;
