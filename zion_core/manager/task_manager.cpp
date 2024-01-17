@@ -107,17 +107,17 @@ int TaskManager::commandTask(int mode, std::string arg)
 
     if (mode == (int)ic::COMMAND_TYPE::COMMAND_START)
     {
-        // ExpUtil in;
-        // shared_ptr<VIDEO_INFO> info = make_shared<VIDEO_INFO>();
-        // int result = in.ImportVideoInfo(arg, info.get());
-        // CMd_INFO(" swipe period size {} ", info->swipe_period.size());
-        // if (result == ic::ERR_NONE)
-        //     EnqueueJob(&future_, &TaskManager::RunStabilize, this, info);
-        // else
-        // {
-        //     CMd_WARN(" Stabilization Message is not compatible ERR: {} ", result);
-        //     m_qTMSG.Dequeue();
-        // }
+//         ExpUtil in;
+//         shared_ptr<VIDEO_INFO> info = make_shared<VIDEO_INFO>();
+//         int result = in.ImportVideoInfo(arg, info.get());
+//         CMd_INFO(" swipe period size {} ", info->swipe_period.size());
+//         if (result == ic::ERR_NONE)
+//             EnqueueJob(&future_, &TaskManager::RunStabilize, this, info);
+//         else
+//         {
+//             CMd_WARN(" Stabilization Message is not compatible ERR: {} ", result);
+//             m_qTMSG.Dequeue();
+//         }
     }
     else if (mode == (int)ic::COMMAND_TYPE::COMMAND_STOP)
     {

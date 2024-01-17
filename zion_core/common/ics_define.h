@@ -66,7 +66,7 @@
 #define LOGVIEWER_PORT                      0x4D26
 
 #define VP_BUFFER_MAXSIZE	10
-#define TASKPOOL_SIZE 3
+#define TASKPOOL_SIZE 10
 #define CURRENTVERSION "0.0.1.T"
 
 
@@ -77,11 +77,16 @@ namespace ic
 enum class COMMAND_TYPE
 {
     COMMAND_NONE = 0,
-    COMMAND_VERSION,
     COMMAND_START,
+    COMMAND_INITIALIZE,
     COMMAND_STOP,
     COMMAND_RESTART,
-    COMMAND_STATUS,
+    COMMAND_GETINFO,
+    COMMAND_SETINFO,
+    COMMAND_HEARTBEAT,
+    COMMAND_VERSION,
+    COMMAND_NOTIFY,
+    COMMAND_SIZE,
 };
 
 struct Protocol
@@ -110,9 +115,6 @@ struct Protocol
 
 #define PROTOCOL_RESULTCODE  "ResultCode"
 #define PROTOCOL_ERRORMSG    "ErrorMsg"
-
-#define PROTOCOL_SENDSTATE_REQUEST       "request"
-#define PROTOCOL_SENDSTATE_RESPONSE      "response"
 
 typedef struct PACKET_TYPE
 {

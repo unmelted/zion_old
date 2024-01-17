@@ -66,9 +66,9 @@ void *MsgManager::rcvMSGThread(void *arg)
 	std::shared_ptr<ic::MSG_T> msg = nullptr;
 	while (isRMSGThread_)
 	{
-		if (m_qRMSG.IsQueue())
+		if (queRcvMSG_.IsQueue())
 		{
-			msg = m_qRMSG.Dequeue();
+			msg = queRcvMSG_.Dequeue();
 			taskmanager_.onRcvTask(msg);
 			if (msg != nullptr)
 			{
@@ -98,14 +98,14 @@ void MsgManager::onRcvMessage(std::string pData)
 	std::shared_ptr<ic::MSG_T> ptrMsg = std::shared_ptr<ic::MSG_T>(new ic::MSG_T);
 	ptrMsg->type = ic::PACKET_TYPE::TEXT;
 	ptrMsg->txt = pData;
-	m_qRMSG.Enqueue(ptrMsg);
+	queRcvMSG_.Enqueue(ptrMsg);
 }
 
 void MsgManager::onRcvSndMessage(std::string msg)
 {
 	// CMd_INFO("onRcvSndMessage : {}", msg );
 	std::shared_ptr<std::string> pmsg = make_shared<std::string>(msg);
-	m_qSMSG.Enqueue(pmsg);
+	queSndMSG_.Enqueue(pmsg);
 }
 
 void *MsgManager::sndMSGThread(void *arg)
@@ -115,9 +115,9 @@ void *MsgManager::sndMSGThread(void *arg)
 	while (isSMSGThread_)
 	{
 
-		if (m_qSMSG.IsQueue())
+		if (queSndMSG_.IsQueue())
 		{
-			msg = m_qSMSG.Dequeue();
+			msg = queSndMSG_.Dequeue();
 			CMd_INFO(" SndMsg thread msg : {} ", msg->c_str());
             std::string temp_clientname = "name_temp";
 			getICServer()->sendData(temp_clientname, msg->c_str());
