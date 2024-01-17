@@ -60,11 +60,11 @@ public :
     void addClient(const std::string& clientName, const std::string& clientIp, int clientSocket);
 
     typedef std::function<int(char cSeparator, char* pData, int nDataSize)> callback;
-    callback m_onClassfication;
+    callback classfier;
 
     void setHandler(callback f)
     {
-        m_onClassfication = std::move(f);
+        classfier = std::move(f);
     }
 
 	std::list<std::string> getIPList();

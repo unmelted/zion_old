@@ -193,10 +193,10 @@ void* ICServer::handle_client(void* arg)
         cout << " check 3 " <<endl;
         cout <<" pdata .. : " << pData << endl;
 
-		if (pSocketMgr->m_onClassfication != 0)
+		if (pSocketMgr->classfier != 0)
 		{
             cout << " check 3 " <<endl;
-			int nErrorCode = pSocketMgr->m_onClassfication(header.cSeparator, pData, nPacketSize);
+			int nErrorCode = pSocketMgr->classfier(header.cSeparator, pData, nPacketSize);
             cout << " check 5 " << nErrorCode <<endl;
 
 			//if (nErrorCode != MTD_PROTOCOL_OK)

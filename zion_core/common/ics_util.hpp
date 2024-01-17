@@ -54,20 +54,6 @@ public:
         static inline const std::filesystem::path INIF {std::filesystem::current_path().append("ini.json") };
     };
 
-    struct ConfigureValue{
-        enum class cfg_mode {
-            SERVER      = 10,
-            STABIL      = 11,
-        };
-        enum class category {
-            ROI_WIDTH    = 100,
-            ROI_HEIGHT   = 101,
-            SWIPE_PT_X   = 102,
-            SWIPE_PT_Y   = 103,
-            DUMP_TRUE    = 104,
-        };        
-    };
-
 private :
     int serial = 0;
 };

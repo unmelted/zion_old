@@ -54,6 +54,8 @@ int	ICManager::classfication(char cSeparator, char* pData, int nDataSize)
 
 int ICManager::validateJson(std::string strMessage)
 {
+    std::cout << "validateJson start " << endl;
+
 	Document document;
 	bool bSuc = false;
 	try {
@@ -70,6 +72,7 @@ int ICManager::validateJson(std::string strMessage)
 	}
 
 	std::string sec3 = document[MTDPROTOCOL_SECTION3].GetString();
+    std::cout << "validateJson sec3 " << sec3 <<endl;
 	CMd_INFO("validateJson sec3 : {} compare {}", sec3, sec3.compare("Version"));
 	if(sec3.compare("Version") == 0) {
 		msg_parser.runParse(strMessage);

@@ -22,38 +22,38 @@
 using namespace rapidjson;
 
 TaskManager::TaskManager(size_t num_worker_, MsgManager *a)
-    : num_worker(num_worker_), stop_all(false), watching(true)
+    : num_worker_(num_worker_), stop_all_(false), watching_(true)
 {
 
-    m_msgmanager = a;
-    cur_worker = 0;
-    worker.reserve(num_worker);
-    for (size_t i = 0; i < num_worker; ++i)
+    msgmanager_ = a;
+    cur_worker_ = 0;
+    worker_.reserve(num_worker_);
+    for (size_t i = 0; i < num_worker_; ++i)
     {
-        worker.emplace_back([this]()
+        worker_.emplace_back([this]()
                             { this->workerThread(); });
     }
 
-    watcher = new std::thread(&TaskManager::watchFuture, this);
+    watcher_ = new std::thread(&TaskManager::watchFuture, this);
 }
 
 TaskManager::~TaskManager()
 {
-    stop_all = true;
-    watching = false;
+    stop_all_ = true;
+    watching_ = false;
 
-    cv_job.notify_all();
+    cv_job_.notify_all();
 
-    for (auto &t : worker)
+    for (auto &t : worker_)
     {
         t.join();
     }
 
-    if (watcher != nullptr)
+    if (watcher_ != nullptr)
     {
-        watcher->join();
-        delete watcher;
-        watcher = nullptr;
+        watcher_->join();
+        delete watcher_;
+        watcher_ = nullptr;
     }
     CMd_DEBUG("TaskManager Destroyed Done.");
 }
@@ -61,7 +61,7 @@ TaskManager::~TaskManager()
 template <class F, class... Args>
 void TaskManager::enqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args)
 {
-    if (stop_all)
+    if (stop_all_)
     {
         throw std::runtime_error("Can't add job in ThreadPool");
     }
@@ -70,11 +70,11 @@ void TaskManager::enqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args)
     auto job = std::make_shared<std::packaged_task<return_type()>>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
     std::future<return_type> job_result_future = job->get_future();
     {
-        std::lock_guard<std::mutex> lock(m_job);
+        std::lock_guard<std::mutex> lock(jobMutex);
         jobs.push([job]()
                   { (*job)(); });
     }
-    cv_job.notify_one();
+    cv_job_.notify_one();
     fu->Enqueue(job_result_future.get());
 }
 
@@ -82,10 +82,10 @@ void TaskManager::workerThread()
 {
     while (true)
     {
-        std::unique_lock<std::mutex> lock(m_job);
-        cv_job.wait(lock, [this]()
-                    { return !this->jobs.empty() || stop_all; });
-        if (stop_all && this->jobs.empty())
+        std::unique_lock<std::mutex> lock(jobMutex);
+        cv_job_.wait(lock, [this]()
+                    { return !this->jobs.empty() || stop_all_; });
+        if (stop_all_ && this->jobs.empty())
         {
             return;
         }
@@ -110,9 +110,9 @@ void TaskManager::workerThread()
 int TaskManager::commandTask(int mode, std::string arg)
 {
 
-    if (cur_worker == num_worker)
-        CMd_DEBUG("CMd Job Queue is fool. working worker + job = : {}", cur_worker);
-    cur_worker++;
+    if (cur_worker_ == num_worker_)
+        CMd_DEBUG("CMd Job Queue is fool. working worker + job = : {}", cur_worker_);
+    cur_worker_++;
 
     if (mode == (int)ic::COMMAND_TYPE::COMMAND_START)
     {
@@ -142,12 +142,12 @@ int TaskManager::commandTask(int mode, std::string arg)
 void TaskManager::watchFuture()
 {
 
-    while (watching)
+    while (watching_)
     {
         if (m_future.IsQueue())
         {
             makeSendMsg(m_qTMSG.Dequeue(), m_future.Dequeue());
-            cur_worker--;
+            cur_worker_--;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
@@ -200,7 +200,7 @@ void TaskManager::makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
     }
 
     std::string strSendString = getDocumentToString(sndDoc);
-    m_msgmanager->onRcvSndMessage(strSendString);
+    msgmanager_->onRcvSndMessage(strSendString);
 }
 
 void TaskManager::sendVersionMessage(std::string ptrMsg)
@@ -228,5 +228,5 @@ void TaskManager::sendVersionMessage(std::string ptrMsg)
     sndDoc.AddMember(MTDPROTOCOL_RESULTCODE, (int)ErrorCommon::COMMON_ERR_NONE, allocator);
     sndDoc.AddMember(MTDPROTOCOL_ERRORMSG, "SUCCESS", allocator);
     std::string strSendString = getDocumentToString(sndDoc);
-    m_msgmanager->onRcvSndMessage(strSendString);
+    msgmanager_->onRcvSndMessage(strSendString);
 }

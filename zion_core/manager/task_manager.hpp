@@ -51,20 +51,20 @@ private:
     std::string getDocumentToString(Document &document);
 
 private:
-    size_t num_worker;
-    size_t cur_worker;
-    std::vector<std::thread> worker;
-    std::thread *watcher{nullptr};
+    size_t num_worker_;
+    size_t cur_worker_;
+    std::vector<std::thread> worker_;
+    std::thread *watcher_{nullptr};
     std::queue<std::function<void()>> jobs;
-    std::condition_variable cv_job;
-    std::mutex m_job;
+    std::condition_variable cv_job_;
+    std::mutex jobMutex;
     MessageQueue<int> m_future;
     MessageQueue<std::shared_ptr<ic::MSG_T>> m_qTMSG;
     std::function<void(MsgManager &, const std::string msg)> fSendQue;
 
-    MsgManager *m_msgmanager;
-    bool stop_all;
-    bool watching;
+    MsgManager *msgmanager_;
+    bool stop_all_;
+    bool watching_;
 
 };
 
