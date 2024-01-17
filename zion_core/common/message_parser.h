@@ -42,7 +42,7 @@ public:
 
 private:
 	void parseThread(void* param, std::string strMessage);
-	int getBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol);
+	int getBasicReturnJson(Document& document, ic::Protocol& mtdProtocol);
 	std::string getDocumentToString(Document& document);
 
 private:

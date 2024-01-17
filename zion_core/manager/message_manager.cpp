@@ -74,12 +74,12 @@ void *MsgManager::rcvMSGThread(void *arg)
 			{
 				CMd_INFO("rcvMSGThread : {} ", msg->txt);
 				json j = json::parse(msg->txt);
-				if (j.contains("Action") == false || j.contains("Section3") == false)
+				if (j.contains("Action") == false || j.contains("SubCommand") == false)
 				{
 					CMd_WARN("Json component missing. can't execute.");
 					continue;
 				}
-				string section3 = j["Section3"];
+				string section3 = j["SubCommand"];
 				string action = j["Action"];
 				// if (action == "Stabilization" || section3 == "Stabilize") {
 				// 	m_taskmanager.commandTask(ic::POST_STABILIZATION, msg->txt);

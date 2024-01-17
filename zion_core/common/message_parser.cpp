@@ -72,45 +72,45 @@ void MessageParser::parseThread(void* param, std::string strMessage)
 	document.Parse(strMessage.c_str());
 
 	string strError;
-	ic::MTdProtocol mtdProtocol;
-	int nResultCode = getBasicReturnJson(document, mtdProtocol);
+	ic::Protocol protocol;
+	int nResultCode = getBasicReturnJson(document, protocol);
 	Document sendDocument(kObjectType);
 	Document::AllocatorType& allocator = sendDocument.GetAllocator();
 
-	if (document.HasMember(MTDPROTOCOL_SENDSTATE) == true)
+	if (document.HasMember(PROTOCOL_SENDSTATE))
 	{
-		std::string strSendState = document[MTDPROTOCOL_SENDSTATE].GetString();
-		if (strSendState.compare(MTDPROTOCOL_SENDSTATE_RESPONSE) == 0) // Return ó��
+		std::string sendState = document[PROTOCOL_SENDSTATE].GetString();
+		if (sendState.compare(PROTOCOL_SENDSTATE_RESPONSE) == 0) // Return ó��
 			nResultCode = (int)ErrorCommon::COMMON_ERR_UNKNOWN_SENDSTATE;
 	}
 
-	sendDocument.AddMember(MTDPROTOCOL_SECTION1, mtdProtocol.Section1, allocator);
-	sendDocument.AddMember(MTDPROTOCOL_SECTION2, mtdProtocol.Section2, allocator);
-	sendDocument.AddMember(MTDPROTOCOL_SECTION3, mtdProtocol.Section3, allocator);
-	sendDocument.AddMember(MTDPROTOCOL_SENDSTATE, "response", allocator);
-	sendDocument.AddMember(MTDPROTOCOL_TOKEN, mtdProtocol.Token, allocator);
-	sendDocument.AddMember(MTDPROTOCOL_FROM, mtdProtocol.To, allocator);
-	sendDocument.AddMember(MTDPROTOCOL_TO, mtdProtocol.From, allocator);
-	sendDocument.AddMember(MTDPROTOCOL_ACTION, mtdProtocol.action, allocator);
-	sendDocument.AddMember(MTDPROTOCOL_RESULTCODE, nResultCode, allocator);
-	sendDocument.AddMember(MTDPROTOCOL_ERRORMSG, "", allocator);
+	sendDocument.AddMember(PROTOCOL_SECTION1, protocol.Type, allocator);
+	sendDocument.AddMember(PROTOCOL_SECTION2, protocol.Command, allocator);
+	sendDocument.AddMember(PROTOCOL_SECTION3, protocol.SubCommand, allocator);
+	sendDocument.AddMember(PROTOCOL_SENDSTATE, "response", allocator);
+	sendDocument.AddMember(PROTOCOL_TOKEN, protocol.Token, allocator);
+	sendDocument.AddMember(PROTOCOL_FROM, protocol.To, allocator);
+	sendDocument.AddMember(PROTOCOL_TO, protocol.From, allocator);
+	sendDocument.AddMember(PROTOCOL_ACTION, protocol.action, allocator);
+	sendDocument.AddMember(PROTOCOL_RESULTCODE, nResultCode, allocator);
+	sendDocument.AddMember(PROTOCOL_ERRORMSG, "", allocator);
 
 	if (nResultCode != SUCCESS)
 	{
-		sendDocument[MTDPROTOCOL_ERRORMSG].SetString(getErrorCodeToString(nResultCode), allocator);
-		std::string strSendString = getDocumentToString(sendDocument);
+		sendDocument[PROTOCOL_ERRORMSG].SetString(getErrorCodeToString(nResultCode), allocator);
+		std::string sendString = getDocumentToString(sendDocument);
         std::string temp_clientname = "name_temp";
-		if (pMain->getDMServer()->sendData(temp_clientname, strSendString.c_str()))
+		if (pMain->getDMServer()->sendData(temp_clientname, sendString.c_str()))
 		{
 			//ErrorL << strSendString;
 		}
 		return;
 	}
 
-	string strSection1 = mtdProtocol.Section1;
-	string strSection2 = mtdProtocol.Section2;
-	string strSection3 = mtdProtocol.Section3;
-	string strAction = mtdProtocol.action;
+	string strSection1 = protocol.Type;
+	string strSection2 = protocol.Command;
+	string strSection3 = protocol.SubCommand;
+	string strAction = protocol.action;
 	CMd_DEBUG("sction {} {} {}", strSection1, strSection2, strSection3);
 
 	if (strSection1.compare("Daemon") == 0)
@@ -158,45 +158,45 @@ std::string MessageParser::getDocumentToString(Document& document)
 	return ownShipRadarString;
 }
 
-int MessageParser::getBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol)
+int MessageParser::getBasicReturnJson(Document& document, ic::Protocol& protocol)
 {
-	if (document.HasMember(MTDPROTOCOL_SECTION1))
-		mtdProtocol.Section1 = document[MTDPROTOCOL_SECTION1].GetString();
+	if (document.HasMember(PROTOCOL_SECTION1))
+		protocol.Type = document[PROTOCOL_SECTION1].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SEC1;
 
-	if (document.HasMember(MTDPROTOCOL_SECTION2))
-		mtdProtocol.Section2 = document[MTDPROTOCOL_SECTION2].GetString();
+	if (document.HasMember(PROTOCOL_SECTION2))
+		protocol.Command = document[PROTOCOL_SECTION2].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SEC2;
 
-	if (document.HasMember(MTDPROTOCOL_SECTION3))
-		mtdProtocol.Section3 = document[MTDPROTOCOL_SECTION3].GetString();
+	if (document.HasMember(PROTOCOL_SECTION3))
+		protocol.SubCommand = document[PROTOCOL_SECTION3].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SEC3;
 
-	if (document.HasMember(MTDPROTOCOL_SENDSTATE))
-		mtdProtocol.SendState = document[MTDPROTOCOL_SENDSTATE].GetString();
+	if (document.HasMember(PROTOCOL_SENDSTATE))
+		protocol.SendState = document[PROTOCOL_SENDSTATE].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SENDSTATE;
 
-	if (document.HasMember(MTDPROTOCOL_TOKEN))
-		mtdProtocol.Token = document[MTDPROTOCOL_TOKEN].GetString();
+	if (document.HasMember(PROTOCOL_TOKEN))
+		protocol.Token = document[PROTOCOL_TOKEN].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_TOKEN;
 
-	if (document.HasMember(MTDPROTOCOL_FROM))
-		mtdProtocol.From = document[MTDPROTOCOL_FROM].GetString();
+	if (document.HasMember(PROTOCOL_FROM))
+		protocol.From = document[PROTOCOL_FROM].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_FROM;
 
-	if (document.HasMember(MTDPROTOCOL_TO))
-		mtdProtocol.To = document[MTDPROTOCOL_TO].GetString();
+	if (document.HasMember(PROTOCOL_TO))
+		protocol.To = document[PROTOCOL_TO].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_TO;
 
-	if (document.HasMember(MTDPROTOCOL_ACTION))
-		mtdProtocol.action = document[MTDPROTOCOL_ACTION].GetString();
+	if (document.HasMember(PROTOCOL_ACTION))
+		protocol.action = document[PROTOCOL_ACTION].GetString();
 	else
 		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_ACTION;
 

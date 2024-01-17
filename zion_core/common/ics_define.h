@@ -96,11 +96,11 @@ enum class COMMAND_TYPE
     COMMAND_STATUS,
 };
 
-struct MTdProtocol
+struct Protocol
 {
-    std::string Section1;
-    std::string Section2;
-    std::string Section3;
+    std::string Type;
+    std::string Command;
+    std::string SubCommand;
     std::string SendState;
     std::string From;
     std::string To;
@@ -154,55 +154,19 @@ enum class PACKET_SEPARATOR
     PACKETTYPE_SIZE,
 };
 
-//Client Port
-enum class CLIENT_PORT
-{
-    MESSAGELTRANSFER_DAEMON,
-    ENTERPRISE_MONITOR_DAEMON,
-    SWITCH_CONTROL_DAEMON,
-    CAMERA_CONTROL_DAEMON,
-    GIMBAL_CONTROL_DAEMON,
-    SDI_PROCESS_DAEMON,
-    PROCESS_CONTROL_DAEMON,
-    PRE_STOARGE_DAEMON,
-    POST_STOARGE_DAEMON,
-    VIDEO_PROCESS_FORPRESD_DAEMON,
-    VIDEO_PROCESS_FORPCD_DAEMON,
-    VIDEO_PROCESS_FORPOSTSD_DAEMON,
-    CORE_MODULE_DAEMON,
-    SOCKNUM_CLIENT_SIZE,
-};
+#define PROTOCOL_SECTION1    "Type"
+#define PROTOCOL_SECTION2    "Command"
+#define PROTOCOL_SECTION3    "SubCommand"
+#define PROTOCOL_SENDSTATE   "SendState"
+#define PROTOCOL_FROM        "From"
+#define PROTOCOL_TO          "To"
+#define PROTOCOL_ACTION      "Action"
+#define PROTOCOL_TOKEN       "Token"
+#define PROTOCOL_RESULTCODE  "ResultCode"
+#define PROTOCOL_ERRORMSG    "ErrorMsg"
 
-// Server Port
-//enum class SOCKNUM
-//{
-//    SOCKNUM_CONTROLLER_APP,
-//    SOCKNUM_PRODUCING_APP,
-//    SOCKNUM_VAR_APP,
-//    SOCKNUM_EMS_APP,
-//    SOCKNUM_DAEMONVIEWER_APP,
-//    SOCKNUM_BUFFERVIWER_APP,
-//    SOCKNUM_LOGVIEWER_APP,
-//    SOCKNUM_SERVER_SIZE,
-//};
-
-
-#define MTDPROTOCOL_SECTION1    "Section1"
-#define MTDPROTOCOL_SECTION2    "Section2"
-#define MTDPROTOCOL_SECTION3    "Section3"
-#define MTDPROTOCOL_SENDSTATE   "SendState"
-#define MTDPROTOCOL_FROM        "From"
-#define MTDPROTOCOL_TO          "To"
-#define MTDPROTOCOL_ACTION      "Action"
-#define MTDPROTOCOL_TOKEN       "Token"
-#define MTDPROTOCOL_RESULTCODE  "ResultCode"
-#define MTDPROTOCOL_ERRORMSG    "ErrorMsg"
-#define MTDPROTOCOL_TARGETIP    "TargetIP"
-
-#define MTDPROTOCOL_PRESET      "Preset"
-
-#define MTDPROTOCOL_SENDSTATE_REQUEST       "request"
-#define MTDPROTOCOL_SENDSTATE_RESPONSE      "response"
+#define PROTOCOL_SENDSTATE_REQUEST       "request"
+#define PROTOCOL_SENDSTATE_RESPONSE      "response"
 
 #define MTDHEADERSIZE           5
 //#define MTDPROTOCOL                           "YJS"

@@ -44,7 +44,6 @@ public:
 private:
     void workerThread();
     void watchFuture();
-    // int RunStabilize(shared_ptr<VIDEO_INFO> arg);
     void makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result);
 
     void sendVersionMessage(std::string ptrMsg);

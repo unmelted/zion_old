@@ -7,9 +7,9 @@
 
 #define RAPIDJSON_HAS_STDSTRING 1
 
-#define MTDPROTOCOL_SECTION1    "Section1"
-#define MTDPROTOCOL_SECTION2    "Section2"
-#define MTDPROTOCOL_SECTION3    "Section3"
+#define MTDPROTOCOL_SECTION1    "Type"
+#define MTDPROTOCOL_SECTION2    "Command"
+#define MTDPROTOCOL_SECTION3    "SubCommand"
 #define MTDPROTOCOL_SENDSTATE   "SendState"
 #define MTDPROTOCOL_FROM        "From"
 #define MTDPROTOCOL_TO          "To"

@@ -70,8 +70,9 @@ int ICManager::validateJson(std::string strMessage)
 		//ErrorL << strMessage;
 		return 0;
 	}
+    std::cout << "before documnet [] .. " << endl;
 
-	std::string sec3 = document[MTDPROTOCOL_SECTION3].GetString();
+	std::string sec3 = document[PROTOCOL_SECTION3].GetString();
     std::cout << "validateJson sec3 " << sec3 <<endl;
 	CMd_INFO("validateJson sec3 : {} compare {}", sec3, sec3.compare("Version"));
 	if(sec3.compare("Version") == 0) {
