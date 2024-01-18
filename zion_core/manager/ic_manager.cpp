@@ -46,7 +46,7 @@ int ICManager::validateJson(char cSeparator, char* pData, int nDataSize)
 
     if( cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON)
     {
-        std::cout << " validateJson cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON " << endl;
+        LOG_ERROR("validateJson cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON");
         return 0;
     }
 
@@ -59,10 +59,10 @@ int ICManager::validateJson(char cSeparator, char* pData, int nDataSize)
 	catch (...) {
 		bSuc = true;
 	}
+
 	if (bSuc)
 	{
-		//ErrorL << "Json Parsing Fail";
-		//ErrorL << strMessage;
+        LOG_ERROR("Json Parsing Faile {} ", strMessage);
 		return 0;
 	}
     std::cout << "before documnet [] .. " << endl;
@@ -70,7 +70,8 @@ int ICManager::validateJson(char cSeparator, char* pData, int nDataSize)
 	std::string sec3 = document[PROTOCOL_SECTION3].GetString();
     std::cout << "validateJson sec3 " << sec3 <<endl;
 	LOG_INFO("validateJson sec3 : {} compare {}", sec3, sec3.compare("Version"));
-	if(sec3.compare("Version") == 0) {
+
+	if(sec3.compare("TEST_COMMAND_3") == 0) {
 		msg_parser_->runParse(strMessage);
 	}
 	else if(sec3.compare("Stabilize") == 0) {

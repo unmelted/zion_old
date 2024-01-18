@@ -95,7 +95,6 @@ void *MsgManager::rcvMSGThread(void *arg)
 
 void MsgManager::onRcvMessage(std::string pData)
 {
-
 	std::shared_ptr<ic::MSG_T> ptrMsg = std::shared_ptr<ic::MSG_T>(new ic::MSG_T);
 	ptrMsg->type = ic::PACKET_TYPE::TEXT;
 	ptrMsg->txt = pData;
