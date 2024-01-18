@@ -25,7 +25,6 @@ ICServer::ICServer()
 	serverSockets_ = 0;
     srverPorts_ = 0;
     sendBufferSize_ = 0;
-	m_pSendBuffer = nullptr;
 
 }
 
@@ -45,9 +44,6 @@ ICServer::~ICServer()
 		mainSocketThread_->join();
 		mainSocketThread_ = nullptr;
 	}
-
-	if (m_pSendBuffer != nullptr)
-		delete[] m_pSendBuffer;
 
 }
 
@@ -222,34 +218,24 @@ void* ICServer::handle_client(void* arg)
 
 bool ICServer::sendData(const std::string& clientName, std::string strJson)
 {
-	int nSize = (int)strlen(strJson.c_str());
-	char cType = (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON;
-	sendMutex_.lock();
+    int nSize = static_cast<int>(strJson.size());
+    char cType = static_cast<char>(ic::PACKET_SEPARATOR::PACKETTYPE_JSON);
+    int nSendSize = sizeof(int) + 1 + nSize;
 
-	int nSendSize = sizeof(int) + 1 + nSize;
-	if (sendBufferSize_ < nSendSize)
-	{
-		if (m_pSendBuffer != nullptr)
-			delete[] m_pSendBuffer;
+    sendMutex_.lock();
+    sendBuffer_.reserve(nSendSize);
 
-		m_pSendBuffer = new char[nSendSize];
-		sendBufferSize_ = nSendSize;
-	}
-	memcpy(m_pSendBuffer, (char*)&nSize, sizeof(int));
-	int nBufPos = sizeof(int);
+    sendBuffer_.insert(sendBuffer_.end(), reinterpret_cast<char*>(&nSize), reinterpret_cast<char*>(&nSize) + sizeof(int));
+    sendBuffer_.push_back(cType);
+    sendBuffer_.insert(sendBuffer_.end(), strJson.begin(), strJson.end());
 
-	memcpy(m_pSendBuffer + nBufPos, &cType, 1);
-	nBufPos++;
-
-	memcpy(m_pSendBuffer + nBufPos, strJson.c_str(), nSize);
-	sockMutex_.lock();
-
+    sockMutex_.lock();
     int nSend = -1;
     auto clientInfoIterator = clientMap_.find(clientName);
     if (clientInfoIterator != clientMap_.end())
     {
-        struct ClientInfo& clientInfo = clientInfoIterator->second;
-        nSend = send(clientInfo.clientSocket, m_pSendBuffer, nSendSize, 0);
+        ClientInfo& clientInfo = clientInfoIterator->second;
+        nSend = send(clientInfo.clientSocket, sendBuffer_.data(), sendBuffer_.size(), 0);
     }
     else
     {

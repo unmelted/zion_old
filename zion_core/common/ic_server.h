@@ -92,6 +92,6 @@ private:
     int serverSockets_;
     int srverPorts_;
     int sendBufferSize_;
-    char* m_pSendBuffer;
+    std::vector<char> sendBuffer_;
 };
 
