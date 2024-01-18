@@ -32,11 +32,11 @@ TaskManager::TaskManager(size_t num_worker_, MsgManager *msg_manager)
     worker_.reserve(num_worker_);
     for (size_t i = 0; i < num_worker_; ++i)
     {
-        worker_.emplace_back([this]()
-                            { this->workerThread(); });
+        worker_.emplace_back(std::make_unique<std::thread>([this]()
+                            { this->workerThread(); }));
     }
 
-    watcher_ = new std::thread(&TaskManager::watchFuture, this);
+    watcher_ = std::make_unique<std::thread>(&TaskManager::watchFuture, this);
 }
 
 TaskManager::~TaskManager()
@@ -48,14 +48,12 @@ TaskManager::~TaskManager()
 
     for (auto &t : worker_)
     {
-        t.join();
+        t->join();
     }
 
     if (watcher_ != nullptr)
     {
         watcher_->join();
-        delete watcher_;
-        watcher_ = nullptr;
     }
     CMd_DEBUG("TaskManager Destroyed Done.");
 }
@@ -124,7 +122,7 @@ int TaskManager::commandTask(int mode, std::string arg)
     }
     else if (mode == (int)ic::COMMAND_TYPE::COMMAND_VERSION)
     {
-        sendVersionMessage(arg);
+
     }
 
     return (int)ErrorCommon::COMMON_ERR_NONE;
@@ -190,34 +188,6 @@ void TaskManager::makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
         sndDoc.AddMember("output", outfile, allocator);
     }
 
-    std::string strSendString = getDocumentToString(sndDoc);
-    msgmanager_->onRcvSndMessage(strSendString);
-}
-
-void TaskManager::sendVersionMessage(std::string ptrMsg)
-{
-    Document document;
-    document.Parse(ptrMsg.c_str());
-    Document sndDoc(kObjectType);
-    Document::AllocatorType &allocator = sndDoc.GetAllocator();
-
-    Value ver(kObjectType);
-    Value cmd(kObjectType);
-    cmd.AddMember("verion", CURRENTVERSION, allocator);
-    cmd.AddMember("date", Configurator::get().getCurrentDateTime("now"), allocator);
-    ver.AddMember("CMd", cmd, allocator);
-
-    sndDoc.AddMember(PROTOCOL_SECTION1, document[PROTOCOL_SECTION1], allocator);
-    sndDoc.AddMember(PROTOCOL_SECTION2, document[PROTOCOL_SECTION2], allocator);
-    sndDoc.AddMember(PROTOCOL_SECTION3, document[PROTOCOL_SECTION3], allocator);
-    sndDoc.AddMember(PROTOCOL_ACTION, "response", allocator);
-    sndDoc.AddMember(PROTOCOL_TOKEN, document[PROTOCOL_TOKEN], allocator);
-    sndDoc.AddMember(PROTOCOL_FROM, document[PROTOCOL_TO], allocator);
-    sndDoc.AddMember(PROTOCOL_TO, document[PROTOCOL_FROM], allocator);
-    sndDoc.AddMember(PROTOCOL_DATA, document[PROTOCOL_ACTION], allocator);
-    sndDoc.AddMember("Version", ver, allocator);
-    sndDoc.AddMember(PROTOCOL_RESULTCODE, (int)ErrorCommon::COMMON_ERR_NONE, allocator);
-    sndDoc.AddMember(PROTOCOL_ERRORMSG, "SUCCESS", allocator);
     std::string strSendString = getDocumentToString(sndDoc);
     msgmanager_->onRcvSndMessage(strSendString);
 }

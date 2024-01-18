@@ -42,21 +42,24 @@ private:
     void watchFuture();
     void makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result);
 
-    void sendVersionMessage(std::string ptrMsg);
+//    void sendVersionMessage(std::string ptrMsg);
     std::string getDocumentToString(Document &document);
 
 private:
-    size_t num_worker_;
-    size_t cur_worker_;
-    std::vector<std::thread> worker_;
-    std::thread *watcher_{nullptr};
+    std::vector<std::unique_ptr<std::thread>> worker_;
+    std::unique_ptr<std::thread> watcher_{nullptr};
+
     std::queue<std::function<void()>> jobs;
     std::condition_variable cv_job_;
     std::mutex jobMutex_;
+
     MessageQueue<int> future_;
     MessageQueue<std::shared_ptr<ic::MSG_T>> queTaskMSG_;
 
     MsgManager *msgmanager_;
+
+    size_t num_worker_;
+    size_t cur_worker_;
     bool stop_all_;
     bool watching_;
 
