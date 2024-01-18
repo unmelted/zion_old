@@ -83,19 +83,19 @@ CMakeFiles/zion.dir/common/ic_server.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/zion.dir/common/ic_server.cpp.s"
 	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/kellyma/work/zion_old/zion_core/common/ic_server.cpp -o CMakeFiles/zion.dir/common/ic_server.cpp.s
 
-CMakeFiles/zion.dir/common/ics_util.cpp.o: CMakeFiles/zion.dir/flags.make
-CMakeFiles/zion.dir/common/ics_util.cpp.o: /Users/kellyma/work/zion_old/zion_core/common/ics_util.cpp
-CMakeFiles/zion.dir/common/ics_util.cpp.o: CMakeFiles/zion.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/kellyma/work/zion_old/zion_core/cmake-build-debug-event-trace/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/zion.dir/common/ics_util.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/zion.dir/common/ics_util.cpp.o -MF CMakeFiles/zion.dir/common/ics_util.cpp.o.d -o CMakeFiles/zion.dir/common/ics_util.cpp.o -c /Users/kellyma/work/zion_old/zion_core/common/ics_util.cpp
+CMakeFiles/zion.dir/common/ic_util.cpp.o: CMakeFiles/zion.dir/flags.make
+CMakeFiles/zion.dir/common/ic_util.cpp.o: /Users/kellyma/work/zion_old/zion_core/common/ic_util.cpp
+CMakeFiles/zion.dir/common/ic_util.cpp.o: CMakeFiles/zion.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/kellyma/work/zion_old/zion_core/cmake-build-debug-event-trace/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/zion.dir/common/ic_util.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/zion.dir/common/ic_util.cpp.o -MF CMakeFiles/zion.dir/common/ic_util.cpp.o.d -o CMakeFiles/zion.dir/common/ic_util.cpp.o -c /Users/kellyma/work/zion_old/zion_core/common/ic_util.cpp
 
-CMakeFiles/zion.dir/common/ics_util.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/zion.dir/common/ics_util.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/kellyma/work/zion_old/zion_core/common/ics_util.cpp > CMakeFiles/zion.dir/common/ics_util.cpp.i
+CMakeFiles/zion.dir/common/ic_util.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/zion.dir/common/ic_util.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/kellyma/work/zion_old/zion_core/common/ic_util.cpp > CMakeFiles/zion.dir/common/ic_util.cpp.i
 
-CMakeFiles/zion.dir/common/ics_util.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/zion.dir/common/ics_util.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/kellyma/work/zion_old/zion_core/common/ics_util.cpp -o CMakeFiles/zion.dir/common/ics_util.cpp.s
+CMakeFiles/zion.dir/common/ic_util.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/zion.dir/common/ic_util.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/kellyma/work/zion_old/zion_core/common/ic_util.cpp -o CMakeFiles/zion.dir/common/ic_util.cpp.s
 
 CMakeFiles/zion.dir/common/logger.cpp.o: CMakeFiles/zion.dir/flags.make
 CMakeFiles/zion.dir/common/logger.cpp.o: /Users/kellyma/work/zion_old/zion_core/common/logger.cpp
@@ -198,7 +198,7 @@ CMakeFiles/zion.dir/manager/task_manager.cpp.s: cmake_force
 # Object files for target zion
 zion_OBJECTS = \
 "CMakeFiles/zion.dir/common/ic_server.cpp.o" \
-"CMakeFiles/zion.dir/common/ics_util.cpp.o" \
+"CMakeFiles/zion.dir/common/ic_util.cpp.o" \
 "CMakeFiles/zion.dir/common/logger.cpp.o" \
 "CMakeFiles/zion.dir/common/message_parser.cpp.o" \
 "CMakeFiles/zion.dir/main.cpp.o" \
@@ -211,7 +211,7 @@ zion_OBJECTS = \
 zion_EXTERNAL_OBJECTS =
 
 zion: CMakeFiles/zion.dir/common/ic_server.cpp.o
-zion: CMakeFiles/zion.dir/common/ics_util.cpp.o
+zion: CMakeFiles/zion.dir/common/ic_util.cpp.o
 zion: CMakeFiles/zion.dir/common/logger.cpp.o
 zion: CMakeFiles/zion.dir/common/message_parser.cpp.o
 zion: CMakeFiles/zion.dir/main.cpp.o

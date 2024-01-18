@@ -108,7 +108,7 @@ void MessageParser::parseThread(void* param, std::string strMessage)
 	string strSection2 = protocol.Command;
 	string strSection3 = protocol.SubCommand;
 	string strAction = protocol.Action;
-	CMd_DEBUG("sction {} {} {}", strSection1, strSection2, strSection3);
+	LOG_DEBUG("sction {} {} {}", strSection1, strSection2, strSection3);
 
 	if (strSection1.compare("Daemon"))
 	{
@@ -122,7 +122,7 @@ void MessageParser::parseThread(void* param, std::string strMessage)
 				cmd.AddMember("date", Configurator::get().getCurrentDateTime("now"), allocator);
 				ver.AddMember("CMd", cmd, allocator);
 				sendDocument.AddMember("Version", ver, allocator);				
-				CMd_INFO("version process.");
+				LOG_INFO("version process.");
 			}
 		}
 	}

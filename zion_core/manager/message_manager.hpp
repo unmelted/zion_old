@@ -40,7 +40,7 @@ private :
     std::thread* pSMSGThread_{ nullptr };
     MessageQueue<std::shared_ptr<ic::MSG_T>> queRcvMSG_;
     MessageQueue<std::shared_ptr<std::string>> queSndMSG_;
-    CMdLogger _logger;
+//    Logger _logger;
 
     TaskManager taskmanager_;
 

@@ -25,33 +25,20 @@
 #include "json.hpp"
 using json = nlohmann::json;
 
-enum class CMdLoggerLevel : int
-{
-	NONE = -1,
-	CMD_LOG_LEVEL_TRACE = 0,
-	CMD_LOG_LEVEL_DEBUG,
-	CMD_LOG_LEVEL_INFO,
-	CMD_LOG_LEVEL_WARN,
-	CMD_LOG_LEVEL_ERROR,
-	CMD_LOG_LEVEL_CRITICAL,
-	CMD_LOG_LEVEL_OFF
-};
 
-//const std::string CONFIG_INI_NAME = "./config.ini";
+std::shared_ptr<spdlog::logger> Logger::_logger;
 
-std::shared_ptr<spdlog::logger> CMdLogger::_logger;
-
-CMdLogger::CMdLogger()
+Logger::Logger()
 {
 	init();
 }
 
-CMdLogger::~CMdLogger()
+Logger::~Logger()
 {
-	CMd_INFO("Logger End!");
+	LOG_INFO("Logger End!");
 }
 
-void CMdLogger::init()
+void Logger::init()
 {
 	spdlog::flush_every(std::chrono::seconds(1));
 	auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();

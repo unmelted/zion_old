@@ -69,7 +69,7 @@ int ICManager::validateJson(char cSeparator, char* pData, int nDataSize)
 
 	std::string sec3 = document[PROTOCOL_SECTION3].GetString();
     std::cout << "validateJson sec3 " << sec3 <<endl;
-	CMd_INFO("validateJson sec3 : {} compare {}", sec3, sec3.compare("Version"));
+	LOG_INFO("validateJson sec3 : {} compare {}", sec3, sec3.compare("Version"));
 	if(sec3.compare("Version") == 0) {
 		msg_parser_->runParse(strMessage);
 	}

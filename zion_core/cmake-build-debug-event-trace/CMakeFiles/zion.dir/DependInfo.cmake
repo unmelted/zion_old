@@ -9,7 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/kellyma/work/zion_old/zion_core/common/ic_server.cpp" "CMakeFiles/zion.dir/common/ic_server.cpp.o" "gcc" "CMakeFiles/zion.dir/common/ic_server.cpp.o.d"
-  "/Users/kellyma/work/zion_old/zion_core/common/ics_util.cpp" "CMakeFiles/zion.dir/common/ics_util.cpp.o" "gcc" "CMakeFiles/zion.dir/common/ics_util.cpp.o.d"
+  "/Users/kellyma/work/zion_old/zion_core/common/ic_util.cpp" "CMakeFiles/zion.dir/common/ic_util.cpp.o" "gcc" "CMakeFiles/zion.dir/common/ic_util.cpp.o.d"
   "/Users/kellyma/work/zion_old/zion_core/common/logger.cpp" "CMakeFiles/zion.dir/common/logger.cpp.o" "gcc" "CMakeFiles/zion.dir/common/logger.cpp.o.d"
   "/Users/kellyma/work/zion_old/zion_core/common/message_parser.cpp" "CMakeFiles/zion.dir/common/message_parser.cpp.o" "gcc" "CMakeFiles/zion.dir/common/message_parser.cpp.o.d"
   "/Users/kellyma/work/zion_old/zion_core/main.cpp" "CMakeFiles/zion.dir/main.cpp.o" "gcc" "CMakeFiles/zion.dir/main.cpp.o.d"
