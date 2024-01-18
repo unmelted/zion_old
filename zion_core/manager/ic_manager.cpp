@@ -22,10 +22,10 @@
 
 ICManager::ICManager()
 {
-	msg_parser.setICServer(&icServer_);
+	msg_parser_.setICServer(&icServer_);
 	icServer_.beginSocket(ROBOT_CONTROL_PORT, 0);
 	icServer_.setHandler(std::bind(&ICManager::validateJson, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
-	msg_manager.setICServer(&icServer_);
+	msg_manager_.setICServer(&icServer_);
 
 	Configurator::get().setDirectory();
 }
@@ -67,11 +67,11 @@ int ICManager::validateJson(char cSeparator, char* pData, int nDataSize)
     std::cout << "validateJson sec3 " << sec3 <<endl;
 	CMd_INFO("validateJson sec3 : {} compare {}", sec3, sec3.compare("Version"));
 	if(sec3.compare("Version") == 0) {
-		msg_parser.runParse(strMessage);
+		msg_parser_.runParse(strMessage);
 	}
 	else if(sec3.compare("Stabilize") == 0) {
-		msg_parser.runParse(strMessage);
-		msg_manager.onRcvMessage(strMessage);
+		msg_parser_.runParse(strMessage);
+		msg_manager_.onRcvMessage(strMessage);
 	}
 
 	return 1;

@@ -41,8 +41,8 @@ private:
 	int validateJson(char cSeparator, char* pData, int nDataSize);
 
     ICServer icServer_;
-    MessageParser msg_parser;
-    MsgManager msg_manager;
+    MessageParser msg_parser_;
+    MsgManager msg_manager_;
 
 };
 

@@ -29,17 +29,13 @@ class TaskManager
 {
 
 public:
-    TaskManager(size_t num_worker_, MsgManager *a);
+    TaskManager(size_t num_worker_, MsgManager *msg_manager);
     ~TaskManager();
 
     template <class F, class... Args>
     void enqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args);
     void onRcvTask(std::shared_ptr<ic::MSG_T> pData);
     int commandTask(int mode, std::string arg); // shared_ptr<VIDEO_INFO> arg);
-    void setSndQue(std::function<void(MsgManager &, const std::string msg)> que)
-    {
-        fSendQue = que;
-    };
 
 private:
     void workerThread();
@@ -58,8 +54,7 @@ private:
     std::condition_variable cv_job_;
     std::mutex jobMutex_;
     MessageQueue<int> future_;
-    MessageQueue<std::shared_ptr<ic::MSG_T>> m_qTMSG;
-    std::function<void(MsgManager &, const std::string msg)> fSendQue;
+    MessageQueue<std::shared_ptr<ic::MSG_T>> queTaskMSG_;
 
     MsgManager *msgmanager_;
     bool stop_all_;

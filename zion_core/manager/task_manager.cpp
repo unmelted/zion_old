@@ -21,13 +21,13 @@
 
 using namespace rapidjson;
 
-TaskManager::TaskManager(size_t num_worker_, MsgManager *a)
+TaskManager::TaskManager(size_t num_worker_, MsgManager *msg_manager)
 : num_worker_(num_worker_)
 , stop_all_(false)
 , watching_(true)
 {
 
-    msgmanager_ = a;
+    msgmanager_ = msg_manager;
     cur_worker_ = 0;
     worker_.reserve(num_worker_);
     for (size_t i = 0; i < num_worker_; ++i)
@@ -116,7 +116,7 @@ int TaskManager::commandTask(int mode, std::string arg)
 //         else
 //         {
 //             CMd_WARN(" Stabilization Message is not compatible ERR: {} ", result);
-//             m_qTMSG.Dequeue();
+//             queTaskMSG_.Dequeue();
 //         }
     }
     else if (mode == (int)ic::COMMAND_TYPE::COMMAND_STOP)
@@ -137,7 +137,7 @@ void TaskManager::watchFuture()
     {
         if (future_.IsQueue())
         {
-            makeSendMsg(m_qTMSG.Dequeue(), future_.Dequeue());
+            makeSendMsg(queTaskMSG_.Dequeue(), future_.Dequeue());
             cur_worker_--;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -146,7 +146,7 @@ void TaskManager::watchFuture()
 
 void TaskManager::onRcvTask(std::shared_ptr<ic::MSG_T> ptrMsg)
 {
-    m_qTMSG.Enqueue(ptrMsg);
+    queTaskMSG_.Enqueue(ptrMsg);
 }
 
 std::string TaskManager::getDocumentToString(Document &document)

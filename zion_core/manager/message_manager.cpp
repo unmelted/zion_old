@@ -25,8 +25,8 @@ MsgManager::MsgManager()
 	isSMSGThread_ = true;
 	pRMSGThread_ = new std::thread(&MsgManager::rcvMSGThread, this, this);
 	pSMSGThread_ = new std::thread(&MsgManager::sndMSGThread, this, this);
-	std::function<void(MsgManager &, const std::string msg)> f1 = &MsgManager::onRcvSndMessage;
-	taskmanager_.setSndQue(f1);
+//	std::function<void(MsgManager &, const std::string msg)> f1 = &MsgManager::onRcvSndMessage;
+//	taskmanager_.setSndQue(f1);
 }
 
 ICServer *MsgManager::getICServer()
