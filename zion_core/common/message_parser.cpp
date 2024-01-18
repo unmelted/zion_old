@@ -24,9 +24,6 @@
 #include "ic_util.hpp"
 #include "logger.hpp"
 
-//#define PRINT_HTTP_REQ
-//#define PRINT_HTTP_RES
-
 namespace
 {
 	template<typename ... Args>

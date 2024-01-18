@@ -22,10 +22,9 @@ ICServer::ICServer()
 {
 	isMainSocketThread_ = false;
 	mainSocketThread_ = nullptr;
-	clientReceiveThread_ = nullptr;
-	m_ServerSockets = 0;
-    m_ServerPorts = 0;
-    m_nSendBufferSize = 0;
+	serverSockets_ = 0;
+    srverPorts_ = 0;
+    sendBufferSize_ = 0;
 	m_pSendBuffer = nullptr;
 
 }
@@ -39,7 +38,7 @@ ICServer::~ICServer()
         closeSocket(socket);
     }
 
-	closeSocket(m_ServerSockets);
+	closeSocket(serverSockets_);
 
 	if (mainSocketThread_ != nullptr)
 	{
@@ -47,11 +46,6 @@ ICServer::~ICServer()
 		mainSocketThread_ = nullptr;
 	}
 
-	if (clientReceiveThread_ != nullptr)
-	{
-		clientReceiveThread_->join();
-		clientReceiveThread_ = nullptr;
-	}
 	if (m_pSendBuffer != nullptr)
 		delete[] m_pSendBuffer;
 
@@ -68,9 +62,9 @@ bool ICServer::beginSocket(int nPort, int nType)
 	if (isMainSocketThread_)
 		return false;
 
-	m_ServerPorts = nPort;
+	srverPorts_ = nPort;
 	isMainSocketThread_ = true;
-	mainSocketThread_ = new std::thread(&ICServer::runSocketThread, this, this);
+	mainSocketThread_ =  std::make_unique<std::thread>(&ICServer::runSocketThread, this, this);
 
 	return true;
 }
@@ -90,18 +84,18 @@ void ICServer::runSocket()
 	struct sockaddr_in serv_adr, clnt_adr;
 	int clnt_adr_sz;
 
-	m_ServerSockets = (int)socket(PF_INET, SOCK_STREAM, 0);
+	serverSockets_ = (int)socket(PF_INET, SOCK_STREAM, 0);
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(m_ServerPorts);
+	serv_adr.sin_port = htons(srverPorts_);
 
-	if (::bind(m_ServerSockets, (struct sockaddr*)&serv_adr, sizeof(serv_adr)) == -1)
+	if (::bind(serverSockets_, (struct sockaddr*)&serv_adr, sizeof(serv_adr)) == -1)
 	{
 		//ErrorL << "bind() error";
 		return;
 	}
-	if (listen(m_ServerSockets, 5) == -1)
+	if (listen(serverSockets_, 5) == -1)
 	{
 		//ErrorL << "listen() error";
 		return;
@@ -111,7 +105,7 @@ void ICServer::runSocket()
 	while (isMainSocketThread_)
 	{
 		clnt_adr_sz = sizeof(clnt_adr);
-		int clientSocket = (int)(accept(m_ServerSockets, (struct sockaddr*)&clnt_adr, (socklen_t*)&clnt_adr_sz));
+		int clientSocket = (int)(accept(serverSockets_, (struct sockaddr*)&clnt_adr, (socklen_t*)&clnt_adr_sz));
 
 		if (clientSocket <= 0)
 			continue;
@@ -193,10 +187,10 @@ void* ICServer::handle_client(void* arg)
         cout << " check 3 " <<endl;
         cout <<" pdata .. : " << pData << endl;
 
-		if (pSocketMgr->classfier != 0)
+		if (pSocketMgr->classifier != 0)
 		{
             cout << " check 3 " <<endl;
-			int nErrorCode = pSocketMgr->classfier(header.cSeparator, pData, nPacketSize);
+			int nErrorCode = pSocketMgr->classifier(header.cSeparator, pData, nPacketSize);
             cout << " check 5 " << nErrorCode <<endl;
 
 			//if (nErrorCode != MTD_PROTOCOL_OK)
@@ -233,13 +227,13 @@ bool ICServer::sendData(const std::string& clientName, std::string strJson)
 	sendMutex_.lock();
 
 	int nSendSize = sizeof(int) + 1 + nSize;
-	if (m_nSendBufferSize < nSendSize)
+	if (sendBufferSize_ < nSendSize)
 	{
 		if (m_pSendBuffer != nullptr)
 			delete[] m_pSendBuffer;
 
 		m_pSendBuffer = new char[nSendSize];
-		m_nSendBufferSize = nSendSize;
+		sendBufferSize_ = nSendSize;
 	}
 	memcpy(m_pSendBuffer, (char*)&nSize, sizeof(int));
 	int nBufPos = sizeof(int);

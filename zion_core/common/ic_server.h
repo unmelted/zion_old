@@ -60,11 +60,11 @@ public :
     void addClient(const std::string& clientName, const std::string& clientIp, int clientSocket);
 
     typedef std::function<int(char cSeparator, char* pData, int nDataSize)> callback;
-    callback classfier;
+    callback classifier;
 
     void setHandler(callback f)
     {
-        classfier = std::move(f);
+        classifier = std::move(f);
     }
 
 	std::list<std::string> getIPList();
@@ -83,16 +83,15 @@ private:
     std::mutex sockMutex_;
     std::mutex sendMutex_;
 
-    bool isMainSocketThread_;
-    std::thread* mainSocketThread_;
+    std::unique_ptr<std::thread> mainSocketThread_;
 
-    std::thread* clientReceiveThread_;
     std::vector<int> clientSocketsList_;
     std::unordered_map<std::string, struct ClientInfo> clientMap_;
 
-    int m_ServerSockets;
-    int m_ServerPorts;
-    int m_nSendBufferSize;
+    bool isMainSocketThread_;
+    int serverSockets_;
+    int srverPorts_;
+    int sendBufferSize_;
     char* m_pSendBuffer;
 };
 
