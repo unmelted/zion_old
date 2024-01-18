@@ -30,7 +30,7 @@
 #include <stdlib.h> // for exit()
 # include <sys/ioctl.h>
 # include <net/if.h>
-#include "ics_define.h"
+#include "ic_define.h"
 
 typedef int SOCKET;
 #define NET_INVALID_SOCKET	-1

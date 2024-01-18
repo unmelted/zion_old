@@ -21,7 +21,7 @@
 #include <iomanip>
 #include <string>
 #include "logger.hpp"
-#include "ics_util.hpp"
+#include "ic_util.hpp"
 #include "json.hpp"
 using json = nlohmann::json;
 

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "ics_define.h"
+#include "ic_define.h"
 
 class MsgManager;
 

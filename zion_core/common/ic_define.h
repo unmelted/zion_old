@@ -48,7 +48,7 @@
 #include "logger.hpp"
 #include "json.hpp"
 #include "message_queue.h"
-#include "ics_util.hpp"
+#include "ic_util.hpp"
 
 #include "error_manager.h"
 
