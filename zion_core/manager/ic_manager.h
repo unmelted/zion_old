@@ -40,7 +40,7 @@ public:
 private:
 	int validateJson(char cSeparator, char* pData, int nDataSize);
 
-    ICServer icServer_;
+    std::shared_ptr<ICServer> icServer_;
     MessageParser msg_parser_;
     MsgManager msg_manager_;
 

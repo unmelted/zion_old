@@ -100,7 +100,7 @@ void MessageParser::parseThread(void* param, std::string strMessage)
 		sendDocument[PROTOCOL_ERRORMSG].SetString(getErrorCodeToString(nResultCode), allocator);
 		std::string sendString = getDocumentToString(sendDocument);
         std::string temp_clientname = "name_temp";
-		if (pMain->getDMServer()->sendData(temp_clientname, sendString.c_str()))
+		if (pMain->icServer_->sendData(temp_clientname, sendString.c_str()))
 		{
 			//ErrorL << strSendString;
 		}
@@ -132,19 +132,12 @@ void MessageParser::parseThread(void* param, std::string strMessage)
 
 	std::string strSendString = getDocumentToString(sendDocument);
     std::string temp_clientname = "name_temp";
-	pMain->getDMServer()->sendData(temp_clientname, strSendString.c_str());
+	pMain->icServer_->sendData(temp_clientname, strSendString.c_str());
 }
 
-
-ICServer* MessageParser::getDMServer()
+void MessageParser::setICServer(std::shared_ptr<ICServer> icServer)
 {
-	return icServer_;
-}
-
-
-void MessageParser::setICServer(ICServer* dmServer)
-{
-	icServer_ = dmServer;
+	icServer_ = icServer;
 }
 
 std::string MessageParser::getDocumentToString(Document& document)

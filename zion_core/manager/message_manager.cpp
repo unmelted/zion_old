@@ -22,6 +22,7 @@ MsgManager::MsgManager()
 	: taskmanager_(TASKPOOL_SIZE, this)
 {
 	isRMSGThread_ = true;
+
 	isSMSGThread_ = true;
 	pRMSGThread_ = new std::thread(&MsgManager::rcvMSGThread, this, this);
 	pSMSGThread_ = new std::thread(&MsgManager::sndMSGThread, this, this);
@@ -29,15 +30,15 @@ MsgManager::MsgManager()
 //	taskmanager_.setSndQue(f1);
 }
 
-ICServer *MsgManager::getICServer()
-{
-	return icServer_;
-}
+//ICServer *MsgManager::getICServer()
+//{
+//	return icServer_;
+//}
 
 
-void MsgManager::setICServer(ICServer *dmServer)
+void MsgManager::setICServer(std::shared_ptr<ICServer> icServer)
 {
-	icServer_ = dmServer;
+	icServer_ = icServer;
 }
 
 MsgManager::~MsgManager()
@@ -120,7 +121,7 @@ void *MsgManager::sndMSGThread(void *arg)
 			msg = queSndMSG_.Dequeue();
 			CMd_INFO(" SndMsg thread msg : {} ", msg->c_str());
             std::string temp_clientname = "name_temp";
-			getICServer()->sendData(temp_clientname, msg->c_str());
+			icServer_->sendData(temp_clientname, msg->c_str());
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(3));
 	}

@@ -28,21 +28,22 @@ public:
     ~MsgManager();
 	void onRcvMessage(std::string pData);
 	void onRcvSndMessage(std::string msg);
-	void setICServer(ICServer* dmServer);
-	ICServer* getICServer();
+	void setICServer(std::shared_ptr<ICServer> icServer);
+//	ICServer* getICServer();
 
 private :
     void* rcvMSGThread(void* arg);
     void* sndMSGThread(void* arg);
 
-    ICServer* icServer_;
-    bool isRMSGThread_;
+    std::shared_ptr<ICServer> icServer_;
     std::thread* pRMSGThread_{ nullptr };
-    bool isSMSGThread_;
     std::thread* pSMSGThread_{ nullptr };
     MessageQueue<std::shared_ptr<ic::MSG_T>> queRcvMSG_;
     MessageQueue<std::shared_ptr<std::string>> queSndMSG_;
     CMdLogger _logger;
 
     TaskManager taskmanager_;
+
+    bool isRMSGThread_;
+    bool isSMSGThread_;
 };

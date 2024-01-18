@@ -22,10 +22,12 @@
 
 ICManager::ICManager()
 {
-	msg_parser_.setICServer(&icServer_);
-	icServer_.beginSocket(ROBOT_CONTROL_PORT, 0);
-	icServer_.setHandler(std::bind(&ICManager::validateJson, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
-	msg_manager_.setICServer(&icServer_);
+    icServer_ = std::make_shared<ICServer>();
+	icServer_->beginSocket(ROBOT_CONTROL_PORT, 0);
+	icServer_->setHandler(std::bind(&ICManager::validateJson, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
+
+    msg_parser_.setICServer(icServer_);
+	msg_manager_.setICServer(icServer_);
 
 	Configurator::get().setDirectory();
 }

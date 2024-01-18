@@ -35,8 +35,8 @@ class MessageParser
 public:
 	MessageParser();
 	~MessageParser();
-	void setICServer(ICServer* dmServer);
-	ICServer* getDMServer();
+	void setICServer(std::shared_ptr<ICServer> icServer);
+
 	bool isThreadStop();
 	void runParse(std::string strMessage);
 
@@ -46,7 +46,7 @@ private:
 	std::string getDocumentToString(Document& document);
 
 private:
-    ICServer* icServer_;
+    std::shared_ptr<ICServer> icServer_;
     bool isThreadStop_;
 
 };
