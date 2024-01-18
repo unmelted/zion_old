@@ -23,7 +23,7 @@
 #include "_3rdparty_/rapidjson/include/rapidjson/writer.h"
 #include "_3rdparty_/rapidjson/include/rapidjson/stringbuffer.h"
 //#include "Util/logger.h"
-#include "ics_define.h"
+#include "ic_define.h"
 #include "ic_server.h"
 #include "curl/curl.h"
 
@@ -35,18 +35,18 @@ class MessageParser
 public:
 	MessageParser();
 	~MessageParser();
-	void setICServer(ICServer* dmServer);
-	ICServer* getDMServer();
+	void setICServer(std::shared_ptr<ICServer> icServer);
+
 	bool isThreadStop();
 	void runParse(std::string strMessage);
 
 private:
 	void parseThread(void* param, std::string strMessage);
-	int getBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol);
+	int getBasicReturnJson(Document& document, ic::Protocol& mtdProtocol);
 	std::string getDocumentToString(Document& document);
 
 private:
-    ICServer* icServer;
-    bool m_bThreadStop;
+    std::shared_ptr<ICServer> icServer_;
+    bool isThreadStop_;
 
 };

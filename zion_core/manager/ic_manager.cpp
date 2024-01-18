@@ -22,10 +22,14 @@
 
 ICManager::ICManager()
 {
-	msg_parser.setICServer(&icServer);
-	icServer.beginSocket(CM_CONTROL_DAEMON_PORT, 0);
-	icServer.setHandler(std::bind(&ICManager::classfication, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
-	msg_manager.setICServer(&icServer);
+    icServer_ = std::make_shared<ICServer>();
+	icServer_->beginSocket(ROBOT_CONTROL_PORT, 0);
+	icServer_->setHandler(std::bind(&ICManager::validateJson, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
+
+    msg_parser_ = std::make_unique<MessageParser>();
+    msg_manager_ = std::make_unique<MsgManager>();
+    msg_parser_->setICServer(icServer_);
+	msg_manager_->setICServer(icServer_);
 
 	Configurator::get().setDirectory();
 }
@@ -35,25 +39,18 @@ ICManager::~ICManager()
 
 }
 
-int	ICManager::classfication(char cSeparator, char* pData, int nDataSize)
+
+int ICManager::validateJson(char cSeparator, char* pData, int nDataSize)
 {
-	switch (cSeparator)
-	{
-        case (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON:
-		recJson(pData);
-		break;
+    std::cout << "validateJson start " << endl;
 
-	default:
-		//ErrorL << "Invalid Message Separator : " << int(cSeparator) << "\n" << pData;
-		break;
-	}
+    if( cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON)
+    {
+        std::cout << " validateJson cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON " << endl;
+        return 0;
+    }
 
-	return 0;
-}
-
-
-int ICManager::recJson(std::string strMessage)
-{
+    std::string strMessage = pData;
 	Document document;
 	bool bSuc = false;
 	try {
@@ -68,41 +65,18 @@ int ICManager::recJson(std::string strMessage)
 		//ErrorL << strMessage;
 		return 0;
 	}
+    std::cout << "before documnet [] .. " << endl;
 
-	std::string sec3 = document[MTDPROTOCOL_SECTION3].GetString();
-	CMd_INFO("recJson sec3 : {} compare {}", sec3, sec3.compare("Version"));
+	std::string sec3 = document[PROTOCOL_SECTION3].GetString();
+    std::cout << "validateJson sec3 " << sec3 <<endl;
+	CMd_INFO("validateJson sec3 : {} compare {}", sec3, sec3.compare("Version"));
 	if(sec3.compare("Version") == 0) {
-		msg_parser.runParse(strMessage);
+		msg_parser_->runParse(strMessage);
 	}
 	else if(sec3.compare("Stabilize") == 0) {
-		msg_parser.runParse(strMessage);
-		msg_manager.onRcvMessage(strMessage);
+		msg_parser_->runParse(strMessage);
+		msg_manager_->onRcvMessage(strMessage);
 	}
 
 	return 1;
-}
-
-void ICManager::getBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol)
-{
-	std::string strTp;
-	if (document.HasMember("Section1"))
-		mtdProtocol.Section1 = document["Section1"].GetString();
-
-	if (document.HasMember("Sectoin2"))
-		mtdProtocol.Section2 = document["Sectoin2"].GetString();
-
-	if (document.HasMember("Sectoin3"))
-		mtdProtocol.Section3 = document["Sectoin3"].GetString();
-	
-	if (document.HasMember("SendState"))
-		mtdProtocol.SendState = document["SendState"].GetString();
-
-	if (document.HasMember("From"))
-		mtdProtocol.From = document["From"].GetString();
-
-	if (document.HasMember("To"))
-		mtdProtocol.To = document["To"].GetString();
-
-	if (document.HasMember("action"))
-		mtdProtocol.action = document["action"].GetString();
 }

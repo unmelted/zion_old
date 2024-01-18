@@ -19,7 +19,7 @@
 #pragma once
 
 #include "ic_server.h"
-#include "ics_define.h"
+#include "ic_define.h"
 #include <functional>
 #include "message_parser.h"
 #include "message_manager.hpp"
@@ -29,7 +29,7 @@
 #include "_3rdparty_/rapidjson/include/rapidjson/writer.h"
 #include "_3rdparty_/rapidjson/include/rapidjson/stringbuffer.h"
 #include "_3rdparty_/rapidjson/include/rapidjson/prettywriter.h"
-using namespace rapidjson; 
+using namespace rapidjson;
 
 class ICManager
 {
@@ -38,13 +38,11 @@ public:
 	~ICManager();
 
 private:
-	void getBasicReturnJson(Document& document, ic::MTdProtocol& mtdProtocol);
-	int	classfication(char cSeparator, char* pData, int nDataSize);
-	int recJson(std::string strMessage);
+	int validateJson(char cSeparator, char* pData, int nDataSize);
 
-    ICServer icServer;
-    MessageParser msg_parser;
-    MsgManager msg_manager;
+    std::shared_ptr<ICServer> icServer_;
+    std::unique_ptr<MessageParser> msg_parser_;
+    std::unique_ptr<MsgManager> msg_manager_;
 
 };
 

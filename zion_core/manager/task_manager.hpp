@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "ics_define.h"
+#include "ic_define.h"
 
 class MsgManager;
 
@@ -29,42 +29,39 @@ class TaskManager
 {
 
 public:
-    TaskManager(size_t num_worker_, MsgManager *a);
+    TaskManager(size_t num_worker_, MsgManager *msg_manager);
     ~TaskManager();
 
     template <class F, class... Args>
     void enqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args);
     void onRcvTask(std::shared_ptr<ic::MSG_T> pData);
     int commandTask(int mode, std::string arg); // shared_ptr<VIDEO_INFO> arg);
-    void setSndQue(std::function<void(MsgManager &, const std::string msg)> que)
-    {
-        fSendQue = que;
-    };
 
 private:
     void workerThread();
     void watchFuture();
-    // int RunStabilize(shared_ptr<VIDEO_INFO> arg);
     void makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result);
 
-    void sendVersionMessage(std::string ptrMsg);
+//    void sendVersionMessage(std::string ptrMsg);
     std::string getDocumentToString(Document &document);
 
 private:
-    size_t num_worker;
-    size_t cur_worker;
-    std::vector<std::thread> worker;
-    std::thread *watcher{nullptr};
-    std::queue<std::function<void()>> jobs;
-    std::condition_variable cv_job;
-    std::mutex m_job;
-    MessageQueue<int> m_future;
-    MessageQueue<std::shared_ptr<ic::MSG_T>> m_qTMSG;
-    std::function<void(MsgManager &, const std::string msg)> fSendQue;
+    std::vector<std::unique_ptr<std::thread>> worker_;
+    std::unique_ptr<std::thread> watcher_{nullptr};
 
-    MsgManager *m_msgmanager;
-    bool stop_all;
-    bool watching;
+    std::queue<std::function<void()>> jobs;
+    std::condition_variable cv_job_;
+    std::mutex jobMutex_;
+
+    MessageQueue<int> future_;
+    MessageQueue<std::shared_ptr<ic::MSG_T>> queTaskMSG_;
+
+    MsgManager *msgmanager_;
+
+    size_t num_worker_;
+    size_t cur_worker_;
+    bool stop_all_;
+    bool watching_;
 
 };
 

@@ -7,13 +7,13 @@
 
 #define RAPIDJSON_HAS_STDSTRING 1
 
-#define MTDPROTOCOL_SECTION1    "Section1"
-#define MTDPROTOCOL_SECTION2    "Section2"
-#define MTDPROTOCOL_SECTION3    "Section3"
-#define MTDPROTOCOL_SENDSTATE   "SendState"
+#define MTDPROTOCOL_SECTION1    "Type"
+#define MTDPROTOCOL_SECTION2    "Command"
+#define MTDPROTOCOL_SECTION3    "SubCommand"
+#define MTDPROTOCOL_ACTION      "Action"
 #define MTDPROTOCOL_FROM        "From"
 #define MTDPROTOCOL_TO          "To"
-#define MTDPROTOCOL_ACTION      "Action"
+#define MTDPROTOCOL_DATA        "Data"
 #define MTDPROTOCOL_TOKEN       "Token"
 #define MTDPROTOCOL_RESULTCODE  "ResultCode"
 #define MTDPROTOCOL_ERRORMSG    "ErrorMsg"
@@ -145,11 +145,11 @@ int main() {
     sndDoc.AddMember(MTDPROTOCOL_SECTION1, "TEST_COMMAND_1", allocator);
     sndDoc.AddMember(MTDPROTOCOL_SECTION2, "TEST_COMMAND_2", allocator);
     sndDoc.AddMember(MTDPROTOCOL_SECTION3, "TEST_COMMAND_3", allocator);
-    sndDoc.AddMember(MTDPROTOCOL_SENDSTATE, "response", allocator);
+    sndDoc.AddMember(MTDPROTOCOL_ACTION, "response", allocator);
     sndDoc.AddMember(MTDPROTOCOL_TOKEN, "TEST_TOKEN", allocator);
     sndDoc.AddMember(MTDPROTOCOL_FROM, "TEST_CLIENT", allocator);
     sndDoc.AddMember(MTDPROTOCOL_TO, "TEST_SERVER", allocator);
-    sndDoc.AddMember(MTDPROTOCOL_ACTION, "TEST_SEND_MSG", allocator);
+    sndDoc.AddMember(MTDPROTOCOL_DATA, "TEST_SEND_MSG", allocator);
     sndDoc.AddMember("Version", ver, allocator);
     sndDoc.AddMember(MTDPROTOCOL_RESULTCODE, 1000, allocator);
     sndDoc.AddMember(MTDPROTOCOL_ERRORMSG, "SUCCESS", allocator);

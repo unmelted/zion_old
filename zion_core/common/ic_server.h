@@ -30,7 +30,7 @@
 #include <stdlib.h> // for exit()
 # include <sys/ioctl.h>
 # include <net/if.h>
-#include "ics_define.h"
+#include "ic_define.h"
 
 typedef int SOCKET;
 #define NET_INVALID_SOCKET	-1
@@ -44,10 +44,9 @@ struct ClientInfo
 
 struct ClientSockThreadData
 {
+    std::string clientIp;
     void* pthis;
-    int nType;
-    int nSocket;
-    std::string strClientIP;
+    int socket;
 };
 
 class ICServer
@@ -61,10 +60,11 @@ public :
     void addClient(const std::string& clientName, const std::string& clientIp, int clientSocket);
 
     typedef std::function<int(char cSeparator, char* pData, int nDataSize)> callback;
-    callback m_onClassfication;
+    callback classfier;
 
-    void setHandler(callback f) {
-        m_onClassfication = std::move(f);
+    void setHandler(callback f)
+    {
+        classfier = std::move(f);
     }
 
 	std::list<std::string> getIPList();
@@ -83,12 +83,12 @@ private:
     std::mutex sockMutex_;
     std::mutex sendMutex_;
 
-    bool bMainSocketThread;
-    std::thread* m_mainSocketThread;
+    bool isMainSocketThread_;
+    std::thread* mainSocketThread_;
 
-    std::thread* m_clientReceiveThread;
-    std::vector<int> clientSocketsList;
-    std::unordered_map<std::string, struct ClientInfo> m_clientMap;
+    std::thread* clientReceiveThread_;
+    std::vector<int> clientSocketsList_;
+    std::unordered_map<std::string, struct ClientInfo> clientMap_;
 
     int m_ServerSockets;
     int m_ServerPorts;

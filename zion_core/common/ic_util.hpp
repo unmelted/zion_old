@@ -47,27 +47,8 @@ public:
     int endTimer(TIMER *times);
     float lapTimer(TIMER *times);
 
-    struct Path {
-        static inline const std::filesystem::path LOG {std::filesystem::current_path().append("log") };
-        static inline const std::filesystem::path ANLS {std::filesystem::current_path().append("analysis") };
-        static inline const std::filesystem::path DUMP {std::filesystem::current_path().append("dump") };
-        static inline const std::filesystem::path INIF {std::filesystem::current_path().append("ini.json") };
-    };
-
-    struct ConfigureValue{
-        enum class cfg_mode {
-            SERVER      = 10,
-            STABIL      = 11,
-        };
-        enum class category {
-            ROI_WIDTH    = 100,
-            ROI_HEIGHT   = 101,
-            SWIPE_PT_X   = 102,
-            SWIPE_PT_Y   = 103,
-            DUMP_TRUE    = 104,
-        };        
-    };
+    static inline const std::filesystem::path LOG {std::filesystem::current_path().append("log") };
 
 private :
-    int serial = 0;
+    int token_serial_ = 0;
 };
