@@ -171,7 +171,7 @@ int MessageParser::getBasicReturnJson(Document& document, ic::Protocol& protocol
 	if (document.HasMember(PROTOCOL_ACTION))
 		protocol.Action = document[PROTOCOL_ACTION].GetString();
 	else
-		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SENDSTATE;
+		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_ACTION;
 
 	if (document.HasMember(PROTOCOL_TOKEN))
 		protocol.Token = document[PROTOCOL_TOKEN].GetString();

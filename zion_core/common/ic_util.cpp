@@ -25,9 +25,7 @@ Configurator&  Configurator::get() {
 }
 
 void Configurator::setDirectory() {
-    std::filesystem::create_directories(Path::LOG);
-    std::filesystem::create_directories(Path::ANLS);
-    std::filesystem::create_directories(Path::DUMP);
+    std::filesystem::create_directories(LOG);
 
 }
 
@@ -47,10 +45,10 @@ std::string Configurator::getCurrentDateTime(std::string s)
 std::string Configurator::generateToken() {
     char tk[100];
     std::string base = getCurrentDateTime("date");
-    if(serial >= 9999)
-        serial = 0;
-    serial ++;  
-    snprintf(tk, sizeof(tk), "%s_%04d", base.c_str(), serial);
+    if(token_serial_ >= 9999)
+        token_serial_ = 0;
+    token_serial_ ++;
+    snprintf(tk, sizeof(tk), "%s_%04d", base.c_str(), token_serial_);
     std::string str_tk(tk);   
     return str_tk;    
 }
