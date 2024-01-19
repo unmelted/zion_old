@@ -37,12 +37,13 @@
 #include <set>
 #include <cstdint>
 #include <map>
-#define RAPIDJSON_HAS_STDSTRING 1
 
+#define RAPIDJSON_HAS_STDSTRING 1
 #include "_3rdparty_/rapidjson/include/rapidjson/document.h"
 #include "_3rdparty_/rapidjson/include/rapidjson/writer.h"
 #include "_3rdparty_/rapidjson/include/rapidjson/stringbuffer.h"
 #include "_3rdparty_/rapidjson/include/rapidjson/prettywriter.h"
+
 #include "ic_server.h"
 #include "logger.hpp"
 #include "message_queue.h"

@@ -17,7 +17,8 @@
  */
 
 
-#pragma once 
+#pragma once
+
 #include "task_manager.hpp"
 
 class MsgManager {
