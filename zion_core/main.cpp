@@ -1,44 +1,45 @@
-﻿#include <cstdio>
-#include "ic_manager.h"
-#include <string.h>
+﻿/*
+ * LIVSMED CONFIDENTIAL
+ *
+ * Copyright (c) 2024 LIVSMED, INC.
+ * All Rights Reserved.
+ *
+ * NOTICE: All information contained herein is, and remains the property
+ * of LIVSMED and its suppliers, if any. The intellectual and technical concepts
+ * contained herein are proprietary to LIVSMED and its suppliers and may be
+ * covered by S.Korea and Foreign Patents, patents in process, and are
+ * protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material is
+ * strictly forbidden unless prior written permission is obtained from LIVSMED.
+ *
+ * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
+ *
+ */
 
+#include <csignal>
+#include "ic_manager.h"
+
+std::unique_ptr<ICManager> icManager;
+
+void signalHandler(int signum) {
+    LOG_TRACE("Interrupt signal {} received.", signum);
+
+    signal(SIGINT, signalHandler);
+    icManager.reset();
+    exit(signum);
+}
 
 int main()
 {
-//    Logger::Instance().add(std::make_shared<ConsoleChannel>());
-//    Logger::Instance().add(std::make_shared<FileChannel>());
-//    Logger::Instance().setWriter(std::make_shared<AsyncLogWriter>());
+    LOG_INFO("ICManager Start!");
 
-    //InfoL << "Version : " << CURRENTVERSION;
-    //InfoL << "v : Version check";
+    Logger logger;
+    signal(SIGINT, signalHandler);
+    icManager = std::make_unique<ICManager>();
 
-    ICManager icManager;
-    char pStr[100];
     while (1)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    return 0;
-}
-
-//local file mode
-/*
-int main(int argc, char* argv[]) {
-    if (argc < 2 ) {
-        printf("Please input VIDEO JSON FILE");
-        return 0;
-    }
-
-    string jsonfile(argv[1]);
-    cout << jsonfile;
-    ExpUtil in;
-    VIDEO_INFO info;
-    int result  = in.ImportVideoInfo(jsonfile, &info, true);
-    if(result == dove::ERR_NONE) {
-        Dove stblz(&info);
-        result = stblz.Process();
-    }
-
     return 1;
 }
-*/

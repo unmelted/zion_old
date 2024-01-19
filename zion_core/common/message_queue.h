@@ -29,11 +29,11 @@ class MessageQueue
 {
 public:
     MessageQueue(void)
-        : mQueue()
-        , mMutex()
-        , mCondition() 
+        : queue_()
+        , mutex_()
+        , condition_()
     {
-        mIsLoop = true;
+        isLoop_ = true;
     }
 
     ~MessageQueue(void) 
@@ -42,54 +42,54 @@ public:
 
     void Clear() 
     {
-        std::lock_guard<std::mutex> lock(mMutex);
+        std::lock_guard<std::mutex> lock(mutex_);
         std::queue<T> emptyQueue;
-        std::swap(mQueue, emptyQueue);
+        std::swap(queue_, emptyQueue);
     }
 
     void Enqueue(T t) 
     {
-        std::lock_guard<std::mutex> lock(mMutex);
-        mQueue.push(t);
-        mCondition.notify_one();
+        std::lock_guard<std::mutex> lock(mutex_);
+        queue_.push(t);
+        condition_.notify_one();
     }
 
     void Destory() 
     {
-        mIsLoop = false;
-        mCondition.notify_one();
+        isLoop_ = false;
+        condition_.notify_one();
     }
 
     T Dequeue()
     {
-        std::unique_lock<std::mutex> lock(mMutex);
-        while ((mIsLoop) && (mQueue.empty())) 
+        std::unique_lock<std::mutex> lock(mutex_);
+        while ((isLoop_) && (queue_.empty()))
         {
-            mCondition.wait(lock);
+            condition_.wait(lock);
         }
-        T val = mQueue.front();
-        mQueue.pop();
+        T val = queue_.front();
+        queue_.pop();
         return val;
     }
 
     bool IsQueue() 
     {
-        std::lock_guard<std::mutex> lock(mMutex);
-        bool ret = !mQueue.empty();
-        mCondition.notify_one();
+        std::lock_guard<std::mutex> lock(mutex_);
+        bool ret = !queue_.empty();
+        condition_.notify_one();
         return ret;
     }
 
     int32_t GetSize() 
     {
-        std::lock_guard<std::mutex> lock(mMutex);
-        return int32_t(mQueue.size());
+        std::lock_guard<std::mutex> lock(mutex_);
+        return int32_t(queue_.size());
     }
 
 
 private:
-    std::queue<T>           mQueue;
-    mutable std::mutex      mMutex;
-    std::condition_variable mCondition;
-    bool                    mIsLoop;
+    std::queue<T>           queue_;
+    mutable std::mutex      mutex_;
+    std::condition_variable condition_;
+    bool                    isLoop_;
 };

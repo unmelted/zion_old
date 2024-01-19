@@ -37,35 +37,19 @@
 #include <set>
 #include <cstdint>
 #include <map>
-
-
 #define RAPIDJSON_HAS_STDSTRING 1
+
 #include "_3rdparty_/rapidjson/include/rapidjson/document.h"
 #include "_3rdparty_/rapidjson/include/rapidjson/writer.h"
 #include "_3rdparty_/rapidjson/include/rapidjson/stringbuffer.h"
 #include "_3rdparty_/rapidjson/include/rapidjson/prettywriter.h"
 #include "ic_server.h"
 #include "logger.hpp"
-#include "json.hpp"
 #include "message_queue.h"
 #include "ic_util.hpp"
-
 #include "error_manager.h"
 
-
-#define MESSAGELTRANSFER_DAEMON_PORT        0x4D01
-
 #define ROBOT_CONTROL_PORT              0x4D15
-
-#define CONTROLLER_PORT                     0x4D20
-#define PRODUCING_PORT                      0x4D21
-#define VAR_PORT                            0x4D22
-#define EMS_PORT                            0x4D23
-#define DAEMONVIEWER_PORT                   0x4D24
-#define BUFFER_VIEWER_PORT                  0x4D25
-#define LOGVIEWER_PORT                      0x4D26
-
-#define VP_BUFFER_MAXSIZE	10
 #define TASKPOOL_SIZE 10
 #define CURRENTVERSION "0.0.1.T"
 
@@ -74,7 +58,7 @@ using namespace std;
 
 namespace ic
 {
-enum class COMMAND_TYPE
+enum class COMMAND_STRUCTURE
 {
     COMMAND_NONE = 0,
     COMMAND_START,
@@ -108,7 +92,6 @@ struct Protocol
 #define PROTOCOL_SECTION3    "SubCommand"
 #define PROTOCOL_ACTION      "Action"
 #define PROTOCOL_TOKEN       "Token"
-//#define PROTOCOL_SENDSTATE   "SendState"
 #define PROTOCOL_FROM        "From"
 #define PROTOCOL_TO          "To"
 #define PROTOCOL_DATA        "Data"

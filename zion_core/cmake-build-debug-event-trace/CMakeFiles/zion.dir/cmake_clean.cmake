@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
   "CMakeFiles/zion.dir/common/ic_server.cpp.o"
   "CMakeFiles/zion.dir/common/ic_server.cpp.o.d"
-  "CMakeFiles/zion.dir/common/ics_util.cpp.o"
-  "CMakeFiles/zion.dir/common/ics_util.cpp.o.d"
+  "CMakeFiles/zion.dir/common/ic_util.cpp.o"
+  "CMakeFiles/zion.dir/common/ic_util.cpp.o.d"
   "CMakeFiles/zion.dir/common/logger.cpp.o"
   "CMakeFiles/zion.dir/common/logger.cpp.o.d"
   "CMakeFiles/zion.dir/common/message_parser.cpp.o"

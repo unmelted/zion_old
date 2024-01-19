@@ -36,11 +36,11 @@ private :
     void* sndMSGThread(void* arg);
 
     std::shared_ptr<ICServer> icServer_;
-    std::thread* pRMSGThread_{ nullptr };
-    std::thread* pSMSGThread_{ nullptr };
+    std::unique_ptr<std::thread> pRMSGThread_;
+    std::unique_ptr<std::thread> pSMSGThread_;
     MessageQueue<std::shared_ptr<ic::MSG_T>> queRcvMSG_;
     MessageQueue<std::shared_ptr<std::string>> queSndMSG_;
-    CMdLogger _logger;
+//    Logger _logger;
 
     TaskManager taskmanager_;
 

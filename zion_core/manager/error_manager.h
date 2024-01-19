@@ -22,19 +22,15 @@
 
 #include <string>
 
-#define SUCCESS			1000
-#define MAX_ERR_COUNT	10000
+#define SUCCESS			1
+#define MAX_ERR_COUNT	100
 
 enum class ErrorCodeIndex{
-	ERR_INDEX_COMMON	= 0,
-	ERR_INDEX_MTD		= 1 * MAX_ERR_COUNT,
-	ERR_INDEX_PCD		= 2 * MAX_ERR_COUNT,
-	ERR_INDEX_EMD		= 3 * MAX_ERR_COUNT,
-	ERR_INDEX_SCD		= 4 * MAX_ERR_COUNT,
-	ERR_INDEX_CCD		= 5 * MAX_ERR_COUNT,
-	ERR_INDEX_GCD		= 6 * MAX_ERR_COUNT,
-	ERR_INDEX_PRESD		= 7 * MAX_ERR_COUNT,
-	ERR_INDEX_POSTSD	= 8 * MAX_ERR_COUNT,
+	ERR_INDEX_COMMON	= 1,
+	ERR_INDEX_IC		= 2 * MAX_ERR_COUNT,
+	ERR_INDEX_MC		= 3 * MAX_ERR_COUNT,
+    ERR_INDEX_SR		= 4 * MAX_ERR_COUNT,
+    ERR_INDEX_CR	    = 5 * MAX_ERR_COUNT,
 };
 
 ////////////////////////////////////////////////////////
@@ -71,7 +67,7 @@ enum class ErrorCommon {
 
 ////////////////////////////////////////////////////////
 enum class ErrorIC {
-	IC_ERR_START = (int)ErrorCodeIndex::ERR_INDEX_MTD,
+	IC_ERR_START = (int)ErrorCodeIndex::ERR_INDEX_IC,
 	///////////////////////////////////
 
 	IC_ERR_DAEMON_NOT_CONNECTED,

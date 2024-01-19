@@ -25,6 +25,7 @@ Configurator&  Configurator::get() {
 }
 
 void Configurator::setDirectory() {
+    std::cout << "setDirectory create directory : " << LOG << std::endl;
     std::filesystem::create_directories(LOG);
 
 }

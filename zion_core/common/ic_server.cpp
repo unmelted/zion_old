@@ -22,11 +22,8 @@ ICServer::ICServer()
 {
 	isMainSocketThread_ = false;
 	mainSocketThread_ = nullptr;
-	clientReceiveThread_ = nullptr;
-	m_ServerSockets = 0;
-    m_ServerPorts = 0;
-    m_nSendBufferSize = 0;
-	m_pSendBuffer = nullptr;
+	serverSockets_ = 0;
+    srverPorts_ = 0;
 
 }
 
@@ -39,7 +36,7 @@ ICServer::~ICServer()
         closeSocket(socket);
     }
 
-	closeSocket(m_ServerSockets);
+	closeSocket(serverSockets_);
 
 	if (mainSocketThread_ != nullptr)
 	{
@@ -47,20 +44,13 @@ ICServer::~ICServer()
 		mainSocketThread_ = nullptr;
 	}
 
-	if (clientReceiveThread_ != nullptr)
-	{
-		clientReceiveThread_->join();
-		clientReceiveThread_ = nullptr;
-	}
-	if (m_pSendBuffer != nullptr)
-		delete[] m_pSendBuffer;
-
 }
 
 void ICServer::closeSocket(int nSock)
 {
 	//close(nSock);
 	shutdown(nSock, SHUT_RDWR);
+    
 }
 
 bool ICServer::beginSocket(int nPort, int nType)
@@ -68,9 +58,9 @@ bool ICServer::beginSocket(int nPort, int nType)
 	if (isMainSocketThread_)
 		return false;
 
-	m_ServerPorts = nPort;
+	srverPorts_ = nPort;
 	isMainSocketThread_ = true;
-	mainSocketThread_ = new std::thread(&ICServer::runSocketThread, this, this);
+	mainSocketThread_ =  std::make_unique<std::thread>(&ICServer::runSocketThread, this, this);
 
 	return true;
 }
@@ -90,18 +80,18 @@ void ICServer::runSocket()
 	struct sockaddr_in serv_adr, clnt_adr;
 	int clnt_adr_sz;
 
-	m_ServerSockets = (int)socket(PF_INET, SOCK_STREAM, 0);
+	serverSockets_ = (int)socket(PF_INET, SOCK_STREAM, 0);
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(m_ServerPorts);
+	serv_adr.sin_port = htons(srverPorts_);
 
-	if (::bind(m_ServerSockets, (struct sockaddr*)&serv_adr, sizeof(serv_adr)) == -1)
+	if (::bind(serverSockets_, (struct sockaddr*)&serv_adr, sizeof(serv_adr)) == -1)
 	{
 		//ErrorL << "bind() error";
 		return;
 	}
-	if (listen(m_ServerSockets, 5) == -1)
+	if (listen(serverSockets_, 5) == -1)
 	{
 		//ErrorL << "listen() error";
 		return;
@@ -111,7 +101,7 @@ void ICServer::runSocket()
 	while (isMainSocketThread_)
 	{
 		clnt_adr_sz = sizeof(clnt_adr);
-		int clientSocket = (int)(accept(m_ServerSockets, (struct sockaddr*)&clnt_adr, (socklen_t*)&clnt_adr_sz));
+		int clientSocket = (int)(accept(serverSockets_, (struct sockaddr*)&clnt_adr, (socklen_t*)&clnt_adr_sz));
 
 		if (clientSocket <= 0)
 			continue;
@@ -126,16 +116,15 @@ void ICServer::runSocket()
         if (strIP.compare(""))
             continue;
 
-        cout << "Connected client IP: " << clientIP << endl;
-        cout << "Local IP Address: " << strIP << endl;
+        LOG_INFO("Connected Client IP : {} Local IP Address : {}", clientIP, strIP);
         addClient("name_temp", clientIP, clientSocket);
 
-		ClientSockThreadData* threaddata = new ClientSockThreadData;
-		threaddata->pthis = this;
-		threaddata->clientIp = clientIP;
-		threaddata->socket = clientSocket;
+		std::unique_ptr<ClientSockThreadData> threadData = std::make_unique<ClientSockThreadData>();
+		threadData->pthis = this;
+		threadData->clientIp = clientIP;
+		threadData->socket = clientSocket;
 
-        std::thread(&ICServer::handle_client, this, (void*)threaddata).detach();
+        std::thread(&ICServer::handle_client, this, std::move(threadData)).detach();
 
 	}
 
@@ -148,13 +137,11 @@ void ICServer::runSocket()
     sockMutex_.unlock();
 }
 
-void* ICServer::handle_client(void* arg)
+void* ICServer::handle_client(std::unique_ptr<ClientSockThreadData> threadData)
 {
-	ClientSockThreadData* threadData = (ClientSockThreadData*)arg;
 	int clnt_sock = threadData->socket;
 	std::string clnt_IP = threadData->clientIp;
 	ICServer* pSocketMgr = (ICServer*)threadData->pthis;
-	delete threadData;
 
 	while (pSocketMgr->isMainSocketThread_)
 	{
@@ -166,38 +153,30 @@ void* ICServer::handle_client(void* arg)
 		{
 			break;
 		}
-        cout << " check 1 " <<endl;
-        cout << "handle_client : " << (char*)&header << " : size : " << header.nSize << endl;
+
 		if (str_len < sizeof(ic::ProtocolHeader))
 			continue;
-        cout << " check 2 " <<endl;
 
 		nPacketSize = header.nSize;
 		if (nPacketSize < 1 || nPacketSize > 5000000 || header.cSeparator >= (int)ic::PACKET_SEPARATOR::PACKETTYPE_SIZE)
 		{
-			//ErrorL << "Invaild Header Packet!!!, Size : " << nPacketSize << ", Separator : " << header.cSeparator;
+            LOG_ERROR("Invalid Header Packet {} Separator {}", nPacketSize, header.cSeparator);
 			continue;
 		}
 
-		char* pData = nullptr;
+        std::vector<char> pData;
 		if (nPacketSize >= 0)
 		{
-			pData = new char[nPacketSize + 1];
-			memset(pData, 0, nPacketSize + 1);
-			if ((str_len = pSocketMgr->receive(clnt_sock, (char*)pData, nPacketSize, 0)) == 0)
+			pData.resize(nPacketSize + 1), 0;
+			if ((str_len = pSocketMgr->receive(clnt_sock, pData.data(), nPacketSize, 0)) == 0)
 			{
 				break;
 			}
 		}
-        
-        cout << " check 3 " <<endl;
-        cout <<" pdata .. : " << pData << endl;
 
-		if (pSocketMgr->classfier != 0)
+		if (pSocketMgr->classifier != 0)
 		{
-            cout << " check 3 " <<endl;
-			int nErrorCode = pSocketMgr->classfier(header.cSeparator, pData, nPacketSize);
-            cout << " check 5 " << nErrorCode <<endl;
+			int nErrorCode = pSocketMgr->classifier(header.cSeparator, pData.data(), nPacketSize);
 
 			//if (nErrorCode != MTD_PROTOCOL_OK)
 			//{
@@ -214,11 +193,6 @@ void* ICServer::handle_client(void* arg)
 			//}
 		}
 
-		//bool bJsonParse = pSocketMgr->Classification(pData);
-		if (pData != nullptr)
-		{
-			delete[] pData;
-		}
 	}
 
 	pSocketMgr->closeSocket(clnt_sock);
@@ -228,34 +202,24 @@ void* ICServer::handle_client(void* arg)
 
 bool ICServer::sendData(const std::string& clientName, std::string strJson)
 {
-	int nSize = (int)strlen(strJson.c_str());
-	char cType = (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON;
-	sendMutex_.lock();
+    int nSize = static_cast<int>(strJson.size());
+    char cType = static_cast<char>(ic::PACKET_SEPARATOR::PACKETTYPE_JSON);
+    int nSendSize = sizeof(int) + 1 + nSize;
 
-	int nSendSize = sizeof(int) + 1 + nSize;
-	if (m_nSendBufferSize < nSendSize)
-	{
-		if (m_pSendBuffer != nullptr)
-			delete[] m_pSendBuffer;
+    sendMutex_.lock();
+    sendBuffer_.reserve(nSendSize);
 
-		m_pSendBuffer = new char[nSendSize];
-		m_nSendBufferSize = nSendSize;
-	}
-	memcpy(m_pSendBuffer, (char*)&nSize, sizeof(int));
-	int nBufPos = sizeof(int);
+    sendBuffer_.insert(sendBuffer_.end(), reinterpret_cast<char*>(&nSize), reinterpret_cast<char*>(&nSize) + sizeof(int));
+    sendBuffer_.push_back(cType);
+    sendBuffer_.insert(sendBuffer_.end(), strJson.begin(), strJson.end());
 
-	memcpy(m_pSendBuffer + nBufPos, &cType, 1);
-	nBufPos++;
-
-	memcpy(m_pSendBuffer + nBufPos, strJson.c_str(), nSize);
-	sockMutex_.lock();
-
+    sockMutex_.lock();
     int nSend = -1;
     auto clientInfoIterator = clientMap_.find(clientName);
     if (clientInfoIterator != clientMap_.end())
     {
-        struct ClientInfo& clientInfo = clientInfoIterator->second;
-        nSend = send(clientInfo.clientSocket, m_pSendBuffer, nSendSize, 0);
+        ClientInfo& clientInfo = clientInfoIterator->second;
+        nSend = send(clientInfo.clientSocket, sendBuffer_.data(), sendBuffer_.size(), 0);
     }
     else
     {
@@ -266,7 +230,7 @@ bool ICServer::sendData(const std::string& clientName, std::string strJson)
 	sendMutex_.unlock();
 	if (nSend != nSendSize)
 	{
-		//ErrorL << "[ERROR]Send Fail MTD";
+        LOG_ERROR("Send Fail nSend != nSendSize");
 		return false;
 	}
 

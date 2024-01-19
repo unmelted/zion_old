@@ -106,10 +106,10 @@
 		<Unit filename="/Users/kellyma/work/zion_old/zion_core/common/ic_server.h">
 			<Option target="zion"/>
 		</Unit>
-		<Unit filename="/Users/kellyma/work/zion_old/zion_core/common/ics_util.cpp">
+		<Unit filename="/Users/kellyma/work/zion_old/zion_core/common/ic_util.cpp">
 			<Option target="zion"/>
 		</Unit>
-		<Unit filename="/Users/kellyma/work/zion_old/zion_core/common/ics_util.hpp">
+		<Unit filename="/Users/kellyma/work/zion_old/zion_core/common/ic_util.hpp">
 			<Option target="zion"/>
 		</Unit>
 		<Unit filename="/Users/kellyma/work/zion_old/zion_core/common/logger.cpp">

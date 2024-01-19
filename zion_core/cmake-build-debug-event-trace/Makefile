@@ -153,29 +153,29 @@ common/ic_server.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/zion.dir/build.make CMakeFiles/zion.dir/common/ic_server.cpp.s
 .PHONY : common/ic_server.cpp.s
 
-common/ics_util.o: common/ics_util.cpp.o
-.PHONY : common/ics_util.o
+common/ic_util.o: common/ic_util.cpp.o
+.PHONY : common/ic_util.o
 
 # target to build an object file
-common/ics_util.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/zion.dir/build.make CMakeFiles/zion.dir/common/ics_util.cpp.o
-.PHONY : common/ics_util.cpp.o
+common/ic_util.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/zion.dir/build.make CMakeFiles/zion.dir/common/ic_util.cpp.o
+.PHONY : common/ic_util.cpp.o
 
-common/ics_util.i: common/ics_util.cpp.i
-.PHONY : common/ics_util.i
+common/ic_util.i: common/ic_util.cpp.i
+.PHONY : common/ic_util.i
 
 # target to preprocess a source file
-common/ics_util.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/zion.dir/build.make CMakeFiles/zion.dir/common/ics_util.cpp.i
-.PHONY : common/ics_util.cpp.i
+common/ic_util.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/zion.dir/build.make CMakeFiles/zion.dir/common/ic_util.cpp.i
+.PHONY : common/ic_util.cpp.i
 
-common/ics_util.s: common/ics_util.cpp.s
-.PHONY : common/ics_util.s
+common/ic_util.s: common/ic_util.cpp.s
+.PHONY : common/ic_util.s
 
 # target to generate assembly for a file
-common/ics_util.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/zion.dir/build.make CMakeFiles/zion.dir/common/ics_util.cpp.s
-.PHONY : common/ics_util.cpp.s
+common/ic_util.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/zion.dir/build.make CMakeFiles/zion.dir/common/ic_util.cpp.s
+.PHONY : common/ic_util.cpp.s
 
 common/logger.o: common/logger.cpp.o
 .PHONY : common/logger.o
@@ -357,9 +357,9 @@ help:
 	@echo "... common/ic_server.o"
 	@echo "... common/ic_server.i"
 	@echo "... common/ic_server.s"
-	@echo "... common/ics_util.o"
-	@echo "... common/ics_util.i"
-	@echo "... common/ics_util.s"
+	@echo "... common/ic_util.o"
+	@echo "... common/ic_util.i"
+	@echo "... common/ic_util.s"
 	@echo "... common/logger.o"
 	@echo "... common/logger.i"
 	@echo "... common/logger.s"

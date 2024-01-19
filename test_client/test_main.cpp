@@ -162,7 +162,7 @@ int main() {
     //send(sock, &mtdProtoHeader, mtdProtoHeader.nSize, 0);
     std::cout << "Hello message sent\n";
     int valread = read(sock, buffer, 1024);
-    std::cout << buffer << std::endl;
+    std::cout << "test _main read end"  << std::endl;
 
     // 소켓 닫기
     close(sock);

@@ -55,7 +55,7 @@ TaskManager::~TaskManager()
     {
         watcher_->join();
     }
-    CMd_DEBUG("TaskManager Destroyed Done.");
+    LOG_DEBUG("TaskManager Destroyed Done.");
 }
 
 template <class F, class... Args>
@@ -100,27 +100,27 @@ int TaskManager::commandTask(int mode, std::string arg)
 {
 
     if (cur_worker_ == num_worker_)
-        CMd_DEBUG("CMd Job Queue is fool. working worker + job = : {}", cur_worker_);
+        LOG_DEBUG("CMd Job Queue is fool. working worker + job = : {}", cur_worker_);
     cur_worker_++;
 
-    if (mode == (int)ic::COMMAND_TYPE::COMMAND_START)
+    if (mode == (int)ic::COMMAND_STRUCTURE::COMMAND_START)
     {
 //         ExpUtil in;
 //         shared_ptr<VIDEO_INFO> info = make_shared<VIDEO_INFO>();
 //         int result = in.ImportVideoInfo(arg, info.get());
-//         CMd_INFO(" swipe period size {} ", info->swipe_period.size());
+//         LOG_INFO(" swipe period size {} ", info->swipe_period.size());
 //         if (result == ic::ERR_NONE)
 //             EnqueueJob(&future_, &TaskManager::RunStabilize, this, info);
 //         else
 //         {
-//             CMd_WARN(" Stabilization Message is not compatible ERR: {} ", result);
+//             LOG_WARN(" Stabilization Message is not compatible ERR: {} ", result);
 //             queTaskMSG_.Dequeue();
 //         }
     }
-    else if (mode == (int)ic::COMMAND_TYPE::COMMAND_STOP)
+    else if (mode == (int)ic::COMMAND_STRUCTURE::COMMAND_STOP)
     {
     }
-    else if (mode == (int)ic::COMMAND_TYPE::COMMAND_VERSION)
+    else if (mode == (int)ic::COMMAND_STRUCTURE::COMMAND_VERSION)
     {
 
     }
@@ -163,7 +163,7 @@ void TaskManager::makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
 
     if (result < (int)ErrorCommon::COMMON_ERR_NONE)
     {
-        CMd_WARN(" Captured future return is ERR {} ", result);
+        LOG_WARN(" Captured future return is ERR {} ", result);
         return;
     }
 
@@ -172,10 +172,14 @@ void TaskManager::makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
 
     if (result == (int)ErrorCommon::COMMON_ERR_TEMPORARY)
     {
-        nlohmann::json j = nlohmann::json::parse(ptrMsg->txt);
-        std::string outfile = j["output"];
+        Document recvDoc;
+        recvDoc.Parse(ptrMsg->txt);
+        std::string outfile; 
+        if (recvDoc.HasMember("output")) 
+            outfile = recvDoc["output"].GetString();
+        
         std::string str_token = Configurator::get().generateToken();
-        CMd_INFO(" Generated token {} ", str_token.c_str());
+        LOG_INFO(" Generated token {} ", str_token.c_str());
 
         sndDoc.AddMember(PROTOCOL_SECTION1, "4DReplay", allocator);
         sndDoc.AddMember(PROTOCOL_SECTION2, "CM", allocator);

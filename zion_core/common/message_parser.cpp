@@ -24,20 +24,6 @@
 #include "ic_util.hpp"
 #include "logger.hpp"
 
-//#define PRINT_HTTP_REQ
-//#define PRINT_HTTP_RES
-
-namespace
-{
-	template<typename ... Args>
-	std::string string_format(const std::string& format, Args ... args)
-	{
-		size_t size = snprintf(nullptr, 0, format.c_str(), args ...) + 1; // Extra space for '\0'
-		std::unique_ptr<char[]> buf(new char[size]);
-		snprintf(buf.get(), size, format.c_str(), args ...);
-		return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
-	}
-}
 
 MessageParser::MessageParser()
 {
@@ -67,7 +53,8 @@ void MessageParser::parseThread(void* param, std::string strMessage)
 	if (pMain->isThreadStop())
 		return;
 
-	//InfoL << "Recv : " << strMessage;
+    LOG_INFO("Recv in parseThread: {}", strMessage);
+
 	Document document;
 	document.Parse(strMessage.c_str());
 
@@ -76,13 +63,6 @@ void MessageParser::parseThread(void* param, std::string strMessage)
 	int nResultCode = getBasicReturnJson(document, protocol);
 	Document sendDocument(kObjectType);
 	Document::AllocatorType& allocator = sendDocument.GetAllocator();
-
-//	if (document.HasMember(PROTOCOL_SENDSTATE))
-//	{
-//		std::string sendState = document[PROTOCOL_SENDSTATE].GetString();
-//		if (sendState.compare(PROTOCOL_SENDSTATE_RESPONSE) == 0) // Return ó��
-//			nResultCode = (int)ErrorCommon::COMMON_ERR_UNKNOWN_SENDSTATE;
-//	}
 
 	sendDocument.AddMember(PROTOCOL_SECTION1, protocol.Type, allocator);
 	sendDocument.AddMember(PROTOCOL_SECTION2, protocol.Command, allocator);
@@ -103,6 +83,7 @@ void MessageParser::parseThread(void* param, std::string strMessage)
 		if (pMain->icServer_->sendData(temp_clientname, sendString.c_str()))
 		{
 			//ErrorL << strSendString;
+            LOG_ERROR("sendData failed in parsThread: {}", sendString);
 		}
 		return;
 	}
@@ -111,7 +92,7 @@ void MessageParser::parseThread(void* param, std::string strMessage)
 	string strSection2 = protocol.Command;
 	string strSection3 = protocol.SubCommand;
 	string strAction = protocol.Action;
-	CMd_DEBUG("sction {} {} {}", strSection1, strSection2, strSection3);
+	LOG_DEBUG("sction {} {} {}", strSection1, strSection2, strSection3);
 
 	if (strSection1.compare("Daemon"))
 	{
@@ -125,7 +106,7 @@ void MessageParser::parseThread(void* param, std::string strMessage)
 				cmd.AddMember("date", Configurator::get().getCurrentDateTime("now"), allocator);
 				ver.AddMember("CMd", cmd, allocator);
 				sendDocument.AddMember("Version", ver, allocator);				
-				CMd_INFO("version process.");
+				LOG_INFO("version process.");
 			}
 		}
 	}

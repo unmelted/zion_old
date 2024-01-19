@@ -16,25 +16,19 @@
  *
  */
 #include "message_manager.hpp"
-using json = nlohmann::json;
+
+using namespace rapidjson;
 
 MsgManager::MsgManager()
 	: taskmanager_(TASKPOOL_SIZE, this)
 {
 	isRMSGThread_ = true;
-
 	isSMSGThread_ = true;
-	pRMSGThread_ = new std::thread(&MsgManager::rcvMSGThread, this, this);
-	pSMSGThread_ = new std::thread(&MsgManager::sndMSGThread, this, this);
-//	std::function<void(MsgManager &, const std::string msg)> f1 = &MsgManager::onRcvSndMessage;
-//	taskmanager_.setSndQue(f1);
+
+	pRMSGThread_ = std::make_unique<std::thread>(&MsgManager::rcvMSGThread, this, this);
+	pSMSGThread_ = std::make_unique<std::thread>(&MsgManager::sndMSGThread, this, this);
+
 }
-
-//ICServer *MsgManager::getICServer()
-//{
-//	return icServer_;
-//}
-
 
 void MsgManager::setICServer(std::shared_ptr<ICServer> icServer)
 {
@@ -48,16 +42,14 @@ MsgManager::~MsgManager()
 	if (pRMSGThread_ != nullptr)
 	{
 		pRMSGThread_->join();
-		delete pRMSGThread_;
-		pRMSGThread_ = nullptr;
+		pRMSGThread_.reset();
 	}
 
 	isSMSGThread_ = false;
 	if (pSMSGThread_ != nullptr)
 	{
 		pSMSGThread_->join();
-		delete pSMSGThread_;
-		pSMSGThread_ = nullptr;
+		pSMSGThread_.reset();
 	}
 }
 
@@ -73,15 +65,17 @@ void *MsgManager::rcvMSGThread(void *arg)
 			taskmanager_.onRcvTask(msg);
 			if (msg != nullptr)
 			{
-				CMd_INFO("rcvMSGThread : {} ", msg->txt);
-				json j = json::parse(msg->txt);
-				if (j.contains("Action") == false || j.contains("SubCommand") == false)
+				LOG_INFO("rcvMSGThread : {} ", msg->txt);
+                Document recvDoc;
+                recvDoc.Parse(msg->txt);
+
+				if (recvDoc.HasMember("Action") == false || recvDoc.HasMember("SubCommand") == false)
 				{
-					CMd_WARN("Json component missing. can't execute.");
+					LOG_WARN("Json component missing. can't execute.");
 					continue;
 				}
-				string section3 = j["SubCommand"];
-				string action = j["Action"];
+				string section3 = recvDoc["SubCommand"].GetString();
+				string action = recvDoc["Action"].GetString();
 				// if (action == "Stabilization" || section3 == "Stabilize") {
 				// 	taskmanager_.commandTask(ic::POST_STABILIZATION, msg->txt);
 				// }
@@ -95,7 +89,6 @@ void *MsgManager::rcvMSGThread(void *arg)
 
 void MsgManager::onRcvMessage(std::string pData)
 {
-
 	std::shared_ptr<ic::MSG_T> ptrMsg = std::shared_ptr<ic::MSG_T>(new ic::MSG_T);
 	ptrMsg->type = ic::PACKET_TYPE::TEXT;
 	ptrMsg->txt = pData;
@@ -104,7 +97,7 @@ void MsgManager::onRcvMessage(std::string pData)
 
 void MsgManager::onRcvSndMessage(std::string msg)
 {
-	// CMd_INFO("onRcvSndMessage : {}", msg );
+	// LOG_INFO("onRcvSndMessage : {}", msg );
 	std::shared_ptr<std::string> pmsg = make_shared<std::string>(msg);
 	queSndMSG_.Enqueue(pmsg);
 }
@@ -119,7 +112,7 @@ void *MsgManager::sndMSGThread(void *arg)
 		if (queSndMSG_.IsQueue())
 		{
 			msg = queSndMSG_.Dequeue();
-			CMd_INFO(" SndMsg thread msg : {} ", msg->c_str());
+			LOG_INFO(" SndMsg thread msg : {} ", msg->c_str());
             std::string temp_clientname = "name_temp";
 			icServer_->sendData(temp_clientname, msg->c_str());
 		}
