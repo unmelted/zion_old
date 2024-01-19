@@ -172,8 +172,12 @@ void TaskManager::makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
 
     if (result == (int)ErrorCommon::COMMON_ERR_TEMPORARY)
     {
-        nlohmann::json j = nlohmann::json::parse(ptrMsg->txt);
-        std::string outfile = j["output"];
+        Document recvDoc;
+        recvDoc.Parse(ptrMsg->txt);
+        std::string outfile; 
+        if (recvDoc.HasMember("output")) 
+            outfile = recvDoc["output"].GetString();
+        
         std::string str_token = Configurator::get().generateToken();
         LOG_INFO(" Generated token {} ", str_token.c_str());
 

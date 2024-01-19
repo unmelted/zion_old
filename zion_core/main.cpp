@@ -23,6 +23,7 @@ std::unique_ptr<ICManager> icManager;
 
 void signalHandler(int signum) {
     LOG_TRACE("Interrupt signal {} received.", signum);
+
     signal(SIGINT, signalHandler);
     icManager.reset();
     exit(signum);
@@ -30,8 +31,9 @@ void signalHandler(int signum) {
 
 int main()
 {
-    Logger::init();
     LOG_INFO("ICManager Start!");
+
+    Logger::init();
     signal(SIGINT, signalHandler);
     icManager = std::make_unique<ICManager>();
 

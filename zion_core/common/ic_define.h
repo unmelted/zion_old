@@ -45,7 +45,6 @@
 #include "_3rdparty_/rapidjson/include/rapidjson/prettywriter.h"
 #include "ic_server.h"
 #include "logger.hpp"
-#include "json.hpp"
 #include "message_queue.h"
 #include "ic_util.hpp"
 #include "error_manager.h"

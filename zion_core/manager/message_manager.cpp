@@ -16,7 +16,8 @@
  *
  */
 #include "message_manager.hpp"
-using json = nlohmann::json;
+
+using namespace rapidjson;
 
 MsgManager::MsgManager()
 	: taskmanager_(TASKPOOL_SIZE, this)
@@ -74,14 +75,16 @@ void *MsgManager::rcvMSGThread(void *arg)
 			if (msg != nullptr)
 			{
 				LOG_INFO("rcvMSGThread : {} ", msg->txt);
-				json j = json::parse(msg->txt);
-				if (j.contains("Action") == false || j.contains("SubCommand") == false)
+                Document recvDoc;
+                recvDoc.Parse(msg->txt);
+
+				if (recvDoc.HasMember("Action") == false || recvDoc.HasMember("SubCommand") == false)
 				{
 					LOG_WARN("Json component missing. can't execute.");
 					continue;
 				}
-				string section3 = j["SubCommand"];
-				string action = j["Action"];
+				string section3 = recvDoc["SubCommand"].GetString();
+				string action = recvDoc["Action"].GetString();
 				// if (action == "Stabilization" || section3 == "Stabilize") {
 				// 	taskmanager_.commandTask(ic::POST_STABILIZATION, msg->txt);
 				// }
