@@ -80,6 +80,7 @@ private:
     int receive(int clnt_sock, char* pRecv, int nSize, int flags);
 
 
+private:
     std::mutex sockMutex_;
     std::mutex sendMutex_;
 

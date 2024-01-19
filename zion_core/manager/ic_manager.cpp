@@ -51,15 +51,15 @@ int ICManager::validateJson(char cSeparator, char* pData, int nDataSize)
 
     std::string strMessage = pData;
 	Document document;
-	bool bSuc = false;
+	bool isSuccess = false;
 	try {
-		bSuc = document.Parse(strMessage.c_str()).HasParseError();
+        isSuccess = document.Parse(strMessage.c_str()).HasParseError();
 	}
 	catch (...) {
-		bSuc = true;
+        isSuccess = true;
 	}
 
-	if (bSuc)
+	if (isSuccess)
 	{
         LOG_ERROR("Json Parsing Faile {} ", strMessage);
 		return 0;
@@ -67,7 +67,7 @@ int ICManager::validateJson(char cSeparator, char* pData, int nDataSize)
 
 	std::string sec3 = document[PROTOCOL_SECTION3].GetString();
 
-	LOG_INFO("validateJson sec3 : {} compare {}", sec3, sec3.compare("Version"));
+	LOG_INFO("validateJson sec3 : {}", sec3);
 
 	if(sec3.compare("TEST_COMMAND_3") == 0) {
 		msg_parser_->runParse(strMessage);

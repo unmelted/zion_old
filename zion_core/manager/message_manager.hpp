@@ -29,7 +29,6 @@ public:
 	void onRcvMessage(std::string pData);
 	void onRcvSndMessage(std::string msg);
 	void setICServer(std::shared_ptr<ICServer> icServer);
-//	ICServer* getICServer();
 
 private :
     void rcvMSGThread();
@@ -40,7 +39,6 @@ private :
     std::unique_ptr<std::thread> pSMSGThread_;
     MessageQueue<std::shared_ptr<ic::MSG_T>> queRcvMSG_;
     MessageQueue<std::shared_ptr<std::string>> queSndMSG_;
-//    Logger _logger;
 
     TaskManager taskmanager_;
 

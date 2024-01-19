@@ -18,11 +18,6 @@
 
 #pragma once
 
-#define RAPIDJSON_HAS_STDSTRING 1
-#include "_3rdparty_/rapidjson/include/rapidjson/document.h"
-#include "_3rdparty_/rapidjson/include/rapidjson/writer.h"
-#include "_3rdparty_/rapidjson/include/rapidjson/stringbuffer.h"
-
 #include "ic_define.h"
 #include "ic_server.h"
 

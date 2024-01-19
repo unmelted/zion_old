@@ -18,7 +18,6 @@
 
 #include "message_parser.h"
 #include "error_manager.h"
-#include "_3rdparty_/rapidjson/include/rapidjson/prettywriter.h"
 #include <set>
 #include <future>
 #include "ic_util.hpp"
