@@ -23,19 +23,12 @@ MsgManager::MsgManager()
 	: taskmanager_(TASKPOOL_SIZE, this)
 {
 	isRMSGThread_ = true;
-
 	isSMSGThread_ = true;
-	pRMSGThread_ = new std::thread(&MsgManager::rcvMSGThread, this, this);
-	pSMSGThread_ = new std::thread(&MsgManager::sndMSGThread, this, this);
-//	std::function<void(MsgManager &, const std::string msg)> f1 = &MsgManager::onRcvSndMessage;
-//	taskmanager_.setSndQue(f1);
+
+	pRMSGThread_ = std::make_unique<std::thread>(&MsgManager::rcvMSGThread, this, this);
+	pSMSGThread_ = std::make_unique<std::thread>(&MsgManager::sndMSGThread, this, this);
+
 }
-
-//ICServer *MsgManager::getICServer()
-//{
-//	return icServer_;
-//}
-
 
 void MsgManager::setICServer(std::shared_ptr<ICServer> icServer)
 {
@@ -49,16 +42,14 @@ MsgManager::~MsgManager()
 	if (pRMSGThread_ != nullptr)
 	{
 		pRMSGThread_->join();
-		delete pRMSGThread_;
-		pRMSGThread_ = nullptr;
+		pRMSGThread_.reset();
 	}
 
 	isSMSGThread_ = false;
 	if (pSMSGThread_ != nullptr)
 	{
 		pSMSGThread_->join();
-		delete pSMSGThread_;
-		pSMSGThread_ = nullptr;
+		pSMSGThread_.reset();
 	}
 }
 
