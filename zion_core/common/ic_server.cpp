@@ -24,7 +24,6 @@ ICServer::ICServer()
 	mainSocketThread_ = nullptr;
 	serverSockets_ = 0;
     srverPorts_ = 0;
-    sendBufferSize_ = 0;
 
 }
 
@@ -51,6 +50,7 @@ void ICServer::closeSocket(int nSock)
 {
 	//close(nSock);
 	shutdown(nSock, SHUT_RDWR);
+    
 }
 
 bool ICServer::beginSocket(int nPort, int nType)

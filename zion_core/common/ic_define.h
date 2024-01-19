@@ -37,9 +37,8 @@
 #include <set>
 #include <cstdint>
 #include <map>
-
-
 #define RAPIDJSON_HAS_STDSTRING 1
+
 #include "_3rdparty_/rapidjson/include/rapidjson/document.h"
 #include "_3rdparty_/rapidjson/include/rapidjson/writer.h"
 #include "_3rdparty_/rapidjson/include/rapidjson/stringbuffer.h"
@@ -49,16 +48,9 @@
 #include "json.hpp"
 #include "message_queue.h"
 #include "ic_util.hpp"
-
 #include "error_manager.h"
 
-
-#define MESSAGELTRANSFER_DAEMON_PORT        0x4D01
-
 #define ROBOT_CONTROL_PORT              0x4D15
-
-
-#define VP_BUFFER_MAXSIZE	10
 #define TASKPOOL_SIZE 10
 #define CURRENTVERSION "0.0.1.T"
 

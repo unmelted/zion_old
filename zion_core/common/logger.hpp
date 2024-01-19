@@ -28,6 +28,15 @@
 #include <spdlog/sinks/msvc_sink.h>
 #include <iostream>
 
+//#define SPd_INFO(...)	 ::Logger::GetConsoleLogger()->info(__VA_ARGS__);SPDLOG_INFO(__VA_ARGS__); ::Logger::GetFileLogger()->info(__VA_ARGS__);
+#define LOG_ERROR(...)		SPDLOG_ERROR(__VA_ARGS__)
+#define LOG_WARN(...)		SPDLOG_WARN(__VA_ARGS__)
+#define LOG_INFO(...)		SPDLOG_INFO(__VA_ARGS__)
+#define LOG_DEBUG(...)		SPDLOG_DEBUG(__VA_ARGS__)
+#define LOG_CRITICAL(...)	SPDLOG_CRITICAL(__VA_ARGS__)
+#define LOG_TRACE(...)		SPDLOG_TRACE(__VA_ARGS__)
+
+
 class Logger
 {
 private:
@@ -39,12 +48,4 @@ public:
 
 	static void init();
 };
-
-//#define SPd_INFO(...)	 ::Logger::GetConsoleLogger()->info(__VA_ARGS__);SPDLOG_INFO(__VA_ARGS__); ::Logger::GetFileLogger()->info(__VA_ARGS__);
-#define LOG_ERROR(...)		SPDLOG_ERROR(__VA_ARGS__)
-#define LOG_WARN(...)		SPDLOG_WARN(__VA_ARGS__)
-#define LOG_INFO(...)		SPDLOG_INFO(__VA_ARGS__)
-#define LOG_DEBUG(...)		SPDLOG_DEBUG(__VA_ARGS__)
-#define LOG_CRITICAL(...)	SPDLOG_CRITICAL(__VA_ARGS__)
-#define LOG_TRACE(...)		SPDLOG_TRACE(__VA_ARGS__)
 
