@@ -28,4 +28,5 @@
 zion_core/cmake-build-debug
 zion_core/build
 
-
+test_client/cmake-build-debug
+test_client/build
