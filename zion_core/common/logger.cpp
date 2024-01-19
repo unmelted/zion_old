@@ -42,7 +42,7 @@ void Logger::init()
 
 	std::string fileName("log/ic_");
 	fileName += Configurator::get().getCurrentDateTime("date") + ".txt";
-    std::cout << "--- log file name : " << fileName << std::endl;
+//    std::cout << "--- log file name : " << fileName << std::endl;
 
 	auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(fileName, 1024 * 1000 * 10, 10);
 	file_sink->set_level(spdlog::level::trace);

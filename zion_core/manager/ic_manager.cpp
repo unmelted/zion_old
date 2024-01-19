@@ -42,7 +42,6 @@ ICManager::~ICManager()
 
 int ICManager::validateJson(char cSeparator, char* pData, int nDataSize)
 {
-    std::cout << "validateJson start " << endl;
 
     if( cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON)
     {
@@ -65,10 +64,9 @@ int ICManager::validateJson(char cSeparator, char* pData, int nDataSize)
         LOG_ERROR("Json Parsing Faile {} ", strMessage);
 		return 0;
 	}
-    std::cout << "before documnet [] .. " << endl;
 
 	std::string sec3 = document[PROTOCOL_SECTION3].GetString();
-    std::cout << "validateJson sec3 " << sec3 <<endl;
+
 	LOG_INFO("validateJson sec3 : {} compare {}", sec3, sec3.compare("Version"));
 
 	if(sec3.compare("TEST_COMMAND_3") == 0) {

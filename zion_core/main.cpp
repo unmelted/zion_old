@@ -33,7 +33,7 @@ int main()
 {
     LOG_INFO("ICManager Start!");
 
-    Logger::init();
+    Logger logger;
     signal(SIGINT, signalHandler);
     icManager = std::make_unique<ICManager>();
 

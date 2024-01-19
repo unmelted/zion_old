@@ -76,7 +76,7 @@ private:
     void runSocket();
 
     void* runSocketThread(void* arg);
-    void* handle_client(void* arg);
+    void* handle_client(std::unique_ptr<ClientSockThreadData> threadData);
     int receive(int clnt_sock, char* pRecv, int nSize, int flags);
 
 
