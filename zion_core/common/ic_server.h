@@ -36,18 +36,6 @@ typedef int SOCKET;
 #define NET_INVALID_SOCKET	-1
 #define NET_SOCKET_ERROR -1
 
-struct ClientInfo
-{
-    std::string clientIp;
-    int clientSocket;
-};
-
-struct ClientSockThreadData
-{
-    std::string clientIp;
-    void* pthis;
-    int socket;
-};
 
 class ICServer
 {
@@ -72,10 +60,22 @@ public :
 
 
 private:
+    struct ClientInfo
+    {
+        std::string clientIp;
+        int clientSocket;
+    };
+
+    struct ClientSockThreadData
+    {
+        std::string clientIp;
+        ICServer* pthis;
+        int socket;
+    };
+
     void closeSocket(int nSock);
     void runSocket();
 
-    void* runSocketThread(void* arg);
     void* handle_client(std::unique_ptr<ClientSockThreadData> threadData);
     int receive(int clnt_sock, char* pRecv, int nSize, int flags);
 

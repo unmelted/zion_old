@@ -32,8 +32,8 @@ public:
 //	ICServer* getICServer();
 
 private :
-    void* rcvMSGThread(void* arg);
-    void* sndMSGThread(void* arg);
+    void rcvMSGThread();
+    void sndMSGThread();
 
     std::shared_ptr<ICServer> icServer_;
     std::unique_ptr<std::thread> pRMSGThread_;

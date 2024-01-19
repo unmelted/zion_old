@@ -25,8 +25,8 @@ MsgManager::MsgManager()
 	isRMSGThread_ = true;
 	isSMSGThread_ = true;
 
-	pRMSGThread_ = std::make_unique<std::thread>(&MsgManager::rcvMSGThread, this, this);
-	pSMSGThread_ = std::make_unique<std::thread>(&MsgManager::sndMSGThread, this, this);
+	pRMSGThread_ = std::make_unique<std::thread>(&MsgManager::rcvMSGThread, this);
+	pSMSGThread_ = std::make_unique<std::thread>(&MsgManager::sndMSGThread, this);
 
 }
 
@@ -53,7 +53,7 @@ MsgManager::~MsgManager()
 	}
 }
 
-void *MsgManager::rcvMSGThread(void *arg)
+void MsgManager::rcvMSGThread()
 {
 
 	std::shared_ptr<ic::MSG_T> msg = nullptr;
@@ -84,7 +84,6 @@ void *MsgManager::rcvMSGThread(void *arg)
 		std::this_thread::sleep_for(std::chrono::milliseconds(3));
 	}
 
-	return nullptr;
 }
 
 void MsgManager::onRcvMessage(std::string pData)
@@ -102,7 +101,7 @@ void MsgManager::onRcvSndMessage(std::string msg)
 	queSndMSG_.Enqueue(pmsg);
 }
 
-void *MsgManager::sndMSGThread(void *arg)
+void MsgManager::sndMSGThread()
 {
 
 	std::shared_ptr<std::string> msg = nullptr;
@@ -111,7 +110,7 @@ void *MsgManager::sndMSGThread(void *arg)
 
 		if (queSndMSG_.IsQueue())
 		{
-			msg = queSndMSG_.Dequeue();
+ 			msg = queSndMSG_.Dequeue();
 			LOG_INFO(" SndMsg thread msg : {} ", msg->c_str());
             std::string temp_clientname = "name_temp";
 			icServer_->sendData(temp_clientname, msg->c_str());
@@ -119,5 +118,4 @@ void *MsgManager::sndMSGThread(void *arg)
 		std::this_thread::sleep_for(std::chrono::milliseconds(3));
 	}
 
-	return nullptr;
 }
