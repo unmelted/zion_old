@@ -25,7 +25,6 @@
 
 #include "ic_define.h"
 #include "ic_server.h"
-#include "curl/curl.h"
 
 using namespace rapidjson;
 

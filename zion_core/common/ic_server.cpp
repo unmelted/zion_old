@@ -228,11 +228,19 @@ bool ICServer::sendData(const std::string& clientName, std::string strJson)
 
 	sockMutex_.unlock();
 	sendMutex_.unlock();
+    sendBuffer_.clear();
+    std::vector<char>().swap(sendBuffer_);
+
 	if (nSend != nSendSize)
 	{
-        LOG_ERROR("Send Fail nSend != nSendSize");
+        LOG_ERROR("Send Fail nSend != nSendSize {} {} ", nSend, nSendSize);
 		return false;
 	}
+    else
+    {
+        LOG_INFO("Send Success nSend == nSendSize {} {} ", nSend, nSendSize);
+        return true;
+    }
 
 	return true;
 
