@@ -58,6 +58,12 @@ TaskManager::~TaskManager()
     LOG_DEBUG("TaskManager Destroyed Done.");
 }
 
+// message_manager call this function with task message
+void TaskManager::onRcvTask(std::shared_ptr<ic::MSG_T> ptrMsg)
+{
+    queTaskMSG_.Enqueue(ptrMsg);
+}
+
 template <class F, class... Args>
 void TaskManager::enqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args)
 {
@@ -78,24 +84,7 @@ void TaskManager::enqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args)
     fu->Enqueue(job_result_future.get());
 }
 
-void TaskManager::workerThread()
-{
-    while (true)
-    {
-        std::unique_lock<std::mutex> lock(jobMutex_);
-        cv_job_.wait(lock, [this]()
-                    { return !this->jobs.empty() || stop_all_; });
-        if (stop_all_ && this->jobs.empty())
-        {
-            return;
-        }
-        std::function<void()> job = std::move(jobs.front());
-        jobs.pop();
-        lock.unlock();
-        job();
-    }
-}
-
+// message_manager call this function for doing task after message parsing
 int TaskManager::commandTask(int mode, std::string arg)
 {
 
@@ -128,9 +117,10 @@ int TaskManager::commandTask(int mode, std::string arg)
     return (int)ErrorCommon::COMMON_ERR_NONE;
 }
 
+// future que detect the message after complete task,
+// pop the data from both taskMsg and future que.
 void TaskManager::watchFuture()
 {
-
     while (watching_)
     {
         if (future_.IsQueue())
@@ -142,20 +132,25 @@ void TaskManager::watchFuture()
     }
 }
 
-void TaskManager::onRcvTask(std::shared_ptr<ic::MSG_T> ptrMsg)
+// workerThread is created when TaskManager is created.
+// workerThread is cloned as much as num_worker
+// if there is a job in jobs que, pop the job and execute job.
+void TaskManager::workerThread()
 {
-    queTaskMSG_.Enqueue(ptrMsg);
-}
-
-std::string TaskManager::getDocumentToString(Document &document)
-{
-    StringBuffer strbuf;
-    strbuf.Clear();
-    PrettyWriter<StringBuffer> writer(strbuf);
-    document.Accept(writer);
-    std::string ownShipRadarString = strbuf.GetString();
-
-    return ownShipRadarString;
+    while (true)
+    {
+        std::unique_lock<std::mutex> lock(jobMutex_);
+        cv_job_.wait(lock, [this]()
+        { return !this->jobs.empty() || stop_all_; });
+        if (stop_all_ && this->jobs.empty())
+        {
+            return;
+        }
+        std::function<void()> job = std::move(jobs.front());
+        jobs.pop();
+        lock.unlock();
+        job();
+    }
 }
 
 void TaskManager::makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
@@ -194,4 +189,15 @@ void TaskManager::makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
 
     std::string strSendString = getDocumentToString(sndDoc);
     msgmanager_->onRcvSndMessage(strSendString);
+}
+
+std::string TaskManager::getDocumentToString(Document &document)
+{
+    StringBuffer strbuf;
+    strbuf.Clear();
+    PrettyWriter<StringBuffer> writer(strbuf);
+    document.Accept(writer);
+    std::string ownShipRadarString = strbuf.GetString();
+
+    return ownShipRadarString;
 }
