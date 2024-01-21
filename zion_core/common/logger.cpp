@@ -53,6 +53,19 @@ void Logger::init()
 	_logger->set_level(spdlog::level::trace);
 
 	spdlog::set_default_logger(_logger);
-	//spdlog::set_pattern("[%Y-%m-%d %X.%e] [PID:%P] [thread %t] [%^%l%$] [%s:%#] - %v");
-	spdlog::set_pattern("[%Y-%m-%d %X.%e] [%^%l%$] [%s:%#] - %v");	
+	spdlog::set_pattern("[%Y-%m-%d %X.%e] [%^%l%$] [%s:%#] - %v");
+}
+
+void saveLogToDatabase(const std::string& logMessage)
+{
+    try
+    {
+
+        std::cout << "Saved to database: " << logMessage << std::endl;
+
+    } catch (const std::exception& e)
+    {
+        // 예외 처리: 데이터베이스 연결 또는 저장 중에 오류 발생 시
+        std::cerr << "Error saving log to database: " << e.what() << std::endl;
+    }
 }

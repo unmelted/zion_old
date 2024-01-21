@@ -33,7 +33,7 @@ public:
 	~ICManager();
 
 private:
-	int validateJson(char cSeparator, char* pData, int nDataSize);
+	int validateMsg(char cSeparator, char* pData, int nDataSize);
 
     std::shared_ptr<ICServer> icServer_;
     std::unique_ptr<MessageParser> msg_parser_;

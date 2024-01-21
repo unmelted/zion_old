@@ -91,11 +91,7 @@ void MsgManager::rcvMSGThread()
                 Document recvDoc;
                 recvDoc.Parse(msg->txt);
 
-                if (recvDoc.HasMember("Action") == false || recvDoc.HasMember("SubCommand") == false)
-                {
-                    LOG_WARN("Json component missing. can't execute.");
-                    continue;
-                }
+
                 string section3 = recvDoc["SubCommand"].GetString();
                 string action = recvDoc["Action"].GetString();
                 // if (action == "Stabilization" || section3 == "Stabilize") {
