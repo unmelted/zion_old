@@ -27,8 +27,51 @@
 #include <spdlog/sinks/msvc_sink.h>
 #include <iostream>
 #include <sstream>
+#include <fmt/format.h>
 
 void saveLogToDatabase(const std::string& message);
+
+#define LOG_ERROR(...) do { \
+        SPDLOG_ERROR(__VA_ARGS__); \
+        std::ostringstream logStream; \
+        logStream << __VA_ARGS__;  \
+        saveLogToDatabase(logStream.str()); \
+    } while(0)
+
+#define LOG_WARN(...)	do { \
+        SPDLOG_WARN(__VA_ARGS__);  \
+        std::ostringstream logStream; \
+        logStream << __VA_ARGS__;  \
+        saveLogToDatabase(logStream.str()); \
+    } while(0)
+
+#define LOG_INFO(...) 	do { \
+        SPDLOG_INFO(__VA_ARGS__); \
+        std::string logMessage = fmt::format(__VA_ARGS__);  \
+        saveLogToDatabase(logMessage); \
+    } while(0)
+
+#define LOG_DEBUG(...)  do { \
+        SPDLOG_DEBUG(__VA_ARGS__); \
+        std::ostringstream logStream; \
+        logStream << __VA_ARGS__;  \
+        saveLogToDatabase(logStream.str()); \
+    } while(0)
+
+#define LOG_CRITICAL(...)  do { \
+        SPDLOG_CRITICAL(__VA_ARGS__); \
+        std::ostringstream logStream; \
+        logStream << __VA_ARGS__;  \
+        saveLogToDatabase(logStream.str()); \
+    } while(0)
+
+#define LOG_TRACE(...)  do { \
+        SPDLOG_TRACE(__VA_ARGS__); \
+        std::ostringstream logStream; \
+        logStream << __VA_ARGS__;  \
+        saveLogToDatabase(logStream.str()); \
+    } while(0)
+
 
 class Logger
 {
@@ -37,19 +80,6 @@ public:
     ~Logger();
 
     static void init();
-
-    #define LOG_ERROR(...) do { \
-        SPDLOG_ERROR(__VA_ARGS__); \
-        std::ostringstream logStream; \
-        logStream << __VA_ARGS__;  \
-        saveLogToDatabase(logStream.str()); \
-    } while(0)
-        
-    #define LOG_WARN(...)		SPDLOG_WARN(__VA_ARGS__)
-    #define LOG_INFO(...)		SPDLOG_INFO(__VA_ARGS__)
-    #define LOG_DEBUG(...)		SPDLOG_DEBUG(__VA_ARGS__)
-    #define LOG_CRITICAL(...)	SPDLOG_CRITICAL(__VA_ARGS__)
-    #define LOG_TRACE(...)		SPDLOG_TRACE(__VA_ARGS__)
 
 private:
     static std::shared_ptr<spdlog::logger> _logger;
