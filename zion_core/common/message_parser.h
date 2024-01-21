@@ -32,7 +32,7 @@ public:
 	void setICServer(std::shared_ptr<ICServer> icServer);
 
 	bool isThreadStop();
-	void runParse(std::string strMessage);
+	void parseAndSendResponse(std::string strMessage);
 
 private:
 	void parseThread(void* param, std::string strMessage);

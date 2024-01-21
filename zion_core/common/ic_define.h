@@ -50,7 +50,7 @@
 #include "ic_util.hpp"
 #include "error_manager.h"
 
-#define ROBOT_CONTROL_PORT              0x4D15
+
 #define TASKPOOL_SIZE 10
 #define CURRENTVERSION "0.0.1.T"
 
@@ -59,6 +59,23 @@ using namespace std;
 
 namespace ic
 {
+
+#define ROBOT_CONTROL_PORT              0x4D15
+
+enum class SERVER_TYPE
+{
+    SERVER_TYPE_NONE,
+    SERVER_ROBOT_CONTROL,
+    SERVER_ROBOT_ALIVE,
+};
+
+const int SERVER_PORT[] =
+{
+    -1,
+    0x4D15,
+    0x4D16
+};
+
 enum class COMMAND_STRUCTURE
 {
     COMMAND_NONE = 0,

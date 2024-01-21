@@ -40,7 +40,7 @@ typedef int SOCKET;
 class ICServer
 {
 public : 
-    ICServer();
+    ICServer(int type);
     ~ICServer();
 
     bool beginSocket(int nPort, int nType);

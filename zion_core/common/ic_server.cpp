@@ -18,7 +18,7 @@
 
 #include "ic_server.h"
 
-ICServer::ICServer()
+ICServer::ICServer(int type)
 {
 	isMainSocketThread_ = false;
 	mainSocketThread_ = nullptr;

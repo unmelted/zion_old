@@ -34,7 +34,7 @@ MessageParser::~MessageParser()
 
 }
 
-void MessageParser::runParse(std::string strMessage)
+void MessageParser::parseAndSendResponse(std::string strMessage)
 {
 	std::thread th(&MessageParser::parseThread, this, this, strMessage);
 

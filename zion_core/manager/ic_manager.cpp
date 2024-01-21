@@ -22,8 +22,10 @@
 
 ICManager::ICManager()
 {
-    icServer_ = std::make_shared<ICServer>();
-	icServer_->beginSocket(ROBOT_CONTROL_PORT, 0);
+    // along the server type, ic_server starts with specific socket
+    // and have handler the function for validating the json foramt (dependency injectcion)
+    icServer_ = std::make_shared<ICServer>((int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL);
+	icServer_->beginSocket(ic::SERVER_PORT[(int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL], 0);
 	icServer_->setHandler(std::bind(&ICManager::validateJson, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
 
     msg_parser_ = std::make_unique<MessageParser>();
@@ -39,7 +41,8 @@ ICManager::~ICManager()
 
 }
 
-
+// this function check the command format
+// if received message fits the command format well, deliver the message to message_parser
 int ICManager::validateJson(char cSeparator, char* pData, int nDataSize)
 {
 
@@ -70,10 +73,12 @@ int ICManager::validateJson(char cSeparator, char* pData, int nDataSize)
 	LOG_INFO("validateJson sec3 : {}", sec3);
 
 	if(sec3.compare("TEST_COMMAND_3") == 0) {
-		msg_parser_->runParse(strMessage);
+        // if the message has necessary to send response,
+        // call the parseAndSendResponse function
+		msg_parser_->parseAndSendResponse(strMessage);
 	}
 	else if(sec3.compare("Stabilize") == 0) {
-		msg_parser_->runParse(strMessage);
+		msg_parser_->parseAndSendResponse(strMessage);
 		msg_manager_->onRcvMessage(strMessage);
 	}
 
