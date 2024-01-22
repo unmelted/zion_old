@@ -102,11 +102,29 @@ void ICServer::runSocket()
 		std::string strIP = getLocalCompare(clientIP);
 
         if (strIP.compare(""))
+        {
+            LOG_ERROR("Invalid Client IP : {} Local IP Address : {}", clientIP, strIP);
             continue;
+        }
 
         LOG_INFO("Connected Client IP : {} Local IP Address : {}", clientIP, strIP);
-        addClient("name_temp", clientIP, clientSocket);
 
+        int str_len = 0;
+        ic::ProtocolHeader header;
+
+        if ((str_len = receive(clientSocket, (char*)&header, sizeof(header), 0)) == 0)
+        {
+            LOG_ERROR("Client disconnected or error occurred: IP {} Socket {}", clientIP, clientSocket);
+            continue;
+        }
+
+        if (!addClient(clientIP, clientSocket, header.nSize))
+        {
+            LOG_ERROR("addClient failed : IP {} Socket {}", clientIP, clientSocket);
+            continue;
+        }
+
+        LOG_DEBUG("after add clinet failed : IP {} Socket {}", clientIP, clientSocket);
 		std::unique_ptr<ClientSockThreadData> threadData = std::make_unique<ClientSockThreadData>();
 		threadData->pthis = this;
 		threadData->clientIp = clientIP;
@@ -127,6 +145,8 @@ void ICServer::runSocket()
 
 void* ICServer::handle_client(std::unique_ptr<ClientSockThreadData> threadData)
 {
+    LOG_DEBUG("handle_client is started.");
+
 	int clnt_sock = threadData->socket;
 	std::string clnt_IP = threadData->clientIp;
 	ICServer* pSocketMgr = threadData->pthis;
@@ -139,6 +159,7 @@ void* ICServer::handle_client(std::unique_ptr<ClientSockThreadData> threadData)
 
 		if ((str_len = pSocketMgr->receive(clnt_sock, (char*)&header, sizeof(header), 0)) == 0)
 		{
+            LOG_INFO("Client disconnected or error occurred: Socket {}", clnt_sock);
 			break;
 		}
 
@@ -162,27 +183,15 @@ void* ICServer::handle_client(std::unique_ptr<ClientSockThreadData> threadData)
 			}
 		}
 
-		if (pSocketMgr->classifier != 0)
-		{
-			int nErrorCode = pSocketMgr->classifier(header.cSeparator, pData.data(), nPacketSize);
-
-			//if (nErrorCode != MTD_PROTOCOL_OK)
-			//{
-			//	std::string strMessage = GetErrorMessage(nErrorCode);
-			//	char* pMessage = new char[strMessage.length() + 200];
-
-			//	sprintf(pMessage, "{ \"ResultCode\":\"%d\",\"ErrorMsg\" : \"%s\" }", nErrorCode, strMessage.c_str());
-
-			//	std::string strErrorReturn = pMessage;
-			//	if (pMessage != 0)
-			//		delete[] pMessage;
-
-			//	pSocketMgr->sendData(strErrorReturn);
-			//}
-		}
+        int nErrorCode = pSocketMgr->classifier(header.cSeparator, pData.data(), nPacketSize);
+        if (nErrorCode != (int)ErrorCommon::COMMON_ERR_NONE)
+        {
+            LOG_ERROR("Classifier Error {} ", nErrorCode);
+        }
 
 	}
 
+    pSocketMgr->removeClient(clnt_IP);
 	pSocketMgr->closeSocket(clnt_sock);
 
 	return NULL;
@@ -234,8 +243,39 @@ bool ICServer::sendData(const std::string& clientName, std::string strJson)
 
 }
 
-void ICServer::addClient(const std::string& clientName, const std::string& clientIp, int clientSocket)
+bool ICServer::addClient(const std::string& clientIp, int clientSocket, int packetSize)
 {
+    int str_len = 0;
+    std::vector<char> pData;
+    pData.resize(packetSize + 1), 0;
+    if ((str_len = receive(clientSocket, pData.data(), packetSize, 0)) == 0)
+    {
+        LOG_INFO("Client disconnected or error occurred: Socket {}", clientSocket);
+        return false;
+    }
+
+    if (classifier((char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON, pData.data(), packetSize) != 1)
+    {
+        LOG_ERROR("Classifier Error");
+        return false;
+    }
+
+    std:string message = pData.data();
+    Document document;
+    document.Parse(message.c_str());
+
+    std::string command = document[PROTOCOL_SECTION2].GetString();
+    std::string subCommand = document[PROTOCOL_SECTION3].GetString();
+
+    if (command != "CONNECT")
+    {
+        LOG_ERROR("CONNECT Command Error. {} ", document[PROTOCOL_SECTION2].GetString());
+        return false;
+    }
+
+    std::string clientName = document[PROTOCOL_FROM].GetString();
+    LOG_INFO("Client Name : {} ", clientName);
+
     sockMutex_.lock();
 
     struct ClientInfo clientInfo;
@@ -244,6 +284,21 @@ void ICServer::addClient(const std::string& clientName, const std::string& clien
 
     clientMap_[clientName] = clientInfo;
 
+    sockMutex_.unlock();
+
+    LOG_INFO("Client Connected and addClient success: {} ", clientName);
+    return true;
+}
+
+void ICServer::removeClient(const std::string& client_ip)
+{
+    sockMutex_.lock();
+    auto clientInfoIterator = clientMap_.find(client_ip);
+    if (clientInfoIterator != clientMap_.end())
+    {
+        ClientInfo& clientInfo = clientInfoIterator->second;
+        clientMap_.erase(clientInfoIterator);
+    }
     sockMutex_.unlock();
 }
 

@@ -77,6 +77,7 @@ const int SERVER_PORT[] =
 enum class COMMAND_CLASS
 {
     COMMAND_NONE = 0,
+    COMMAND_CONNECT,
     COMMAND_START,
     COMMAND_INITIALIZE,
     COMMAND_STOP,
@@ -169,33 +170,5 @@ struct ProtocolHeader
 };
 
 #pragma pack(pop)
-
-//class Version
-//{
-//    Version(std::string versionStr)
-//    {
-//        sscanf(versionStr.c_str(), "%d.%d.%d.%d", &major, &minor, &revision, &build);
-//    }
-//
-//    bool operator<(const Version& otherVersion)
-//    {
-//        if (major < otherVersion.major)
-//            return true;
-//        if (minor < otherVersion.minor)
-//            return true;
-//        if (revision < otherVersion.revision)
-//            return true;
-//        if (build < otherVersion.build)
-//            return true;
-//        return false;
-//    }
-//
-//    bool operator==(const Version& other)
-//    {
-//        return major == other.major && minor == other.minor && revision == other.revision && build == other.build;
-//    }
-//
-//    int major, minor, revision, build;
-//};
 
 }

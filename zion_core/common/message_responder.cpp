@@ -16,7 +16,7 @@
  *
  */
 
-#include "message_parser.h"
+#include "message_responder.h"
 #include "error_manager.h"
 #include <set>
 #include <future>
@@ -24,31 +24,31 @@
 #include "logger.h"
 
 
-MessageParser::MessageParser()
+MessageResponder::MessageResponder()
 {
 
 }
 
-MessageParser::~MessageParser()
+MessageResponder::~MessageResponder()
 {
 
 }
 
-void MessageParser::parseAndSendResponse(std::string strMessage)
+void MessageResponder::parseAndSendResponse(std::string strMessage)
 {
-	std::thread th(&MessageParser::parseThread, this, this, strMessage);
+	std::thread th(&MessageResponder::parseThread, this, this, strMessage);
 
 	th.join();
 }
 
-bool MessageParser::isThreadStop()
+bool MessageResponder::isThreadStop()
 {
 	return isThreadStop_;
 }
 
-void MessageParser::parseThread(void* param, std::string strMessage)
+void MessageResponder::parseThread(void* param, std::string strMessage)
 {
-	MessageParser* pMain = (MessageParser*)param;
+	MessageResponder* pMain = (MessageResponder*)param;
 	if (pMain->isThreadStop())
 		return;
 
@@ -115,12 +115,12 @@ void MessageParser::parseThread(void* param, std::string strMessage)
 	pMain->icServer_->sendData(temp_clientname, strSendString.c_str());
 }
 
-void MessageParser::setICServer(std::shared_ptr<ICServer> icServer)
+void MessageResponder::setICServer(std::shared_ptr<ICServer> icServer)
 {
 	icServer_ = icServer;
 }
 
-std::string MessageParser::getDocumentToString(Document& document)
+std::string MessageResponder::getDocumentToString(Document& document)
 {
 	StringBuffer strbuf;
 	strbuf.Clear();
@@ -131,7 +131,7 @@ std::string MessageParser::getDocumentToString(Document& document)
 	return ownShipRadarString;
 }
 
-int MessageParser::getBasicReturnJson(Document& document, ic::Protocol& protocol)
+int MessageResponder::getBasicReturnJson(Document& document, ic::Protocol& protocol)
 {
 	if (document.HasMember(PROTOCOL_SECTION1))
 		protocol.Type = document[PROTOCOL_SECTION1].GetString();

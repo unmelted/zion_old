@@ -29,7 +29,6 @@
 #include <sstream>
 #include <fmt/format.h>
 
-void saveLogToDatabase(const std::string& message);
 
 #define LOG_ERROR(...) SPDLOG_ERROR(__VA_ARGS__)
 #define LOG_WARN(...) SPDLOG_WARN(__VA_ARGS__)

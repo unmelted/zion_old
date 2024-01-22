@@ -23,12 +23,12 @@
 
 using namespace rapidjson;
 
-class MessageParser
+class MessageResponder
 {
 
 public:
-	MessageParser();
-	~MessageParser();
+	MessageResponder();
+	~MessageResponder();
 	void setICServer(std::shared_ptr<ICServer> icServer);
 
 	bool isThreadStop();

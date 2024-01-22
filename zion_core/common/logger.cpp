@@ -50,7 +50,7 @@ void Logger::init()
 	spdlog::sinks_init_list sink_list = { console_sink, file_sink };
 
 	_logger = std::make_shared<spdlog::logger>("ic", sink_list);
-	_logger->set_level(spdlog::level::trace);
+//	_logger->set_level(spdlog::level::trace);
 
 	spdlog::set_default_logger(_logger);
 	spdlog::set_pattern("[%Y-%m-%d %X.%e] [%^%l%$] [%s:%#] - %v");

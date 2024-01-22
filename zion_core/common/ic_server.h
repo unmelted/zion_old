@@ -17,7 +17,7 @@
  */
 
 #pragma once
-#include "iostream"
+#include <iostream>
 #include <functional>
 #include <cstring>
 #include <mutex>
@@ -32,10 +32,7 @@
 # include <net/if.h>
 #include "ic_define.h"
 
-typedef int SOCKET;
-#define NET_INVALID_SOCKET	-1
-#define NET_SOCKET_ERROR -1
-
+using namespace rapidjson;
 
 class ICServer
 {
@@ -45,7 +42,6 @@ public :
 
     bool beginSocket(int nPort, int nType);
     bool sendData(const std::string& clientName, std::string strJson);
-    void addClient(const std::string& clientName, const std::string& clientIp, int clientSocket);
 
     typedef std::function<int(char cSeparator, char* pData, int nDataSize)> callback;
     callback classifier;
@@ -60,12 +56,17 @@ public :
 
 
 private:
+    // this struct is for handling with client_name
+    // a member in unordered_map
     struct ClientInfo
     {
         std::string clientIp;
         int clientSocket;
     };
 
+    // this struct is for storing the data for thread
+    // it will be created when the client is connected and
+    // destroyed when the client is disconnected
     struct ClientSockThreadData
     {
         std::string clientIp;
@@ -73,6 +74,8 @@ private:
         int socket;
     };
 
+    bool addClient(const std::string& clientIp, int clientSocket, int packetSize);
+    void removeClient(const std::string& clientName);
     void closeSocket(int nSock);
     void runSocket();
 
@@ -81,6 +84,7 @@ private:
 
 
 private:
+
     std::mutex sockMutex_;
     std::mutex sendMutex_;
 

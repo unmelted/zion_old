@@ -28,9 +28,9 @@ ICManager::ICManager()
 	icServer_->beginSocket(ic::SERVER_PORT[(int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL], 0);
 	icServer_->setHandler(std::bind(&ICManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
 
-    msg_parser_ = std::make_unique<MessageParser>();
+    msg_rspndr_ = std::make_unique<MessageResponder>();
     msg_manager_ = std::make_unique<MsgManager>();
-    msg_parser_->setICServer(icServer_);
+    msg_rspndr_->setICServer(icServer_);
 	msg_manager_->setICServer(icServer_);
 
 	Configurator::get().setDirectory();
@@ -42,7 +42,8 @@ ICManager::~ICManager()
 }
 
 // this function check the command format
-// if received message fits the command format well, deliver the message to message_parser
+// if received message fits the command format well,
+// deliver the message to message_parser or message_manager for further process
 int ICManager::validateMsg(char cSeparator, char* pData, int nDataSize)
 {
 
@@ -78,21 +79,32 @@ int ICManager::validateMsg(char cSeparator, char* pData, int nDataSize)
         return 0;
     }
 
-	std::string sec2 = document[PROTOCOL_SECTION2].GetString();
+	std::string command = document[PROTOCOL_SECTION2].GetString();
 
-	LOG_INFO("validateMsg sec3 : {}", sec2);
+	LOG_INFO("validateMsg command : {}", command);
 
-	if(sec2.compare("TEST_COMMAND_2") == 0) {
+    if (command == "CONNECT")
+    {
+        // pas this command
+    }
+    else if(command =="TEST_COMMAND_2")
+    {
+//        msg_manager_->onRcvMessage(strMessage);
+	}
+	else if(command == "Stabilize")
+    {
         // if the message has necessary to send response,
         // call the parseAndSendResponse()
-		//msg_parser_->parseAndSendResponse(strMessage);
-        msg_manager_->onRcvMessage(strMessage);
-	}
-	else if(sec2.compare("Stabilize") == 0) {
-		msg_parser_->parseAndSendResponse(strMessage);
+        // msg_rspndr_->parseAndSendResponse(strMessage);
+
+		msg_rspndr_->parseAndSendResponse(strMessage);
         // call onRcvMessage with message for insert job in queue
 		msg_manager_->onRcvMessage(strMessage);
 	}
+    else
+    {
+
+    }
 
 	return 1;
 }

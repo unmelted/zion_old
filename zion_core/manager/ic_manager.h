@@ -21,7 +21,7 @@
 #include "ic_server.h"
 #include "ic_define.h"
 #include <functional>
-#include "message_parser.h"
+#include "message_responder.h"
 #include "message_manager.h"
 
 using namespace rapidjson;
@@ -36,7 +36,7 @@ private:
 	int validateMsg(char cSeparator, char* pData, int nDataSize);
 
     std::shared_ptr<ICServer> icServer_;
-    std::unique_ptr<MessageParser> msg_parser_;
+    std::unique_ptr<MessageResponder> msg_rspndr_;
     std::unique_ptr<MsgManager> msg_manager_;
 
 };
