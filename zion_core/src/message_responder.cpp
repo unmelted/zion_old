@@ -85,28 +85,7 @@ void MessageResponder::parseThread(void* param, std::string strMessage)
 		return;
 	}
 
-	string strSection1 = protocol.Type;
-	string strSection2 = protocol.Command;
-	string strSection3 = protocol.SubCommand;
-	string strAction = protocol.Action;
 	LOG_DEBUG("section {} {} {}", strSection1, strSection2, strSection3);
-
-	if (strSection1.compare("Daemon"))
-	{
-		if (strSection2.compare("Information"))
-		{
-			if (strSection3.compare("Version"))
-			{
-				Value ver(kObjectType);
-				Value cmd(kObjectType);
-				cmd.AddMember("version", CURRENTVERSION, allocator);
-				cmd.AddMember("date", Configurator::get().getCurrentDateTime("now"), allocator);
-				ver.AddMember("CMd", cmd, allocator);
-				sendDocument.AddMember("Version", ver, allocator);				
-				LOG_INFO("version process.");
-			}
-		}
-	}
 
 	std::string strSendString = getDocumentToString(sendDocument);
 	pMain->icServer_->sendData(protocol.From, strSendString);

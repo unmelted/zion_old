@@ -12,12 +12,11 @@ add_definitions(-D_DEBUG)
 
 set(PRJ_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 file(GLOB PRJ_SRC
-    common/*.cpp
-    manager/*.cpp
+    src/*.cpp
     main.cpp
 )
 
-file(GLOB PRJ_INC manager common daemon)
+file(GLOB PRJ_INC include)
 set(CURL_INC_DIR ${PRJ_PATH}/_3rdparty_/curl/include)
 set(RJSON_INC_DIR ${PRJ_PATH}/_3rdparty_/rapidjson/include)
 

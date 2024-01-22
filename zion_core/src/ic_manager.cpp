@@ -87,9 +87,10 @@ int ICManager::validateMsg(char cSeparator, char* pData, int nDataSize)
     {
         // pas this command
     }
-    else if(command =="TEST_COMMAND_2")
+    else if(command =="START")
     {
 //        msg_manager_->onRcvMessage(strMessage);
+        msg_rspndr_->parseAndSendResponse(strMessage);
 	}
 	else if(command == "TEST")
     {

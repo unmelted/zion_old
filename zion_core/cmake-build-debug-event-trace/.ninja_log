@@ -1,12 +1,4 @@
 # ninja log v5
-0	3	0	clean	ad90e366ad70d77b
-3	799	1705899064065227354	CMakeFiles/zion.dir/manager/message_manager.cpp.o	8f1b698a2a4109ac
-2	690	1705899063956316642	CMakeFiles/zion.dir/common/logger.cpp.o	d6df27ccbd09c48a
 3	696	1705899063962560155	CMakeFiles/zion.dir/main.cpp.o	9d0b2148452e7f4f
-2	636	1705899063897928324	CMakeFiles/zion.dir/common/db_manager.cpp.o	7e831e9ac784158f
-3	829	1705899064096109130	CMakeFiles/zion.dir/manager/task_manager.cpp.o	840a4e589061eeab
-2	769	1705899064035290157	CMakeFiles/zion.dir/common/ic_server.cpp.o	22e6d3bb61ae1a7e
-2	508	1705899063773289767	CMakeFiles/zion.dir/common/ic_util.cpp.o	a9eec04a6e9e303f
-3	269	1705899063530614914	CMakeFiles/zion.dir/manager/error_manager.cpp.o	ed636d0b597da742
-3	750	1705899064015788496	CMakeFiles/zion.dir/manager/ic_manager.cpp.o	19eb8de63afbfb6
+0	3	0	clean	ad90e366ad70d77b
 829	856	1705899064124917957	zion	bb47551ca438e080

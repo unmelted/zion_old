@@ -293,16 +293,26 @@ bool ICServer::addClient(const std::string& clientIp, int clientSocket, int pack
 void ICServer::removeClient(const std::string& client_ip)
 {
     sockMutex_.lock();
-    for (auto it = clientMap_.begin(); it != clientMap_.end(); ) {
-        if (it->second.clientIp == client_ip) {
+    for (auto it = clientMap_.begin(); it != clientMap_.end();)
+    {
+        if (it->second.clientIp == client_ip)
+        {
             it = clientMap_.erase(it);
             break;
-        } else {
+        }
+        else
+        {
             ++it;
         }
     }
-
     sockMutex_.unlock();
+
+    LOG_INFO("RemoveClient success: {} ", client_ip);
+    for (auto it = clientMap_.begin(); it != clientMap_.end();)
+    {
+        LOG_INFO("Current clientMap_ name : {} ", it->first);
+        LOG_INFO("Current clientMap_ ip : {} ", it->second.clientIp);
+    }
 }
 
 int ICServer::receive(int clnt_sock, char* pRecv, int nSize, int flags)
