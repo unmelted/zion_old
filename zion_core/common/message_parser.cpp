@@ -18,7 +18,6 @@
 
 #include "message_parser.h"
 #include "error_manager.h"
-#include "_3rdparty_/rapidjson/include/rapidjson/prettywriter.h"
 #include <set>
 #include <future>
 #include "ic_util.hpp"
@@ -35,7 +34,7 @@ MessageParser::~MessageParser()
 
 }
 
-void MessageParser::runParse(std::string strMessage)
+void MessageParser::parseAndSendResponse(std::string strMessage)
 {
 	std::thread th(&MessageParser::parseThread, this, this, strMessage);
 

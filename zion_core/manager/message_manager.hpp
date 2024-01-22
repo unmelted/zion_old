@@ -17,7 +17,8 @@
  */
 
 
-#pragma once 
+#pragma once
+
 #include "task_manager.hpp"
 
 class MsgManager {
@@ -26,21 +27,20 @@ public:
 
     MsgManager();
     ~MsgManager();
+    void setICServer(std::shared_ptr<ICServer> icServer);
 	void onRcvMessage(std::string pData);
 	void onRcvSndMessage(std::string msg);
-	void setICServer(std::shared_ptr<ICServer> icServer);
-//	ICServer* getICServer();
 
 private :
-    void* rcvMSGThread(void* arg);
-    void* sndMSGThread(void* arg);
+    void rcvMSGThread();
+    void sndMSGThread();
 
+private :
     std::shared_ptr<ICServer> icServer_;
-    std::unique_ptr<std::thread> pRMSGThread_;
-    std::unique_ptr<std::thread> pSMSGThread_;
+    std::unique_ptr<std::thread> rcvMSGThread_;
+    std::unique_ptr<std::thread> sndMSGThread_;
     MessageQueue<std::shared_ptr<ic::MSG_T>> queRcvMSG_;
     MessageQueue<std::shared_ptr<std::string>> queSndMSG_;
-//    Logger _logger;
 
     TaskManager taskmanager_;
 

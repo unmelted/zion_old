@@ -16,9 +16,7 @@
  *
  */
 
-
-#ifndef __ERROR_MANAGER_H__
-#define __ERROR_MANAGER_H__
+#pragma once
 
 #include <string>
 
@@ -80,5 +78,3 @@ enum class ErrorIC {
 };
 
 std::string getErrorCodeToString(const int nErrorCode);
-
-#endif // __ERROR_MANAGER_H__

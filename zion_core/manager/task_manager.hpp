@@ -32,14 +32,14 @@ public:
     TaskManager(size_t num_worker_, MsgManager *msg_manager);
     ~TaskManager();
 
+    void onRcvTask(std::shared_ptr<ic::MSG_T> pData);
     template <class F, class... Args>
     void enqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args);
-    void onRcvTask(std::shared_ptr<ic::MSG_T> pData);
     int commandTask(int mode, std::string arg); // shared_ptr<VIDEO_INFO> arg);
 
 private:
-    void workerThread();
     void watchFuture();
+    void workerThread();
     void makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result);
 
 //    void sendVersionMessage(std::string ptrMsg);

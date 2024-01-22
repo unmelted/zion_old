@@ -24,11 +24,6 @@
 #include "message_parser.h"
 #include "message_manager.hpp"
 
-#define RAPIDJSON_HAS_STDSTRING 1
-#include "_3rdparty_/rapidjson/include/rapidjson/document.h"
-#include "_3rdparty_/rapidjson/include/rapidjson/writer.h"
-#include "_3rdparty_/rapidjson/include/rapidjson/stringbuffer.h"
-#include "_3rdparty_/rapidjson/include/rapidjson/prettywriter.h"
 using namespace rapidjson;
 
 class ICManager
@@ -38,7 +33,7 @@ public:
 	~ICManager();
 
 private:
-	int validateJson(char cSeparator, char* pData, int nDataSize);
+	int validateMsg(char cSeparator, char* pData, int nDataSize);
 
     std::shared_ptr<ICServer> icServer_;
     std::unique_ptr<MessageParser> msg_parser_;

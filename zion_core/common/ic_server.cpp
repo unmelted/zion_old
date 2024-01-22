@@ -15,10 +15,10 @@
  * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
  *
  */
+
 #include "ic_server.h"
 
-
-ICServer::ICServer()
+ICServer::ICServer(int type)
 {
 	isMainSocketThread_ = false;
 	mainSocketThread_ = nullptr;
@@ -48,9 +48,7 @@ ICServer::~ICServer()
 
 void ICServer::closeSocket(int nSock)
 {
-	//close(nSock);
 	shutdown(nSock, SHUT_RDWR);
-    
 }
 
 bool ICServer::beginSocket(int nPort, int nType)
@@ -60,19 +58,9 @@ bool ICServer::beginSocket(int nPort, int nType)
 
 	srverPorts_ = nPort;
 	isMainSocketThread_ = true;
-	mainSocketThread_ =  std::make_unique<std::thread>(&ICServer::runSocketThread, this, this);
+	mainSocketThread_ =  std::make_unique<std::thread>(&ICServer::runSocket, this);
 
 	return true;
-}
-
-
-void* ICServer::runSocketThread(void* arg)
-{
-	ICServer* pSocketMgr = (ICServer*)arg;
-	((ICServer*)pSocketMgr)->runSocket();
-
-	//InfoL << "beginSocketThread end";
-	return 0;
 }
 
 void ICServer::runSocket()
@@ -88,12 +76,12 @@ void ICServer::runSocket()
 
 	if (::bind(serverSockets_, (struct sockaddr*)&serv_adr, sizeof(serv_adr)) == -1)
 	{
-		//ErrorL << "bind() error";
+        LOG_CRITICAL("Socket Bind Error");
 		return;
 	}
 	if (listen(serverSockets_, 5) == -1)
 	{
-		//ErrorL << "listen() error";
+        LOG_CRITICAL("Socket Listen Error");
 		return;
 	}
 
@@ -141,7 +129,7 @@ void* ICServer::handle_client(std::unique_ptr<ClientSockThreadData> threadData)
 {
 	int clnt_sock = threadData->socket;
 	std::string clnt_IP = threadData->clientIp;
-	ICServer* pSocketMgr = (ICServer*)threadData->pthis;
+	ICServer* pSocketMgr = threadData->pthis;
 
 	while (pSocketMgr->isMainSocketThread_)
 	{
@@ -228,11 +216,19 @@ bool ICServer::sendData(const std::string& clientName, std::string strJson)
 
 	sockMutex_.unlock();
 	sendMutex_.unlock();
+    sendBuffer_.clear();
+    std::vector<char>().swap(sendBuffer_);
+
 	if (nSend != nSendSize)
 	{
-        LOG_ERROR("Send Fail nSend != nSendSize");
+        LOG_ERROR("Send Fail nSend != nSendSize {} {} ", nSend, nSendSize);
 		return false;
 	}
+    else
+    {
+        LOG_INFO("Send Success nSend == nSendSize {} {} ", nSend, nSendSize);
+        return true;
+    }
 
 	return true;
 

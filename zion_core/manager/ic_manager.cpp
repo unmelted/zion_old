@@ -22,9 +22,11 @@
 
 ICManager::ICManager()
 {
-    icServer_ = std::make_shared<ICServer>();
-	icServer_->beginSocket(ROBOT_CONTROL_PORT, 0);
-	icServer_->setHandler(std::bind(&ICManager::validateJson, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
+    // along the server type, ic_server starts with specific socket
+    // and have handler the function for validating the json foramt (dependency injectcion)
+    icServer_ = std::make_shared<ICServer>((int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL);
+	icServer_->beginSocket(ic::SERVER_PORT[(int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL], 0);
+	icServer_->setHandler(std::bind(&ICManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
 
     msg_parser_ = std::make_unique<MessageParser>();
     msg_manager_ = std::make_unique<MsgManager>();
@@ -39,41 +41,55 @@ ICManager::~ICManager()
 
 }
 
-
-int ICManager::validateJson(char cSeparator, char* pData, int nDataSize)
+// this function check the command format
+// if received message fits the command format well, deliver the message to message_parser
+int ICManager::validateMsg(char cSeparator, char* pData, int nDataSize)
 {
 
     if( cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON)
     {
-        LOG_ERROR("validateJson cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON");
+        LOG_ERROR("validateMsg cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON");
         return 0;
     }
 
     std::string strMessage = pData;
 	Document document;
-	bool bSuc = false;
+	bool isSuccess = false;
 	try {
-		bSuc = document.Parse(strMessage.c_str()).HasParseError();
+        isSuccess = document.Parse(strMessage.c_str()).HasParseError();
 	}
 	catch (...) {
-		bSuc = true;
+        isSuccess = false;
 	}
 
-	if (bSuc)
+	if (isSuccess)
 	{
         LOG_ERROR("Json Parsing Faile {} ", strMessage);
 		return 0;
 	}
 
-	std::string sec3 = document[PROTOCOL_SECTION3].GetString();
+    if (document.HasMember("Type") == false
+        || document.HasMember("Command") == false
+        || document.HasMember("SubCommand") == false
+        || document.HasMember("Action") == false
+        || document.HasMember("Token") == false)
+    {
+        LOG_ERROR("Json component missing. can't execute.");
+        return 0;
+    }
 
-	LOG_INFO("validateJson sec3 : {} compare {}", sec3, sec3.compare("Version"));
+	std::string sec2 = document[PROTOCOL_SECTION2].GetString();
 
-	if(sec3.compare("TEST_COMMAND_3") == 0) {
-		msg_parser_->runParse(strMessage);
+	LOG_INFO("validateMsg sec3 : {}", sec2);
+
+	if(sec2.compare("TEST_COMMAND_2") == 0) {
+        // if the message has necessary to send response,
+        // call the parseAndSendResponse()
+		msg_parser_->parseAndSendResponse(strMessage);
 	}
-	else if(sec3.compare("Stabilize") == 0) {
-		msg_parser_->runParse(strMessage);
+	else if(sec2.compare("Stabilize") == 0) {
+		msg_parser_->parseAndSendResponse(strMessage);
+        // call onRcvMessage with message for insert job in queue
 		msg_manager_->onRcvMessage(strMessage);
 	}
 

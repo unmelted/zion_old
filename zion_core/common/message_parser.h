@@ -18,14 +18,8 @@
 
 #pragma once
 
-#define RAPIDJSON_HAS_STDSTRING 1
-#include "_3rdparty_/rapidjson/include/rapidjson/document.h"
-#include "_3rdparty_/rapidjson/include/rapidjson/writer.h"
-#include "_3rdparty_/rapidjson/include/rapidjson/stringbuffer.h"
-
 #include "ic_define.h"
 #include "ic_server.h"
-#include "curl/curl.h"
 
 using namespace rapidjson;
 
@@ -38,7 +32,7 @@ public:
 	void setICServer(std::shared_ptr<ICServer> icServer);
 
 	bool isThreadStop();
-	void runParse(std::string strMessage);
+	void parseAndSendResponse(std::string strMessage);
 
 private:
 	void parseThread(void* param, std::string strMessage);
