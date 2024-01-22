@@ -103,7 +103,7 @@ void ICServer::runSocket()
 
         if (strIP.compare(""))
         {
-            LOG_ERROR("Invalid Client IP : {} Local IP Address : {}", clientIP, strIP);
+            LOG_ERROR("Invalid client IP : {} local IP : {} only local client is accepted.", clientIP, strIP);
             continue;
         }
 
@@ -216,6 +216,7 @@ bool ICServer::sendData(const std::string& clientName, std::string strJson)
     if (clientInfoIterator != clientMap_.end())
     {
         ClientInfo& clientInfo = clientInfoIterator->second;
+        LOG_INFO("SendData clientName : {} clientIP : {} ", clientName, clientInfo.clientIp);
         nSend = send(clientInfo.clientSocket, sendBuffer_.data(), sendBuffer_.size(), 0);
     }
     else
@@ -321,6 +322,7 @@ int ICServer::receive(int clnt_sock, char* pRecv, int nSize, int flags)
 	int nRecvSize = 1024;
 	if (nRecvSize > nSize)
 		nRecvSize = nSize;
+
 	while (1)
 	{
 		if ((nReclen = recv(clnt_sock, pRecv, nRecvSize, MSG_NOSIGNAL)) == 0)

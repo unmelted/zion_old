@@ -72,7 +72,7 @@ void TaskManager::enqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args)
         throw std::runtime_error("Can't add job in ThreadPool");
     }
 
-    using return_type = typename std::result_of<F(Args...)>::type;
+    using return_type = typename std::invoke_result<F, Args...>::type;
     auto job = std::make_shared<std::packaged_task<return_type()>>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
     std::future<return_type> job_result_future = job->get_future();
     {
@@ -89,7 +89,7 @@ int TaskManager::commandTask(int mode, std::string arg)
 {
 
     if (cur_worker_ == num_worker_)
-        LOG_DEBUG("CMd Job Queue is fool. working worker + job = : {}", cur_worker_);
+        LOG_DEBUG("Job Queue is fool. working worker + job = : {}", cur_worker_);
     cur_worker_++;
 
     if (mode == (int)ic::COMMAND_CLASS::COMMAND_VERSION)
@@ -98,17 +98,7 @@ int TaskManager::commandTask(int mode, std::string arg)
     }
     else if (mode == (int)ic::COMMAND_CLASS::COMMAND_START)
     {
-//         ExpUtil in;
-//         shared_ptr<VIDEO_INFO> info = make_shared<VIDEO_INFO>();
-//         int result = in.ImportVideoInfo(arg, info.get());
-//         LOG_INFO(" swipe period size {} ", info->swipe_period.size());
-//         if (result == ic::ERR_NONE)
-//             EnqueueJob(&future_, &TaskManager::RunStabilize, this, info);
-//         else
-//         {
-//             LOG_WARN(" Stabilization Message is not compatible ERR: {} ", result);
-//             queTaskMSG_.Dequeue();
-//         }
+         enqueueJob(&future_, &TaskManager::taskStart, this, 19);
     }
     else if (mode == (int)ic::COMMAND_CLASS::COMMAND_STOP)
     {
@@ -170,7 +160,7 @@ void TaskManager::makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
     Document sndDoc(kObjectType);
     Document::AllocatorType &allocator = sndDoc.GetAllocator();
 
-    if (result == (int)ErrorCommon::COMMON_ERR_TEMPORARY)
+    if (result == (int)ErrorCommon::COMMON_ERR_TYPE_NAME_STRING)
     {
         Document recvDoc;
         recvDoc.Parse(ptrMsg->txt);
@@ -205,4 +195,12 @@ std::string TaskManager::getDocumentToString(Document &document)
     std::string ownShipRadarString = strbuf.GetString();
 
     return ownShipRadarString;
+}
+
+int TaskManager::taskStart(int argument)
+{
+    LOG_INFO("taskStart {} ", argument);
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+
+    return (int)ErrorCommon::COMMON_ERR_TYPE_NAME_STRING;
 }

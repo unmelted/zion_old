@@ -90,7 +90,8 @@ int ICManager::validateMsg(char cSeparator, char* pData, int nDataSize)
     else if(command =="START")
     {
 //        msg_manager_->onRcvMessage(strMessage);
-        msg_rspndr_->parseAndSendResponse(strMessage);
+//        msg_rspndr_->parseAndSendResponse(strMessage);
+        msg_manager_->onRcvMessage(document["From"].GetString(), strMessage);
 	}
 	else if(command == "TEST")
     {

@@ -33,16 +33,17 @@ public:
     ~TaskManager();
 
     void onRcvTask(std::shared_ptr<ic::MSG_T> pData);
-    template <class F, class... Args>
-    void enqueueJob(MessageQueue<int>* fu, F &&f, Args &&...args);
     int commandTask(int mode, std::string arg);
 
 private:
     void watchFuture();
     void workerThread();
     void makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result);
-
     std::string getDocumentToString(Document &document);
+    template <class F, class... Args>
+    void enqueueJob(MessageQueue<int>* fu, F &&f, Args &&...args);
+
+    int taskStart(int argument);
 
 private:
     std::vector<std::unique_ptr<std::thread>> worker_;

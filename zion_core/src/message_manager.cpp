@@ -93,11 +93,10 @@ void MsgManager::rcvMSGThread()
                 Document recvDoc;
                 recvDoc.Parse(msg->txt);
 
-
-                string section3 = recvDoc["SubCommand"].GetString();
+                string section2 = recvDoc["Command"].GetString();
                 string action = recvDoc["Action"].GetString();
-                 if (section3 == "COMMAND_VERSION" and action == "response") {
-                 	taskmanager_.commandTask((int)ic::COMMAND_CLASS::COMMAND_VERSION, msg->txt);
+                 if (section2 == "START") {
+                 	taskmanager_.commandTask((int)ic::COMMAND_CLASS::COMMAND_START, msg->txt);
                  }
             }
         }
