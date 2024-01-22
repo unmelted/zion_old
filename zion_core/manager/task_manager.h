@@ -34,7 +34,7 @@ public:
 
     void onRcvTask(std::shared_ptr<ic::MSG_T> pData);
     template <class F, class... Args>
-    void enqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args);
+    void enqueueJob(MessageQueue<int>* fu, F &&f, Args &&...args);
     int commandTask(int mode, std::string arg); // shared_ptr<VIDEO_INFO> arg);
 
 private:
@@ -42,7 +42,6 @@ private:
     void workerThread();
     void makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result);
 
-//    void sendVersionMessage(std::string ptrMsg);
     std::string getDocumentToString(Document &document);
 
 private:

@@ -18,3 +18,49 @@
 
 #include "db_manager.h"
 
+DBManager::DBManager()
+{
+
+}
+
+DBManager::~DBManager()
+{
+
+}
+
+bool DBManager::openDB(std::string strDBPath)
+{
+    int nRet = sqlite3_open(strDBPath.c_str(), &db_);
+    if (nRet != SQLITE_OK)
+    {
+        LOG_ERROR("Can't open database: {}", sqlite3_errmsg(db_));
+        return false;
+    }
+
+    return true;
+}
+
+int DBManager::createTable(std::string createQuery)
+{
+    return 0;
+}
+
+bool DBManager::closeDB()
+{
+    return 0;
+}
+
+int DBManager::enqueueQuery(std::shared_ptr<ic::MSG_T> msg)
+{
+    return 0;
+}
+
+void DBManager::queryThread()
+{
+
+}
+
+int DBManager::runQuery()
+{
+    return 0;
+}

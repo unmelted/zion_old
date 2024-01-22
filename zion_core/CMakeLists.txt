@@ -31,7 +31,5 @@ LINK_DIRECTORIES(
         /opt/homebrew/lib
         /usr/local/lib)
 
-add_executable(zion ${PRJ_SRC}
-        common/db_manager.h
-        common/db_manager.cpp)
-target_link_libraries(zion spdlog::spdlog fmt)
+add_executable(zion ${PRJ_SRC})
+target_link_libraries(zion spdlog::spdlog fmt sqlite3)
