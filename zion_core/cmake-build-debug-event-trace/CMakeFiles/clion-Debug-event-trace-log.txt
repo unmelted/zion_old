@@ -1,4 +1,4 @@
-/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug --profiling-format=google-trace --profiling-output=CMakeFiles/clion-event-trace.json -G "CodeBlocks - Unix Makefiles" -S /Users/kellyma/work/zion_old/zion_core -B /Users/kellyma/work/zion_old/zion_core/cmake-build-debug-event-trace
+/Applications/CLion.app/Contents/bin/cmake/mac/aarch64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/aarch64/ninja --profiling-format=google-trace --profiling-output=CMakeFiles/clion-event-trace.json -G Ninja -S /Users/kelly/work/zion_old/zion_core -B /Users/kelly/work/zion_old/zion_core/cmake-build-debug-event-trace
 -- The C compiler identification is AppleClang 15.0.0.15000100
 -- The CXX compiler identification is AppleClang 15.0.0.15000100
 -- Detecting C compiler ABI info
@@ -14,6 +14,6 @@
 -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
 -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
 -- Found Threads: TRUE  
--- Configuring done (0.8s)
+-- Configuring done (0.5s)
 -- Generating done (0.0s)
--- Build files have been written to: /Users/kellyma/work/zion_old/zion_core/cmake-build-debug-event-trace
+-- Build files have been written to: /Users/kelly/work/zion_old/zion_core/cmake-build-debug-event-trace

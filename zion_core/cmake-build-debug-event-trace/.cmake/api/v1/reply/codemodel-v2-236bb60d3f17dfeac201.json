@@ -39,7 +39,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "zion::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-zion-Debug-be0f4e38e9bf6a483c45.json",
+					"jsonFile" : "target-zion-Debug-d848b4fb5d78ced39354.json",
 					"name" : "zion",
 					"projectIndex" : 0
 				}
@@ -49,12 +49,12 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "/Users/kellyma/work/zion_old/zion_core/cmake-build-debug-event-trace",
-		"source" : "/Users/kellyma/work/zion_old/zion_core"
+		"build" : "/Users/kelly/work/zion_old/zion_core/cmake-build-debug-event-trace",
+		"source" : "/Users/kelly/work/zion_old/zion_core"
 	},
 	"version" : 
 	{
 		"major" : 2,
-		"minor" : 5
+		"minor" : 6
 	}
 }

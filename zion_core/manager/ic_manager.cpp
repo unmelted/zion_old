@@ -85,7 +85,8 @@ int ICManager::validateMsg(char cSeparator, char* pData, int nDataSize)
 	if(sec2.compare("TEST_COMMAND_2") == 0) {
         // if the message has necessary to send response,
         // call the parseAndSendResponse()
-		msg_parser_->parseAndSendResponse(strMessage);
+		//msg_parser_->parseAndSendResponse(strMessage);
+        msg_manager_->onRcvMessage(strMessage);
 	}
 	else if(sec2.compare("Stabilize") == 0) {
 		msg_parser_->parseAndSendResponse(strMessage);

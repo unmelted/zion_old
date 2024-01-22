@@ -94,9 +94,9 @@ void MsgManager::rcvMSGThread()
 
                 string section3 = recvDoc["SubCommand"].GetString();
                 string action = recvDoc["Action"].GetString();
-                // if (action == "Stabilization" || section3 == "Stabilize") {
-                // 	taskmanager_.commandTask(ic::POST_STABILIZATION, msg->txt);
-                // }
+                 if (section3 == "COMMAND_VERSION" and action == "response") {
+                 	taskmanager_.commandTask((int)ic::COMMAND_CLASS::COMMAND_VERSION, msg->txt);
+                 }
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(3));
