@@ -56,19 +56,21 @@ void MsgManager::setICServer(std::shared_ptr<ICServer> icServer)
 
 // this function is called by task_manager for sending a message.
 // this function store the msg in queue for sengin.
-void MsgManager::onRcvSndMessage(std::string msg)
+void MsgManager::onRcvSndMessage(std::string target, std::string msg)
 {
-	std::shared_ptr<std::string> pmsg = make_shared<std::string>(msg);
+    std::pair<std::string, std::string> pair_msg(target, msg);
+    std::shared_ptr<std::pair<std::string, std::string>> pmsg = std::make_shared<std::pair<std::string, std::string>>(pair_msg);
 	queSndMSG_.Enqueue(pmsg);
 }
 
 // this function is called by ic_manager
 // ic_manager call with data which include information for job (task)
 // store the data in RcvMSG
-void MsgManager::onRcvMessage(std::string pData)
+void MsgManager::onRcvMessage(std::string target, std::string pData)
 {
     std::shared_ptr<ic::MSG_T> ptrMsg = std::shared_ptr<ic::MSG_T>(new ic::MSG_T);
     ptrMsg->type = ic::PACKET_TYPE::TEXT;
+    ptrMsg->target = target;
     ptrMsg->txt = pData;
     queRcvMSG_.Enqueue(ptrMsg);
 }
@@ -107,16 +109,20 @@ void MsgManager::rcvMSGThread()
 // if receive the data in queSndMSG, this data should be sent through ic_server.
 void MsgManager::sndMSGThread()
 {
-	std::shared_ptr<std::string> msg = nullptr;
+
 	while (isSMSGThread_)
 	{
 		if (queSndMSG_.IsQueue())
 		{
- 			msg = queSndMSG_.Dequeue();
-			LOG_INFO(" SndMsg thread msg : {} ", msg->c_str());
-            std::string temp_clientname = "name_temp";
-			icServer_->sendData(temp_clientname, msg->c_str());
+            std::shared_ptr<std::pair<std::string, std::string>> dequeuedItem = queSndMSG_.Dequeue();
+
+            std::string target = dequeuedItem->first;
+            std::string msg = dequeuedItem->second;
+
+			LOG_INFO(" SndMsg thread target {} msg  {} ", target, msg);
+			icServer_->sendData(target, msg);
 		}
+
 		std::this_thread::sleep_for(std::chrono::milliseconds(3));
 	}
 

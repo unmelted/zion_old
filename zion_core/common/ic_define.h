@@ -126,6 +126,7 @@ typedef struct PACKET_TYPE
 typedef struct _MSG_T
 {
     int32_t type;
+    std::string target;
     std::string txt;
     char* bin;
     int32_t bin_size;

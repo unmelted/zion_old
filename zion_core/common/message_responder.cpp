@@ -78,10 +78,8 @@ void MessageResponder::parseThread(void* param, std::string strMessage)
 	{
 		sendDocument[PROTOCOL_ERRORMSG].SetString(getErrorCodeToString(nResultCode), allocator);
 		std::string sendString = getDocumentToString(sendDocument);
-        std::string temp_clientname = "name_temp";
-		if (pMain->icServer_->sendData(temp_clientname, sendString.c_str()))
+		if (pMain->icServer_->sendData(protocol.From, sendString))
 		{
-			//ErrorL << strSendString;
             LOG_ERROR("sendData failed in parsThread: {}", sendString);
 		}
 		return;
@@ -91,7 +89,7 @@ void MessageResponder::parseThread(void* param, std::string strMessage)
 	string strSection2 = protocol.Command;
 	string strSection3 = protocol.SubCommand;
 	string strAction = protocol.Action;
-	LOG_DEBUG("sction {} {} {}", strSection1, strSection2, strSection3);
+	LOG_DEBUG("section {} {} {}", strSection1, strSection2, strSection3);
 
 	if (strSection1.compare("Daemon"))
 	{
@@ -111,8 +109,7 @@ void MessageResponder::parseThread(void* param, std::string strMessage)
 	}
 
 	std::string strSendString = getDocumentToString(sendDocument);
-    std::string temp_clientname = "name_temp";
-	pMain->icServer_->sendData(temp_clientname, strSendString.c_str());
+	pMain->icServer_->sendData(protocol.From, strSendString);
 }
 
 void MessageResponder::setICServer(std::shared_ptr<ICServer> icServer)

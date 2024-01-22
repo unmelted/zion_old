@@ -243,6 +243,8 @@ bool ICServer::sendData(const std::string& clientName, std::string strJson)
 
 }
 
+// addClient() and removeClinet() function handles just clientMap_
+// clientSocketsLists_ is handled in runSocket() function
 bool ICServer::addClient(const std::string& clientIp, int clientSocket, int packetSize)
 {
     int str_len = 0;
@@ -274,14 +276,12 @@ bool ICServer::addClient(const std::string& clientIp, int clientSocket, int pack
     }
 
     std::string clientName = document[PROTOCOL_FROM].GetString();
-    LOG_INFO("Client Name : {} ", clientName);
 
     sockMutex_.lock();
 
     struct ClientInfo clientInfo;
     clientInfo.clientIp = clientIp;
     clientInfo.clientSocket = clientSocket;
-
     clientMap_[clientName] = clientInfo;
 
     sockMutex_.unlock();
@@ -293,12 +293,15 @@ bool ICServer::addClient(const std::string& clientIp, int clientSocket, int pack
 void ICServer::removeClient(const std::string& client_ip)
 {
     sockMutex_.lock();
-    auto clientInfoIterator = clientMap_.find(client_ip);
-    if (clientInfoIterator != clientMap_.end())
-    {
-        ClientInfo& clientInfo = clientInfoIterator->second;
-        clientMap_.erase(clientInfoIterator);
+    for (auto it = clientMap_.begin(); it != clientMap_.end(); ) {
+        if (it->second.clientIp == client_ip) {
+            it = clientMap_.erase(it);
+            break;
+        } else {
+            ++it;
+        }
     }
+
     sockMutex_.unlock();
 }
 

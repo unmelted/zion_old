@@ -28,8 +28,8 @@ public:
     MsgManager();
     ~MsgManager();
     void setICServer(std::shared_ptr<ICServer> icServer);
-	void onRcvMessage(std::string pData);
-	void onRcvSndMessage(std::string msg);
+	void onRcvMessage(std::string target, std::string pData);
+	void onRcvSndMessage(std::string target, std::string msg);
 
 private :
     void rcvMSGThread();
@@ -40,7 +40,8 @@ private :
     std::unique_ptr<std::thread> rcvMSGThread_;
     std::unique_ptr<std::thread> sndMSGThread_;
     MessageQueue<std::shared_ptr<ic::MSG_T>> queRcvMSG_;
-    MessageQueue<std::shared_ptr<std::string>> queSndMSG_;
+    MessageQueue<std::shared_ptr<std::pair<std::string, std::string>>> queSndMSG_;
+
 
     TaskManager taskmanager_;
 

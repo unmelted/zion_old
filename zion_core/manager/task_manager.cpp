@@ -181,19 +181,19 @@ void TaskManager::makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
         std::string str_token = Configurator::get().generateToken();
         LOG_INFO(" Generated token {} ", str_token.c_str());
 
-        sndDoc.AddMember(PROTOCOL_SECTION1, "4DReplay", allocator);
-        sndDoc.AddMember(PROTOCOL_SECTION2, "CM", allocator);
-        sndDoc.AddMember(PROTOCOL_SECTION3, "StabilizeDone", allocator);
+        sndDoc.AddMember(PROTOCOL_SECTION1, "REQUEST", allocator);
+        sndDoc.AddMember(PROTOCOL_SECTION2, "NOTIFY", allocator);
+        sndDoc.AddMember(PROTOCOL_SECTION3, "PROCESS_DONE", allocator);
         sndDoc.AddMember(PROTOCOL_ACTION, "action", allocator);
         sndDoc.AddMember(PROTOCOL_TOKEN, str_token, allocator); // token..
-        sndDoc.AddMember(PROTOCOL_FROM, "CMd", allocator);
-        sndDoc.AddMember(PROTOCOL_TO, "4DPD", allocator);
+        sndDoc.AddMember(PROTOCOL_FROM, "ICS", allocator);
+        sndDoc.AddMember(PROTOCOL_TO, "SR1", allocator);
         sndDoc.AddMember(PROTOCOL_DATA, "set", allocator);
         sndDoc.AddMember("output", outfile, allocator);
     }
 
     std::string strSendString = getDocumentToString(sndDoc);
-    msgmanager_->onRcvSndMessage(strSendString);
+    msgmanager_->onRcvSndMessage("SR1", strSendString);
 }
 
 std::string TaskManager::getDocumentToString(Document &document)

@@ -91,7 +91,7 @@ int ICManager::validateMsg(char cSeparator, char* pData, int nDataSize)
     {
 //        msg_manager_->onRcvMessage(strMessage);
 	}
-	else if(command == "Stabilize")
+	else if(command == "TEST")
     {
         // if the message has necessary to send response,
         // call the parseAndSendResponse()
@@ -99,7 +99,7 @@ int ICManager::validateMsg(char cSeparator, char* pData, int nDataSize)
 
 		msg_rspndr_->parseAndSendResponse(strMessage);
         // call onRcvMessage with message for insert job in queue
-		msg_manager_->onRcvMessage(strMessage);
+		msg_manager_->onRcvMessage(document["From"].GetString(), strMessage);
 	}
     else
     {
