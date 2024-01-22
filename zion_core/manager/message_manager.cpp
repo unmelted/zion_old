@@ -15,7 +15,7 @@
  * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
  *
  */
-#include "message_manager.hpp"
+#include "message_manager.h"
 
 using namespace rapidjson;
 

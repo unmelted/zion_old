@@ -20,8 +20,8 @@
 #include "error_manager.h"
 #include <set>
 #include <future>
-#include "ic_util.hpp"
-#include "logger.hpp"
+#include "ic_util.h"
+#include "logger.h"
 
 
 MessageParser::MessageParser()

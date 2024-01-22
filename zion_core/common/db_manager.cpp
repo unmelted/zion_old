@@ -12,32 +12,9 @@
  * Dissemination of this information or reproduction of this material is
  * strictly forbidden unless prior written permission is obtained from LIVSMED.
  *
- * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
+ * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/22.
  *
  */
 
-#pragma once
-
-#include "ic_server.h"
-#include "ic_define.h"
-#include <functional>
-#include "message_parser.h"
-#include "message_manager.h"
-
-using namespace rapidjson;
-
-class ICManager
-{
-public:
-	ICManager();
-	~ICManager();
-
-private:
-	int validateMsg(char cSeparator, char* pData, int nDataSize);
-
-    std::shared_ptr<ICServer> icServer_;
-    std::unique_ptr<MessageParser> msg_parser_;
-    std::unique_ptr<MsgManager> msg_manager_;
-
-};
+#include "db_manager.h"
 

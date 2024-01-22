@@ -16,8 +16,8 @@
  *
  */
 
-#include "task_manager.hpp"
-#include "message_manager.hpp"
+#include "task_manager.h"
+#include "message_manager.h"
 
 using namespace rapidjson;
 

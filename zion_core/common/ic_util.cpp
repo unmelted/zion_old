@@ -17,7 +17,7 @@
  */
 
 
-#include "ic_util.hpp"
+#include "ic_util.h"
 
 Configurator&  Configurator::get() {
     static Configurator _instance;
