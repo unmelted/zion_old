@@ -60,6 +60,8 @@ using namespace std;
 namespace ic
 {
 
+const string DB_NAME = "../db/livsmed.db";
+
 enum class SERVER_TYPE
 {
     SERVER_TYPE_NONE,

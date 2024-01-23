@@ -28,6 +28,7 @@ ICManager::ICManager()
 	icServer_->beginSocket(ic::SERVER_PORT[(int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL], 0);
 	icServer_->setHandler(std::bind(&ICManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
 
+    db_manager_ = std::make_unique<DBManager>();
     msg_rspndr_ = std::make_unique<MessageResponder>();
     msg_manager_ = std::make_unique<MsgManager>();
     msg_rspndr_->setICServer(icServer_);

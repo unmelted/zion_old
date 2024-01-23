@@ -18,8 +18,11 @@
 
 #include "db_manager.h"
 
+#include <utility>
+
 DBManager::DBManager()
 {
+    openDB(ic::DB_NAME);
     isQueryThread_ = true;
     queryThread_ = std::make_unique<std::thread>(&DBManager::queryThread, this);
 }
@@ -44,6 +47,7 @@ bool DBManager::openDB(std::string strDBPath)
     }
 
     isOpen_ = true;
+    LOG_INFO("DBManager Opened.");
     return true;
 }
 
@@ -66,7 +70,7 @@ int DBManager::enqueueQuery(std::shared_ptr<ic::MSG_T> msg)
     }
 
     std::lock_guard<std::mutex> lock(queryMutex_);
-    queQuery_.Enqueue(msg);
+    queQuery_.Enqueue(std::move(msg));
     cv_query_.notify_one();
 
     return 0;

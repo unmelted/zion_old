@@ -23,6 +23,7 @@
 #include <functional>
 #include "message_responder.h"
 #include "message_manager.h"
+#include "db_manager.h"
 
 using namespace rapidjson;
 
@@ -38,6 +39,7 @@ private:
     std::shared_ptr<ICServer> icServer_;
     std::unique_ptr<MessageResponder> msg_rspndr_;
     std::unique_ptr<MsgManager> msg_manager_;
+    std::unique_ptr<DBManager> db_manager_;
 
 };
 

@@ -15,13 +15,13 @@
 #define MTDPROTOCOL_TO          "To"
 #define MTDPROTOCOL_DATA        "Data"
 #define MTDPROTOCOL_TOKEN       "Token"
-#define MTDPROTOCOL_RESULTCODE  "ResultCode"
-#define MTDPROTOCOL_ERRORMSG    "ErrorMsg"
+
 
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/prettywriter.h>
+#include <thread>
 
 #include "common.h"
 
@@ -142,28 +142,46 @@ int main() {
     cmd.AddMember("date", "2024-01--14", allocator);
     ver.AddMember("CMd", cmd, allocator);
 
-    sndDoc.AddMember(MTDPROTOCOL_SECTION1, "TEST_COMMAND_1", allocator);
-    sndDoc.AddMember(MTDPROTOCOL_SECTION2, "TEST_COMMAND_2", allocator);
-    sndDoc.AddMember(MTDPROTOCOL_SECTION3, "TEST_COMMAND_3", allocator);
+    sndDoc.AddMember(MTDPROTOCOL_SECTION1, "REQUEST", allocator);
+    sndDoc.AddMember(MTDPROTOCOL_SECTION2, "CONNECT", allocator);
+    sndDoc.AddMember(MTDPROTOCOL_SECTION3, "VERSION", allocator);
     sndDoc.AddMember(MTDPROTOCOL_ACTION, "response", allocator);
     sndDoc.AddMember(MTDPROTOCOL_TOKEN, "TEST_TOKEN", allocator);
-    sndDoc.AddMember(MTDPROTOCOL_FROM, "TEST_CLIENT", allocator);
-    sndDoc.AddMember(MTDPROTOCOL_TO, "TEST_SERVER", allocator);
+    sndDoc.AddMember(MTDPROTOCOL_FROM, "SR1", allocator);
+    sndDoc.AddMember(MTDPROTOCOL_TO, "ICS_SERVER", allocator);
     sndDoc.AddMember(MTDPROTOCOL_DATA, "TEST_SEND_MSG", allocator);
     sndDoc.AddMember("Version", ver, allocator);
-    sndDoc.AddMember(MTDPROTOCOL_RESULTCODE, 1000, allocator);
-    sndDoc.AddMember(MTDPROTOCOL_ERRORMSG, "SUCCESS", allocator);
     std::string strSendString = GetDocumentToString(sndDoc);
 
     SendData(strSendString.c_str(), sock);
+    std::cout <<"send connect message " << std::endl;
 
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::cout<< "sleep 1 second " << std::endl;
+    sndDoc.SetObject();
+    sndDoc.AddMember(MTDPROTOCOL_SECTION1, "REQUEST", allocator);
+    sndDoc.AddMember(MTDPROTOCOL_SECTION2, "START", allocator);
+    sndDoc.AddMember(MTDPROTOCOL_SECTION3, "", allocator);
+    sndDoc.AddMember(MTDPROTOCOL_ACTION, "", allocator);
+    sndDoc.AddMember(MTDPROTOCOL_TOKEN, "TEST_TOKEN", allocator);
+    sndDoc.AddMember(MTDPROTOCOL_FROM, "SR1", allocator);
+    sndDoc.AddMember(MTDPROTOCOL_TO, "ICS_SERVER", allocator);
+    sndDoc.AddMember(MTDPROTOCOL_DATA, "TEST_SEND_MSG", allocator);
+//    sndDoc.AddMember("Version", ver, allocator);
+    strSendString = GetDocumentToString(sndDoc);
 
+    SendData(strSendString.c_str(), sock);
 
     //send(sock, &mtdProtoHeader, mtdProtoHeader.nSize, 0);
     std::cout << "Hello message sent\n";
     int valread = read(sock, buffer, 1024);
+
+    Document rcvDoc;
+    rcvDoc.Parse(buffer);
+
     std::cout << "test _main read end"  << std::endl;
 
+    valread = read(sock, buffer, 1024);
     // 소켓 닫기
     close(sock);
 
