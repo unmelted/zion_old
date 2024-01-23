@@ -137,6 +137,7 @@ void TaskManager::workerThread()
         std::unique_lock<std::mutex> lock(jobMutex_);
         cv_job_.wait(lock, [this]()
         { return !this->jobs.empty() || stop_all_; });
+
         if (stop_all_ && this->jobs.empty())
         {
             return;

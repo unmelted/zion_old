@@ -47,7 +47,8 @@ void Logger::init()
 	auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(fileName, 1024 * 1000 * 10, 10);
 	file_sink->set_level(spdlog::level::trace);
 
-	spdlog::sinks_init_list sink_list = { console_sink, file_sink };
+    auto db_log_sink = std::make_shared<db_sink<std::mutex>>();
+	spdlog::sinks_init_list sink_list = { console_sink, file_sink, db_log_sink };
 
 	_logger = std::make_shared<spdlog::logger>("ic", sink_list);
 //	_logger->set_level(spdlog::level::trace);

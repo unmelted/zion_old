@@ -20,12 +20,18 @@
 
 DBManager::DBManager()
 {
-
+    isQueryThread_ = true;
+    queryThread_ = std::make_unique<std::thread>(&DBManager::queryThread, this);
 }
 
 DBManager::~DBManager()
 {
+    closeDB();
+    isQueryThread_ = false;
+    cv_query_.notify_all();
+    queryThread_->join();
 
+    LOG_DEBUG("DBManager Destroyed Done.");
 }
 
 bool DBManager::openDB(std::string strDBPath)
@@ -37,6 +43,7 @@ bool DBManager::openDB(std::string strDBPath)
         return false;
     }
 
+    isOpen_ = true;
     return true;
 }
 
@@ -52,15 +59,47 @@ bool DBManager::closeDB()
 
 int DBManager::enqueueQuery(std::shared_ptr<ic::MSG_T> msg)
 {
+    if(!isQueryThread_)
+    {
+        LOG_ERROR("DBManager is already stopped.");
+        return -1;
+    }
+
+    std::lock_guard<std::mutex> lock(queryMutex_);
+    queQuery_.Enqueue(msg);
+    cv_query_.notify_one();
+
     return 0;
 }
 
 void DBManager::queryThread()
 {
+    while (isQueryThread_)
+    {
+        std::unique_lock<std::mutex> lock(queryMutex_);
+        cv_query_.wait(lock);
 
+        if (queQuery_.IsQueue())
+        {
+            auto msg = queQuery_.Dequeue();
+            if (msg == nullptr)
+                continue;
+
+            runQuery(msg);
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(3));
+    }
 }
 
-int DBManager::runQuery()
+int DBManager::runQuery(std::shared_ptr<ic::MSG_T> query)
 {
+    int result = sqlite3_exec(db_, query->txt.c_str(), 0, 0, 0);
+    if (result != SQLITE_OK)
+    {
+        LOG_ERROR("Failed to execute query: {}", sqlite3_errmsg(db_));
+        return -1;
+    }
+
     return 0;
 }

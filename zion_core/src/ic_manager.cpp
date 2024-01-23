@@ -23,7 +23,7 @@
 ICManager::ICManager()
 {
     // along the server type, ic_server starts with specific socket
-    // and have handler the function for validating the json foramt (dependency injectcion)
+    // and have handler the function for validating the json foramt (dependency injection)
     icServer_ = std::make_shared<ICServer>((int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL);
 	icServer_->beginSocket(ic::SERVER_PORT[(int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL], 0);
 	icServer_->setHandler(std::bind(&ICManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
@@ -56,10 +56,12 @@ int ICManager::validateMsg(char cSeparator, char* pData, int nDataSize)
     std::string strMessage = pData;
 	Document document;
 	bool isSuccess = false;
-	try {
+	try
+    {
         isSuccess = document.Parse(strMessage.c_str()).HasParseError();
 	}
-	catch (...) {
+	catch (...)
+    {
         isSuccess = false;
 	}
 

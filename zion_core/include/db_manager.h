@@ -29,19 +29,32 @@ public:
 
     int enqueueQuery(std::shared_ptr<ic::MSG_T> msg);
 
-private:
+protected:
     bool openDB(std::string strDBPath);
     int createTable(std::string createQuery);
     bool closeDB();
     void queryThread();
-    int runQuery();
+    int runQuery(std::shared_ptr<ic::MSG_T> query);
 
     sqlite3* db_;
 
+    std::unique_ptr<std::thread> queryThread_;
     MessageQueue<std::shared_ptr<ic::MSG_T>> queQuery_;
     std::condition_variable cv_query_;
     std::mutex queryMutex_;
 
     bool isOpen_;
-    bool isStop_;
+    bool isQueryThread_;
+};
+
+class DBLogManager : public DBManager
+{
+public :
+    DBLogManager(std::string dbName);
+    ~DBLogManager();
+
+protected:
+
+    int createTable(std::string createQuery);
+
 };

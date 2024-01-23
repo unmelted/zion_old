@@ -128,24 +128,13 @@ typedef struct _MSG_T
     int32_t type;
     std::string target;
     std::string txt;
-    char* bin;
-    int32_t bin_size;
 
     _MSG_T(void)
             : type(PACKET_TYPE::TEXT)
             , txt{}
-            , bin(nullptr)
-            , bin_size(0)
     {
     }
 
-    ~_MSG_T(void)
-    {
-        if (bin && bin_size > 0)
-            free(bin);
-        bin = nullptr;
-        bin_size = 0;
-    }
 } MSG_T;
 
 
