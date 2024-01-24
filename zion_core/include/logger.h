@@ -29,6 +29,7 @@
 #include <iostream>
 #include <sstream>
 #include <fmt/format.h>
+#include <sqlite3.h>
 
 
 #define LOG_ERROR(...) SPDLOG_ERROR(__VA_ARGS__)
@@ -42,31 +43,40 @@
 class Logger
 {
 public:
-    Logger();
+    Logger(std::shared_ptr<sqlite3> db = nullptr);
     ~Logger();
 
-    static void init();
+    static void init(const std::shared_ptr<sqlite3> db = nullptr);
 
 private:
-    static std::shared_ptr<spdlog::logger> _logger;
+    static std::shared_ptr<spdlog::logger> logger_;
 
 };
 
 template<typename Mutex>
 class db_sink : public spdlog::sinks::base_sink <Mutex>
 {
+public :
+    void set_db(std::shared_ptr<sqlite3> db, std::string& fileName)
+    {
+        db_ = db;
+        char* errMsg = nullptr;
+        std::string createQuery = "CREATE TABLE IF NOT EXISTS log0124_ (date TEXT, level TEXT, file TEXT, msg TEXT)";
+        sqlite3_exec(db_.get(), createQuery.c_str(), NULL, NULL, NULL);
+        std::cout << "create table query : " << std::endl;
+    }
+
+    std::shared_ptr<sqlite3> db_;
 
 protected:
+
     void sink_it_(const spdlog::details::log_msg& msg) override
     {
 
-        // log_msg is a struct containing the log entry info like level, timestamp, thread id etc.
-        // msg.raw contains pre formatted log
-
-        // If needed (very likely but not mandatory), the sink formats the message before sending it to its final destination:
         spdlog::memory_buf_t formatted;
         spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
         std::cout << "test logger " << fmt::to_string(formatted);
+
     }
 
     void flush_() override

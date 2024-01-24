@@ -21,12 +21,12 @@
 #include "logger.h"
 #include "ic_util.h"
 
-std::shared_ptr<spdlog::logger> Logger::_logger;
+std::shared_ptr<spdlog::logger> Logger::logger_;
 
-Logger::Logger()
+Logger::Logger(std::shared_ptr<sqlite3> db)
 {
     std::cout << "Logger Start!" << std::endl;
-	init();
+	init(db);
 }
 
 Logger::~Logger()
@@ -34,7 +34,7 @@ Logger::~Logger()
 	LOG_INFO("Logger End!");
 }
 
-void Logger::init()
+void Logger::init(const std::shared_ptr<sqlite3> db)
 {
 	spdlog::flush_every(std::chrono::milliseconds(100));
 	auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
@@ -48,11 +48,22 @@ void Logger::init()
 	file_sink->set_level(spdlog::level::trace);
 
     auto db_log_sink = std::make_shared<db_sink<std::mutex>>();
-	spdlog::sinks_init_list sink_list = { console_sink, file_sink, db_log_sink };
+    db_log_sink->set_db(db, fileName);
+//    if (db != nullptr)
+//    {
+//
 
-	_logger = std::make_shared<spdlog::logger>("ic", sink_list);
-//	_logger->set_level(spdlog::level::trace);
+//        sink_list = { console_sink, file_sink, db_log_sink };
+//    }
+//    else
+//    {
+//        sink_list = { console_sink, file_sink };
+//    }
 
-	spdlog::set_default_logger(_logger);
+    spdlog::sinks_init_list sink_list = { console_sink, file_sink, db_log_sink };;
+	logger_ = std::make_shared<spdlog::logger>("ic", sink_list);
+	logger_->set_level(spdlog::level::trace);
+
+	spdlog::set_default_logger(logger_);
 	spdlog::set_pattern("[%Y-%m-%d %X.%e] [%^%l%$] [%s:%#] - %v");
 }

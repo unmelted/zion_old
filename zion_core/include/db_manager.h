@@ -17,7 +17,6 @@
  */
 #pragma once
 
-#include <sqlite3.h>
 #include "ic_define.h"
 
 
@@ -27,18 +26,18 @@ public:
     DBManager();
     ~DBManager();
 
+    std::vector<sqlite3*> db_;
+    std::shared_ptr<sqlite3> getLogDB();
     int enqueueQuery(std::shared_ptr<ic::MSG_T> msg);
 
 protected:
-    bool openDB(std::string strDBPath);
+    bool openDB(std::string db_path);
     int createTable(std::string createQuery);
     bool closeDB();
     void queryThread();
     int runQuery(std::shared_ptr<ic::MSG_T> query);
 
-    sqlite3* db_;
-
-    std::unique_ptr<std::thread> queryThread_;
+      std::unique_ptr<std::thread> queryThread_;
     MessageQueue<std::shared_ptr<ic::MSG_T>> queQuery_;
     std::condition_variable cv_query_;
     std::mutex queryMutex_;

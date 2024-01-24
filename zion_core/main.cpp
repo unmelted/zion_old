@@ -33,9 +33,9 @@ int main()
 {
     LOG_INFO("ICManager Start!");
 
-    Logger logger;
     signal(SIGINT, signalHandler);
     icManager = std::make_unique<ICManager>();
+    Logger logger(icManager->getLogDB());
 
     while (1)
     {

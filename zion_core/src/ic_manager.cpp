@@ -42,6 +42,11 @@ ICManager::~ICManager()
 
 }
 
+std::shared_ptr<sqlite3> ICManager::getLogDB()
+{
+    return db_manager_->getLogDB();
+}
+
 // this function check the command format
 // if received message fits the command format well,
 // deliver the message to message_parser or message_manager for further process

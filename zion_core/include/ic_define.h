@@ -37,6 +37,7 @@
 #include <set>
 #include <cstdint>
 #include <map>
+#include <sqlite3.h>
 
 #define RAPIDJSON_HAS_STDSTRING 1
 #include "_3rdparty_/rapidjson/include/rapidjson/document.h"
@@ -60,7 +61,30 @@ using namespace std;
 namespace ic
 {
 
-const string DB_NAME = "../db/livsmed.db";
+enum class ROBOT_TYPE
+{
+    ROBOT_TYPE_NONE,
+    ROBOT_TYPE_MC,
+    ROBOT_TYPE_SR,
+    ROBOT_TYPE_CR,
+    ROBOT_TYPE_VCB,
+    ROBOT_TYPE_IC,
+    ROBOT_TYPE_SIZE,
+};
+
+enum class DB_TYPE
+{
+    DB_TYPE_LIVSMED,
+    DB_TYPE_LOG,
+    DB_TYPE_SIZE,
+};
+
+const string DB_DIRECTORY = "../db/";
+const std::array<std::string, (int)DB_TYPE::DB_TYPE_SIZE> DB_NAME =
+{
+    DB_DIRECTORY + "livsmed.db",
+    DB_DIRECTORY + "livsmed_log.db",
+};
 
 enum class SERVER_TYPE
 {

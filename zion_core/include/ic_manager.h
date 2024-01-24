@@ -33,6 +33,8 @@ public:
 	ICManager();
 	~ICManager();
 
+    std::shared_ptr<sqlite3> getLogDB();
+
 private:
 	int validateMsg(char cSeparator, char* pData, int nDataSize);
 
