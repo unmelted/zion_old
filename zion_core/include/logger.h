@@ -53,34 +53,3 @@ private:
 
 };
 
-template<typename Mutex>
-class db_sink : public spdlog::sinks::base_sink <Mutex>
-{
-public :
-    void set_db(std::shared_ptr<sqlite3> db, std::string& fileName)
-    {
-        db_ = db;
-        char* errMsg = nullptr;
-        std::string createQuery = "CREATE TABLE IF NOT EXISTS log0124_ (date TEXT, level TEXT, file TEXT, msg TEXT)";
-        sqlite3_exec(db_.get(), createQuery.c_str(), NULL, NULL, NULL);
-        std::cout << "create table query : " << std::endl;
-    }
-
-    std::shared_ptr<sqlite3> db_;
-
-protected:
-
-    void sink_it_(const spdlog::details::log_msg& msg) override
-    {
-
-        spdlog::memory_buf_t formatted;
-        spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
-        std::cout << "test logger " << fmt::to_string(formatted);
-
-    }
-
-    void flush_() override
-    {
-        std::cout << std::flush;
-    }
-};

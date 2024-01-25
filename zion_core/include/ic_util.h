@@ -23,7 +23,7 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
-#include "logger.h"
+#include <iostream>
 
 class Configurator {
 

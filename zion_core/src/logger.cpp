@@ -19,7 +19,8 @@
 
 #include <string>
 #include "logger.h"
-#include "ic_util.h"
+#include "db_sink.h"
+//#include "ic_util.h"
 
 std::shared_ptr<spdlog::logger> Logger::logger_;
 
@@ -41,14 +42,15 @@ void Logger::init(const std::shared_ptr<sqlite3> db)
 	console_sink->set_level(spdlog::level::trace);
 
 	std::string fileName("log/ic_");
-	fileName += Configurator::get().getCurrentDateTime("date") + ".txt";
+    std::string date = Configurator::get().getCurrentDateTime("date");
+	fileName += date + ".txt";
 //    std::cout << "--- log file name : " << fileName << std::endl;
 
 	auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(fileName, 1024 * 1000 * 10, 10);
 	file_sink->set_level(spdlog::level::trace);
 
     auto db_log_sink = std::make_shared<db_sink<std::mutex>>();
-    db_log_sink->set_db(db, fileName);
+    db_log_sink->set_db(db);
 //    if (db != nullptr)
 //    {
 //
@@ -60,7 +62,7 @@ void Logger::init(const std::shared_ptr<sqlite3> db)
 //        sink_list = { console_sink, file_sink };
 //    }
 
-    spdlog::sinks_init_list sink_list = { console_sink, file_sink, db_log_sink };;
+    spdlog::sinks_init_list sink_list = { console_sink, file_sink, db_log_sink };
 	logger_ = std::make_shared<spdlog::logger>("ic", sink_list);
 	logger_->set_level(spdlog::level::trace);
 

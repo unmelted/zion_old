@@ -137,6 +137,10 @@ int DBManager::runQuery(std::shared_ptr<ic::MSG_T> query)
         LOG_ERROR("Failed to execute query: {}", sqlite3_errmsg(db_[target]));
         return -1;
     }
+    else
+    {
+        LOG_DEBUG("Success to execute query: {}", query->txt);
+    }
 
     return 0;
 }

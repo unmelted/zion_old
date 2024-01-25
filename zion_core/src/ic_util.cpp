@@ -40,6 +40,8 @@ std::string Configurator::getCurrentDateTime(std::string s)
         strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
     else if(s == "date")
         strftime(buf, sizeof(buf), "%Y-%m-%d", &tstruct);
+    else if (s == "datetime")
+        strftime(buf, sizeof(buf), "%Y%m%d_%H%M", &tstruct);
     return std::string(buf);
 }
 

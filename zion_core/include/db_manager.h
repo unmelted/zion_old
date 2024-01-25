@@ -46,14 +46,3 @@ protected:
     bool isQueryThread_;
 };
 
-class DBLogManager : public DBManager
-{
-public :
-    DBLogManager(std::string dbName);
-    ~DBLogManager();
-
-protected:
-
-    int createTable(std::string createQuery);
-
-};
