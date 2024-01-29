@@ -26,6 +26,7 @@
 
 .DS_Store
 zion_core/cmake-build-debug
+zion_core/cmake-build-debug-event-trace
 zion_core/build
 
 test_client/cmake-build-debug

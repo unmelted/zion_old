@@ -68,6 +68,7 @@ protected:
         spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
         std::cout << "test logger " << fmt::to_string(formatted);
         std::shared_ptr<ic::MSG_T> logMsg = std::make_shared<ic::MSG_T>();
+        logMsg->type = (int)ic::MSG_TYPE::MSG_TYPE_LOG;
         logMsg->txt = fmt::to_string(formatted);
         dbLogManager_->enqueueQuery(logMsg);
 

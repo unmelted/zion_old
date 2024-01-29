@@ -130,7 +130,7 @@ void DBManager::queryThread()
 
 int DBManager::runQuery(std::shared_ptr<ic::MSG_T> query)
 {
-    int target = std::stoi(query->target);
+    int target = std::stoi(query->target); // index of ic::DB_NAME
     int result = sqlite3_exec(db_[target], query->txt.c_str(), 0, 0, 0);
     if (result != SQLITE_OK)
     {

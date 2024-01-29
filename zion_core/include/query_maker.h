@@ -18,7 +18,6 @@
 
 #pragma once
 #include "ic_define.h"
-
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -29,28 +28,33 @@ public:
     enum QueryType { INSERT, UPDATE, DELETE };
 
     template<typename... Args>
-    std::string makeQuery(QueryType type, const std::string& tableName, Args... args) {
-        std::string query;
+    static std::string makeQuery(QueryType type, const std::string& tableName, Args... args) {
+        std::stringstream query;
 
-        switch (type) {
-            case INSERT:
-                query = makeInsertQuery(tableName, std::forward<Args>(args)...);
-                break;
-            case UPDATE:
-                query = makeUpdateQuery(tableName, std::forward<Args>(args)...);
-                break;
-            case DELETE:
-                query = makeDeleteQuery(tableName);
-                break;
+        if (type == INSERT) {
+            query << makeInsertQuery(tableName, std::forward<Args>(args)...);
         }
 
-        return query;
+        return query.str();
+    }
+
+    template<typename... Args>
+    static std::string makeQuery(QueryType type, const std::string& tableName, const std::string& whereClause, Args... args) {
+        std::stringstream query;
+
+        if (type == UPDATE) {
+            query << makeUpdateQuery(tableName, whereClause, std::forward<Args>(args)...);
+        } else if (type == DELETE) {
+            query << makeDeleteQuery(tableName, whereClause);
+        }
+
+        return query.str();
     }
 
 private:
 
     template<typename... Args>
-    std::string makeInsertQuery(const std::string& tableName, Args... args) {
+    static std::string makeInsertQuery(const std::string& tableName, Args... args) {
         std::stringstream columns, values;
 
         processArgs(columns, values, std::forward<Args>(args)...);
@@ -58,26 +62,30 @@ private:
         return "INSERT INTO " + tableName + " (" + columns.str() + ") VALUES (" + values.str() + ");";
     }
 
+    // UPDATE 쿼리 생성
     template<typename... Args>
-    std::string makeUpdateQuery(const std::string& tableName, Args... args) {
+    static std::string makeUpdateQuery(const std::string& tableName, const std::string& whereClause, Args... args) {
         std::stringstream setClause;
 
         processUpdateArgs(setClause, std::forward<Args>(args)...);
 
-        return "UPDATE " + tableName + " SET " + setClause.str() + " WHERE [CONDITION];";
+        return "UPDATE " + tableName + " SET " + setClause.str() + " WHERE " + whereClause + ";";
     }
 
-    std::string makeDeleteQuery(const std::string& tableName) {
-        return "DELETE FROM " + tableName + " WHERE [CONDITION];";
+    // DELETE 쿼리 생성
+    static std::string makeDeleteQuery(const std::string& tableName, const std::string& whereClause) {
+        return "DELETE FROM " + tableName + " WHERE " + whereClause + ";";
     }
 
 
     template<typename T, typename... Args>
-    void processArgs(std::stringstream& columns, std::stringstream& values, T first, T second, Args... args) {
+    static void processArgs(std::stringstream& columns, std::stringstream& values, T first, T second, Args... args)
+    {
         columns << first;
         values << "'" << second << "'";
 
-        if constexpr (sizeof...(args) > 0) {
+        if constexpr (sizeof...(args) > 0)
+        {
             columns << ", ";
             values << ", ";
             processArgs(columns, values, args...);
@@ -85,10 +93,12 @@ private:
     }
 
     template<typename T, typename... Args>
-    void processUpdateArgs(std::stringstream& setClause, T first, T second, Args... args) {
+    static void processUpdateArgs(std::stringstream& setClause, T first, T second, Args... args)
+    {
         setClause << first << " = '" << second << "'";
 
-        if constexpr (sizeof...(args) > 0) {
+        if constexpr (sizeof...(args) > 0)
+        {
             setClause << ", ";
             processUpdateArgs(setClause, args...);
         }

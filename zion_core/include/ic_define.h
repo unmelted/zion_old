@@ -142,22 +142,26 @@ struct Protocol
 #define PROTOCOL_RESULTCODE  "ResultCode"
 #define PROTOCOL_ERRORMSG    "ErrorMsg"
 
-typedef struct PACKET_TYPE
+enum class MSG_TYPE
 {
-    static const int TEXT = 0;
-    static const int BINARY = 1;
-} PACKET_TYPE;
-
+    MSG_TYPE_NONE,
+    MSG_TYPE_SND,
+    MSG_TYPE_RCV,
+    MSG_TYPE_LOG,
+    MSG_TYPE_DB_INSERT,
+    MSG_TYPE_DB_UPDATE,
+    MSG_TYPE_DB_DELETE,
+};
 
 typedef struct _MSG_T
 {
-    int32_t type;
+    int type;
     std::string target;
     std::string txt;
 
     _MSG_T(void)
-            : type(PACKET_TYPE::TEXT)
-            , txt{}
+    : txt{}
+    , type(-1)
     {
     }
 

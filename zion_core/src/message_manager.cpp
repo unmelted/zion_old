@@ -69,7 +69,6 @@ void MsgManager::onRcvSndMessage(std::string target, std::string msg)
 void MsgManager::onRcvMessage(std::string target, std::string pData)
 {
     std::shared_ptr<ic::MSG_T> ptrMsg = std::shared_ptr<ic::MSG_T>(new ic::MSG_T);
-    ptrMsg->type = ic::PACKET_TYPE::TEXT;
     ptrMsg->target = target;
     ptrMsg->txt = pData;
     queRcvMSG_.Enqueue(ptrMsg);
