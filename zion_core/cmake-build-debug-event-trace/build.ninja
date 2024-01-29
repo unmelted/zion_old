@@ -69,16 +69,6 @@ build CMakeFiles/zion.dir/src/db_manager.cpp.o: CXX_COMPILER__zion_unscanned_Deb
   TARGET_COMPILE_PDB = CMakeFiles/zion.dir/
   TARGET_PDB = zion.pdb
 
-build CMakeFiles/zion.dir/src/db_sink.cpp.o: CXX_COMPILER__zion_unscanned_Debug /Users/kelly/work/zion_old/zion_core/src/db_sink.cpp || cmake_object_order_depends_target_zion
-  DEFINES = -DFMT_SHARED -DSPDLOG_COMPILED_LIB -DSPDLOG_FMT_EXTERNAL -DSPDLOG_SHARED_LIB -D_DEBUG
-  DEP_FILE = CMakeFiles/zion.dir/src/db_sink.cpp.o.d
-  FLAGS = -g -std=gnu++17 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk -fcolor-diagnostics
-  INCLUDES = -I/Users/kelly/work/zion_old/zion_core/cmake-build-debug-event-trace -I/Users/kelly/work/zion_old/zion_core -I/usr/local/include -I/Users/kelly/work/zion_old/zion_core/include -I/Users/kelly/work/zion_old/zion_core/_3rdparty_/rapidjson/include -isystem /opt/homebrew/include
-  OBJECT_DIR = CMakeFiles/zion.dir
-  OBJECT_FILE_DIR = CMakeFiles/zion.dir/src
-  TARGET_COMPILE_PDB = CMakeFiles/zion.dir/
-  TARGET_PDB = zion.pdb
-
 build CMakeFiles/zion.dir/src/error_manager.cpp.o: CXX_COMPILER__zion_unscanned_Debug /Users/kelly/work/zion_old/zion_core/src/error_manager.cpp || cmake_object_order_depends_target_zion
   DEFINES = -DFMT_SHARED -DSPDLOG_COMPILED_LIB -DSPDLOG_FMT_EXTERNAL -DSPDLOG_SHARED_LIB -D_DEBUG
   DEP_FILE = CMakeFiles/zion.dir/src/error_manager.cpp.o.d
@@ -159,6 +149,16 @@ build CMakeFiles/zion.dir/src/message_responder.cpp.o: CXX_COMPILER__zion_unscan
   TARGET_COMPILE_PDB = CMakeFiles/zion.dir/
   TARGET_PDB = zion.pdb
 
+build CMakeFiles/zion.dir/src/query_maker.cpp.o: CXX_COMPILER__zion_unscanned_Debug /Users/kelly/work/zion_old/zion_core/src/query_maker.cpp || cmake_object_order_depends_target_zion
+  DEFINES = -DFMT_SHARED -DSPDLOG_COMPILED_LIB -DSPDLOG_FMT_EXTERNAL -DSPDLOG_SHARED_LIB -D_DEBUG
+  DEP_FILE = CMakeFiles/zion.dir/src/query_maker.cpp.o.d
+  FLAGS = -g -std=gnu++17 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk -fcolor-diagnostics
+  INCLUDES = -I/Users/kelly/work/zion_old/zion_core/cmake-build-debug-event-trace -I/Users/kelly/work/zion_old/zion_core -I/usr/local/include -I/Users/kelly/work/zion_old/zion_core/include -I/Users/kelly/work/zion_old/zion_core/_3rdparty_/rapidjson/include -isystem /opt/homebrew/include
+  OBJECT_DIR = CMakeFiles/zion.dir
+  OBJECT_FILE_DIR = CMakeFiles/zion.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/zion.dir/
+  TARGET_PDB = zion.pdb
+
 build CMakeFiles/zion.dir/src/task_manager.cpp.o: CXX_COMPILER__zion_unscanned_Debug /Users/kelly/work/zion_old/zion_core/src/task_manager.cpp || cmake_object_order_depends_target_zion
   DEFINES = -DFMT_SHARED -DSPDLOG_COMPILED_LIB -DSPDLOG_FMT_EXTERNAL -DSPDLOG_SHARED_LIB -D_DEBUG
   DEP_FILE = CMakeFiles/zion.dir/src/task_manager.cpp.o.d
@@ -177,7 +177,7 @@ build CMakeFiles/zion.dir/src/task_manager.cpp.o: CXX_COMPILER__zion_unscanned_D
 #############################################
 # Link the executable zion
 
-build zion: CXX_EXECUTABLE_LINKER__zion_Debug CMakeFiles/zion.dir/main.cpp.o CMakeFiles/zion.dir/src/db_manager.cpp.o CMakeFiles/zion.dir/src/db_sink.cpp.o CMakeFiles/zion.dir/src/error_manager.cpp.o CMakeFiles/zion.dir/src/event_manager.cpp.o CMakeFiles/zion.dir/src/ic_manager.cpp.o CMakeFiles/zion.dir/src/ic_server.cpp.o CMakeFiles/zion.dir/src/ic_util.cpp.o CMakeFiles/zion.dir/src/logger.cpp.o CMakeFiles/zion.dir/src/message_manager.cpp.o CMakeFiles/zion.dir/src/message_responder.cpp.o CMakeFiles/zion.dir/src/task_manager.cpp.o | /opt/homebrew/lib/libspdlog.1.12.0.dylib /opt/homebrew/lib/libfmt.10.2.1.dylib
+build zion: CXX_EXECUTABLE_LINKER__zion_Debug CMakeFiles/zion.dir/main.cpp.o CMakeFiles/zion.dir/src/db_manager.cpp.o CMakeFiles/zion.dir/src/error_manager.cpp.o CMakeFiles/zion.dir/src/event_manager.cpp.o CMakeFiles/zion.dir/src/ic_manager.cpp.o CMakeFiles/zion.dir/src/ic_server.cpp.o CMakeFiles/zion.dir/src/ic_util.cpp.o CMakeFiles/zion.dir/src/logger.cpp.o CMakeFiles/zion.dir/src/message_manager.cpp.o CMakeFiles/zion.dir/src/message_responder.cpp.o CMakeFiles/zion.dir/src/query_maker.cpp.o CMakeFiles/zion.dir/src/task_manager.cpp.o | /opt/homebrew/lib/libspdlog.1.12.0.dylib /opt/homebrew/lib/libfmt.10.2.1.dylib
   FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk
   LINK_LIBRARIES = -Wl,-rpath,/opt/homebrew/lib -Wl,-rpath,/usr/local/lib  /opt/homebrew/lib/libspdlog.1.12.0.dylib  -lfmt  -lsqlite3  /opt/homebrew/lib/libfmt.10.2.1.dylib
   LINK_PATH = -L/opt/homebrew/lib   -L/usr/local/lib

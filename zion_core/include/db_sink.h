@@ -20,13 +20,15 @@
 
 #include "ic_define.h"
 #include "ic_util.h"
+#include "spdlog/sinks/base_sink.h"
+#include <fmt/format.h>
 #include "db_manager.h"
 
 class DBLogManager : public DBManager
 {
 public :
-    DBLogManager(std::string dbName);
-    ~DBLogManager();
+//    DBLogManager(std::string dbName);
+//    ~DBLogManager();
 
 protected:
 
@@ -36,8 +38,6 @@ template<typename Mutex>
 class db_sink : public spdlog::sinks::base_sink <Mutex>
 {
 public :
-    db_sink();
-    ~db_sink();
 
     void set_db(std::shared_ptr<sqlite3> db)
     {
