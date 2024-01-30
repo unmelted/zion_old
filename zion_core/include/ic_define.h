@@ -181,6 +181,15 @@ enum class PACKET_SEPARATOR
     PACKETTYPE_SIZE,
 };
 
+enum class DB_LOG_COLUMN
+{
+    DB_LOG_COLUMN_DATE,
+    DB_LOG_COLUMN_LEVEL,
+    DB_LOG_COLUMN_FILE,
+    DB_LOG_COLUMN_MSG,
+    DB_LOG_COLUMN_SIZE,
+};
+
 
 #pragma pack(push, 1)
 struct ProtocolHeader

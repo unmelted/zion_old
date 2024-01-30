@@ -18,10 +18,10 @@
 
 #pragma once
 
-#include "ic_define.h"
-#include "ic_util.h"
 #include "spdlog/sinks/base_sink.h"
 #include <fmt/format.h>
+#include <regex>
+
 #include "db_manager.h"
 
 class DBLogManager : public DBManager
@@ -30,9 +30,49 @@ public :
 //    DBLogManager(std::string dbName);
 //    ~DBLogManager();
 
-protected:
+private:
 
 };
+
+
+std::string applyQuery(std::string table_name, const std::vector<std::pair<std::string, std::string>>& columns)
+{
+    std::vector<std::string> args;
+
+    for (const auto& column : columns)
+    {
+        args.push_back(column.first);
+        args.push_back(column.second);
+    }
+
+    return QueryMaker::makeQuery(QueryMaker::INSERT, table_name, args.begin(), args.end());
+}
+
+std::vector<std::pair<std::string, std::string>> parseLogString(const std::string& log)
+{
+    std::vector<std::pair<std::string, std::string>> columns;
+    std::regex re("\\[(.*?)\\]");
+    int index = 0;
+    auto words_begin = std::sregex_iterator(log.begin(), log.end(), re);
+    auto words_end = std::sregex_iterator();
+
+    for (std::sregex_iterator i = words_begin; i != words_end; ++i)
+    {
+        std::smatch match = *i;
+        std::string match_str = match.str(1);
+        columns.push_back({DB_LOG_COLUMN_NAME[index], match_str});
+        index ++;
+    }
+
+    size_t lastPos = log.find_last_of(']') + 1;
+    if (lastPos < log.size())
+    {
+        std::string lastColumn = log.substr(lastPos, log.size() - lastPos);
+        columns.push_back({"msg", lastColumn});
+    }
+
+    return columns;
+}
 
 template<typename Mutex>
 class db_sink : public spdlog::sinks::base_sink <Mutex>
@@ -45,8 +85,8 @@ public :
         try
         {
             char* errMsg = nullptr;
-            std::string file_name = Configurator::get().getCurrentDateTime("datetime");
-            std::string createQuery = "CREATE TABLE IF NOT EXISTS Log_" + file_name +
+            table_name = "Log_" + Configurator::get().getCurrentDateTime("datetime");
+            std::string createQuery = "CREATE TABLE IF NOT EXISTS " + table_name+
                                       " (date TEXT, level TEXT, file TEXT, msg TEXT)";
             int result = sqlite3_exec(db_.get(), createQuery.c_str(), NULL, NULL, &errMsg);
             std::cout << "Create table query : " << createQuery << " Result : " << result << std::endl;
@@ -67,9 +107,13 @@ protected:
         spdlog::memory_buf_t formatted;
         spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
         std::cout << "test logger " << fmt::to_string(formatted);
+        std::string format_str = fmt::to_string(formatted);
+        auto qeury_str = parseLogString(format_str);
+        auto query = applyQuery(table_name, qeury_str, 0);
+
         std::shared_ptr<ic::MSG_T> logMsg = std::make_shared<ic::MSG_T>();
         logMsg->type = (int)ic::MSG_TYPE::MSG_TYPE_LOG;
-        logMsg->txt = fmt::to_string(formatted);
+        logMsg->txt = query;
         dbLogManager_->enqueueQuery(logMsg);
 
     }
@@ -80,5 +124,6 @@ protected:
     }
 
 private:
+    std::string table_name;
     std::unique_ptr<DBLogManager> dbLogManager_;
 };

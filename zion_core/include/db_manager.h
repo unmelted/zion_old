@@ -18,7 +18,7 @@
 #pragma once
 
 #include "ic_define.h"
-
+#include "query_maker.h"
 
 class DBManager
 {
