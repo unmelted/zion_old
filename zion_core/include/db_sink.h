@@ -37,15 +37,7 @@ private:
 
 std::string applyQuery(std::string table_name, const std::vector<std::pair<std::string, std::string>>& columns)
 {
-    std::vector<std::string> args;
-
-    for (const auto& column : columns)
-    {
-        args.push_back(column.first);
-        args.push_back(column.second);
-    }
-
-    return QueryMaker::makeQuery(QueryMaker::INSERT, table_name, args.begin(), args.end());
+    return QueryMaker::makeInsertQuery(table_name, columns);
 }
 
 std::vector<std::pair<std::string, std::string>> parseLogString(const std::string& log)
@@ -86,8 +78,8 @@ public :
         {
             char* errMsg = nullptr;
             table_name = "Log_" + Configurator::get().getCurrentDateTime("datetime");
-            std::string createQuery = "CREATE TABLE IF NOT EXISTS " + table_name+
-                                      " (date TEXT, level TEXT, file TEXT, msg TEXT)";
+            std::string createQuery = "CREATE TABLE IF NOT EXISTS " + table_name +
+                                      " (cur_date DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now')), date TEXT, level TEXT, file TEXT, msg TEXT)";
             int result = sqlite3_exec(db_.get(), createQuery.c_str(), NULL, NULL, &errMsg);
             std::cout << "Create table query : " << createQuery << " Result : " << result << std::endl;
         }
@@ -106,10 +98,10 @@ protected:
 
         spdlog::memory_buf_t formatted;
         spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
-        std::cout << "test logger " << fmt::to_string(formatted);
+//        std::cout << "db_sink logger " << fmt::to_string(formatted);
         std::string format_str = fmt::to_string(formatted);
         auto qeury_str = parseLogString(format_str);
-        auto query = applyQuery(table_name, qeury_str, 0);
+        auto query = QueryMaker::makeInsertQuery(table_name, qeury_str);
 
         std::shared_ptr<ic::MSG_T> logMsg = std::make_shared<ic::MSG_T>();
         logMsg->type = (int)ic::MSG_TYPE::MSG_TYPE_LOG;
@@ -120,10 +112,10 @@ protected:
 
     void flush_() override
     {
-        std::cout << std::flush;
+//        std::cout << std::flush;
     }
 
 private:
     std::string table_name;
-    std::unique_ptr<DBLogManager> dbLogManager_;
+    std::unique_ptr<DBLogManager> dbLogManager_ = std::make_unique<DBLogManager>();
 };

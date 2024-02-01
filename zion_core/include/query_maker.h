@@ -41,10 +41,10 @@ public:
     {
         std::string query;
 
-        if (type == INSERT)
-        {
-            query = makeInsertQuery(tableName, std::forward<Args>(args)...);
-        }
+//        if (type == INSERT)
+//        {
+//            query = makeInsertQuery(tableName, std::forward<Args>(args)...);
+//        }
 
         return query;
     }
@@ -62,11 +62,37 @@ public:
         return query;
     }
 
+    template<typename T>
+    static std::string toString(const T& value)
+    {
+        std::ostringstream oss;
+        oss << *value;
+        return oss.str();
+    }
+
+    static std::string makeInsertQuery(const std::string& tableName, const std::vector<std::pair<std::string, std::string>>& columns)
+    {
+        std::string query_col = "INSERT INTO " + tableName + " (";
+        std::string query_val = " VALUES (";
+
+        for (const auto& column : columns)
+        {
+            query_col += column.first + ", ";
+            query_val += "'" + column.second + "', ";
+        }
+
+        std::string query = query_col.substr(0, query_col.size() - 2) + ")" + query_val.substr(0, query_val.size() - 2) + ");";
+
+//        LOG_INFO("make insert query : {}", query);
+
+        return query;
+    }
+
 private:
     template<typename... Args>
     static void processArgs(std::stringstream& columns, std::stringstream& values, Args... args)
     {
-        std::string argsArray[] = { args... }; // 가변 인자를 배열로 변환
+        std::string argsArray[] = { toString(args)... }; // 가변 인자를 배열로 변환
         for (size_t i = 0; i < sizeof...(args); i += 2)
         {
             columns << argsArray[i];
@@ -79,21 +105,11 @@ private:
         }
     }
 
-    template<typename... Args>
-    static std::string makeInsertQuery(const std::string& tableName, Args... args)
-    {
-        std::stringstream columns, values;
-
-        static_assert(sizeof...(args) % 2 == 0, "Even number of arguments expected");
-        processArgs(columns, values, std::forward<Args>(args)...);
-
-        return "INSERT INTO " + tableName + " (" + columns.str() + ") VALUES (" + values.str() + ");";
-    }
 
     template<typename... Args>
     static void processUpdateArgs(std::string& setClause, Args... args)
     {
-        std::string argsArray[] = {args...};
+        std::string argsArray[] = { std::to_string(args)...};
         size_t argsCount = sizeof...(args);
 
         for (size_t i = 0; i < argsCount; i += 2)

@@ -130,16 +130,37 @@ void DBManager::queryThread()
 
 int DBManager::runQuery(std::shared_ptr<ic::MSG_T> query)
 {
-    int target = std::stoi(query->target); // index of ic::DB_NAME
-    int result = sqlite3_exec(db_[target], query->txt.c_str(), 0, 0, 0);
-    if (result != SQLITE_OK)
+    int result = -1;
+    int target = -1;
+//    int target = std::stoi(query->target); // index of ic::DB_NAME
+    if (query->type == (int)ic::MSG_TYPE::MSG_TYPE_LOG)
     {
-        LOG_ERROR("Failed to execute query: {}", sqlite3_errmsg(db_[target]));
-        return -1;
+        target = 1;
     }
     else
     {
-        LOG_DEBUG("Success to execute query: {}", query->txt);
+        target = 0;
+    }
+
+    try
+    {
+        char* errMsg = nullptr;
+        result = sqlite3_exec(db_[target], query->txt.c_str(), 0, 0, &errMsg);
+        if (result != SQLITE_OK)
+        {
+            std::string errorStr = errMsg;
+            sqlite3_free(errMsg); // 메모리 누수 방지를 위해 errMsg 해제
+            throw std::runtime_error(errorStr);
+        }
+        else
+        {
+            LOG_DEBUG("Success to execute query: {}", query->txt);
+        }
+    }
+    catch (const std::runtime_error& e)
+    {
+        LOG_ERROR("Failed to execute query: {}", e.what());
+        return -1;
     }
 
     return 0;
