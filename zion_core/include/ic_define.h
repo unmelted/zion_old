@@ -72,6 +72,7 @@ enum class ROBOT_TYPE
     ROBOT_TYPE_SIZE,
 };
 
+
 enum class DB_TYPE
 {
     DB_TYPE_LIVSMED,

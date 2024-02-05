@@ -32,7 +32,7 @@ public:
 
 protected:
     bool openDB(std::string db_path);
-    int createTable(std::string createQuery);
+    int createTable();
     bool closeDB();
     void queryThread();
     int runQuery(std::shared_ptr<ic::MSG_T> query);

@@ -70,12 +70,41 @@ bool DBManager::openDB(std::string db_path)
     }
 
     isOpen_ = true;
-    LOG_INFO("DBManager Opened : {}", db_path);
+    LOG_INFO("DBManager Ope[ned : {}", db_path);
     return true;
 }
 
-int DBManager::createTable(std::string createQuery)
+int DBManager::createTable()
 {
+    rapidjson::Document doc = parsingJsonFile("db.config");
+    if (doc.HasMember("create_table") and doc["create_table"].IsArray())
+    {
+        for (rapidjson::SizeType i = 0; i < doc["create_table"].Size(); i++)
+        {
+            try
+            {
+                std::string query = doc["create_table"][i].GetString();
+                char* errMsg = nullptr;
+                int result = sqlite3_exec(db_[(int)ic::DB_TYPE::DB_TYPE_LIVSMED], query.c_str(), 0, 0, &errMsg);
+                if (result != SQLITE_OK)
+                {
+                    std::string errorStr = errMsg;
+                    sqlite3_free(errMsg);
+                    throw std::runtime_error(errorStr);
+                }
+                else
+                {
+                    LOG_DEBUG("Success to execute query: {}", query);
+                }
+            }
+            catch (const std::runtime_error& e)
+            {
+                LOG_ERROR("Failed to execute query: {}", e.what());
+                return -1;
+            }
+        }
+    }
+
     return 0;
 }
 
@@ -132,14 +161,14 @@ int DBManager::runQuery(std::shared_ptr<ic::MSG_T> query)
 {
     int result = -1;
     int target = -1;
-//    int target = std::stoi(query->target); // index of ic::DB_NAME
+
     if (query->type == (int)ic::MSG_TYPE::MSG_TYPE_LOG)
     {
-        target = 1;
+        target = (int)ic::DB_TYPE::DB_TYPE_LOG;
     }
     else
     {
-        target = 0;
+        target = (int)ic::DB_TYPE::DB_TYPE_LIVSMED;
     }
 
     try

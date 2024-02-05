@@ -24,6 +24,8 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
 
 class Configurator {
 
@@ -53,3 +55,24 @@ public:
 private :
     int token_serial_ = 0;
 };
+
+static rapidjson::Document parsingJsonFile(std::string filename)
+{
+    std::ifstream ifs("config.json");
+    if (!ifs.is_open()) {
+        std::cerr << "Can not open the file : " << filename << std::endl;
+        return nullptr;
+    }
+
+    // 파일 내용을 Document 객체로 파싱
+    rapidjson::IStreamWrapper isw(ifs);
+    rapidjson::Document doc;
+    doc.ParseStream(isw);
+
+    if (doc.HasParseError()) {
+        std::cerr << "Parsing Error" << std::endl;
+        return nullptr;
+    }
+
+    return doc;
+}

@@ -24,22 +24,6 @@
 
 #include "db_manager.h"
 
-class DBLogManager : public DBManager
-{
-public :
-//    DBLogManager(std::string dbName);
-//    ~DBLogManager();
-
-private:
-
-};
-
-
-std::string applyQuery(std::string table_name, const std::vector<std::pair<std::string, std::string>>& columns)
-{
-    return QueryMaker::makeInsertQuery(table_name, columns);
-}
-
 std::vector<std::pair<std::string, std::string>> parseLogString(const std::string& log)
 {
     std::vector<std::pair<std::string, std::string>> columns;
@@ -117,5 +101,5 @@ protected:
 
 private:
     std::string table_name;
-    std::unique_ptr<DBLogManager> dbLogManager_ = std::make_unique<DBLogManager>();
+    std::unique_ptr<DBManager> dbLogManager_ = std::make_unique<DBManager>();
 };
