@@ -28,11 +28,12 @@ ICManager::ICManager()
 	icServer_->beginSocket(ic::SERVER_PORT[(int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL], 0);
 	icServer_->setHandler(std::bind(&ICManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
 
-    db_manager_ = std::make_unique<DBManager>();
+    db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
     msg_rspndr_ = std::make_unique<MessageResponder>();
     msg_manager_ = std::make_unique<MsgManager>();
     msg_rspndr_->setICServer(icServer_);
 	msg_manager_->setICServer(icServer_);
+    msg_manager_->setDBManager(db_manager_);
 
 	Configurator::get().setDirectory();
 }
@@ -40,11 +41,6 @@ ICManager::ICManager()
 ICManager::~ICManager()
 {
 
-}
-
-std::shared_ptr<sqlite3> ICManager::getLogDB()
-{
-    return db_manager_->getLogDB();
 }
 
 // this function check the command format
@@ -77,11 +73,11 @@ int ICManager::validateMsg(char cSeparator, char* pData, int nDataSize)
 		return 0;
 	}
 
-    if (document.HasMember("Type") == false
-        || document.HasMember("Command") == false
-        || document.HasMember("SubCommand") == false
-        || document.HasMember("Action") == false
-        || document.HasMember("Token") == false)
+    if (!document.HasMember("Type")
+        || !document.HasMember("Command")
+        || !document.HasMember("SubCommand")
+        || !document.HasMember("Action")
+        || !document.HasMember("Token"))
     {
         LOG_ERROR("Json component missing. can't execute.");
         return 0;

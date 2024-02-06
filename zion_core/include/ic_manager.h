@@ -33,7 +33,7 @@ public:
 	ICManager();
 	~ICManager();
 
-    std::shared_ptr<sqlite3> getLogDB();
+    std::shared_ptr<DBManager> &getDBManager() { return db_manager_; }
 
 private:
 	int validateMsg(char cSeparator, char* pData, int nDataSize);
@@ -41,7 +41,7 @@ private:
     std::shared_ptr<ICServer> icServer_;
     std::unique_ptr<MessageResponder> msg_rspndr_;
     std::unique_ptr<MsgManager> msg_manager_;
-    std::unique_ptr<DBManager> db_manager_;
+    std::shared_ptr<DBManager> db_manager_;
 
 };
 

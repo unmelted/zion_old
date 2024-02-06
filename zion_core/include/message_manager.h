@@ -20,6 +20,7 @@
 #pragma once
 
 #include "task_manager.h"
+#include "db_manager.h"
 
 class MsgManager {
 
@@ -28,8 +29,10 @@ public:
     MsgManager();
     ~MsgManager();
     void setICServer(std::shared_ptr<ICServer> icServer);
+    void setDBManager(std::shared_ptr<DBManager> dbManager);
 	void onRcvMessage(std::string target, std::string pData);
 	void onRcvSndMessage(std::string target, std::string msg);
+    void insertEventTable(const Document& doc);
 
 private :
     void rcvMSGThread();
@@ -44,6 +47,7 @@ private :
 
 
     TaskManager taskmanager_;
+    std::shared_ptr<DBManager> dbManager_;
 
     bool isRMSGThread_;
     bool isSMSGThread_;

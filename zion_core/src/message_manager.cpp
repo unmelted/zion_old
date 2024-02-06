@@ -54,6 +54,12 @@ void MsgManager::setICServer(std::shared_ptr<ICServer> icServer)
     icServer_ = icServer;
 }
 
+
+void MsgManager::setDBManager(std::shared_ptr<DBManager> dbManager)
+{
+    dbManager_ = dbManager;
+}
+
 // this function is called by task_manager for sending a message.
 // this function store the msg in queue for sengin.
 void MsgManager::onRcvSndMessage(std::string target, std::string msg)

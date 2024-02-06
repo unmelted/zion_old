@@ -55,9 +55,10 @@ class db_sink : public spdlog::sinks::base_sink <Mutex>
 {
 public :
 
-    void set_db(std::shared_ptr<sqlite3> db)
+    void set_db()
     {
-        db_ = std::move(db);
+        dbLogManager_ = std::make_unique<DBManager>((int)ic::DB_TYPE::DB_TYPE_LOG);
+
         try
         {
             char* errMsg = nullptr;
@@ -65,7 +66,7 @@ public :
             std::string createQuery = "CREATE TABLE IF NOT EXISTS " + table_name +
                                       " (cur_date DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now'))," +
                                       " date TEXT, pid TEXT, tid TEXT, level TEXT, file TEXT, msg TEXT)";
-            int result = sqlite3_exec(db_.get(), createQuery.c_str(), NULL, NULL, &errMsg);
+            int result = sqlite3_exec(dbLogManager_->getDB(), createQuery.c_str(), NULL, NULL, &errMsg);
             std::cout << "Create table query : " << createQuery << " Result : " << result << std::endl;
         }
         catch (const std::exception& e)
@@ -86,7 +87,7 @@ protected:
 //        std::cout << "db_sink logger " << fmt::to_string(formatted);
         std::string format_str = fmt::to_string(formatted);
         auto qeury_str = parseLogString(format_str);
-        auto query = QueryMaker::makeInsertQuery(table_name, qeury_str);
+        auto query = QueryMaker::makeLogInsertQuery(table_name, qeury_str);
 
         std::shared_ptr<ic::MSG_T> logMsg = std::make_shared<ic::MSG_T>();
         logMsg->type = (int)ic::MSG_TYPE::MSG_TYPE_LOG;
@@ -102,5 +103,5 @@ protected:
 
 private:
     std::string table_name;
-    std::unique_ptr<DBManager> dbLogManager_ = std::make_unique<DBManager>();
+    std::unique_ptr<DBManager> dbLogManager_;
 };

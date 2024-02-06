@@ -46,7 +46,7 @@ public:
     Logger(std::shared_ptr<sqlite3> db = nullptr);
     ~Logger();
 
-    static void init(const std::shared_ptr<sqlite3> db = nullptr);
+    static void init();
 
 private:
     static std::shared_ptr<spdlog::logger> logger_;

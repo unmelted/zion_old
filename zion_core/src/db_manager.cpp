@@ -19,21 +19,22 @@
 #include "db_manager.h"
 #include <utility>
 
-DBManager::DBManager()
+DBManager::DBManager(int db_name_idx)
 {
-    for (auto& db : ic::DB_NAME)
+    std::string db_path = ic::DB_NAME[db_name_idx];
+    if (!openDB(db_path))
     {
-        std::string db_path =  db;
-        if (!openDB(db_path))
-        {
-            LOG_ERROR("Failed to open DB: {}", db_path);
-            return;
-        }
+        LOG_ERROR("Failed to open DB: {}", db_path);
+        return;
+    }
+
+    if (db_name_idx == (int)ic::DB_TYPE::DB_TYPE_LIVSMED )
+    {
+        createTable();
     }
 
     isQueryThread_ = true;
     queryThread_ = std::make_unique<std::thread>(&DBManager::queryThread, this);
-
 }
 
 DBManager::~DBManager()
@@ -46,37 +47,29 @@ DBManager::~DBManager()
     LOG_DEBUG("DBManager Destroyed Done.");
 }
 
-std::shared_ptr<sqlite3> DBManager::getLogDB()
+sqlite3* DBManager::getDB()
 {
-    sqlite3* raw_ptr = db_[(int)ic::DB_TYPE::DB_TYPE_LOG];
-    return std::shared_ptr<sqlite3>(raw_ptr, [](sqlite3* ptr) {
-        sqlite3_close(ptr);
-    });
+    return db_;
 }
 
 
 bool DBManager::openDB(std::string db_path)
 {
-    sqlite3* db;
-    int nRet = sqlite3_open(db_path.c_str(), &db);
+    int nRet = sqlite3_open(db_path.c_str(), &db_);
     if (nRet != SQLITE_OK)
     {
-        LOG_ERROR("Can't open database: {}", sqlite3_errmsg(db));
+        LOG_ERROR("Can't open database: {}", sqlite3_errmsg(db_));
         return false;
-    }
-    else
-    {
-        db_.push_back(db);
     }
 
     isOpen_ = true;
-    LOG_INFO("DBManager Ope[ned : {}", db_path);
+    LOG_INFO("DBManager Opened : {}", db_path);
     return true;
 }
 
 int DBManager::createTable()
 {
-    rapidjson::Document doc = parsingJsonFile("db.config");
+    rapidjson::Document doc = parsingJsonFile("dbk.config");
     if (doc.HasMember("create_table") and doc["create_table"].IsArray())
     {
         for (rapidjson::SizeType i = 0; i < doc["create_table"].Size(); i++)
@@ -85,7 +78,7 @@ int DBManager::createTable()
             {
                 std::string query = doc["create_table"][i].GetString();
                 char* errMsg = nullptr;
-                int result = sqlite3_exec(db_[(int)ic::DB_TYPE::DB_TYPE_LIVSMED], query.c_str(), 0, 0, &errMsg);
+                int result = sqlite3_exec(db_, query.c_str(), 0, 0, &errMsg);
                 if (result != SQLITE_OK)
                 {
                     std::string errorStr = errMsg;
@@ -110,16 +103,13 @@ int DBManager::createTable()
 
 bool DBManager::closeDB()
 {
-    for (auto& db : db_)
+    int nRet = sqlite3_close(db_);
+    if (nRet != SQLITE_OK)
     {
-        int nRet = sqlite3_close(db);
-        if (nRet != SQLITE_OK)
-        {
-            LOG_ERROR("Can't close database: {}", sqlite3_errmsg(db));
-            return false;
-        }
+        LOG_ERROR("Can't close database: {}", sqlite3_errmsg(db_));
+        return false;
     }
-    return true;
+return true;
 }
 
 int DBManager::enqueueQuery(std::shared_ptr<ic::MSG_T> msg)
@@ -174,7 +164,7 @@ int DBManager::runQuery(std::shared_ptr<ic::MSG_T> query)
     try
     {
         char* errMsg = nullptr;
-        result = sqlite3_exec(db_[target], query->txt.c_str(), 0, 0, &errMsg);
+        result = sqlite3_exec(db_, query->txt.c_str(), 0, 0, &errMsg);
         if (result != SQLITE_OK)
         {
             std::string errorStr = errMsg;

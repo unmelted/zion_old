@@ -26,39 +26,36 @@
 
 static std::array<std::string, (int)ic::DB_LOG_COLUMN::DB_LOG_COLUMN_SIZE> DB_LOG_COLUMN_NAME =
 {
-        "date", "pid", "tid" ,"level", "file", "msg",
+    "date", "pid", "tid" ,"level", "file", "msg",
 };
 
+static std::array<std::string, (int)ic::DB_EVENT_HISTORY_COLUMN::DB_EVENT_HISTORY_COLUMN_SIZE> DB_EVENT_HISTORY_COLUMN_NAME =
+{
+    "date", "type" ,"command", "subcommand", "action", "token", "from", "to", "data",
+};
 
 class QueryMaker
 {
 public:
-
-    enum QueryType { INSERT, UPDATE, DELETE };
-
-    template<typename... Args>
-    static std::string makeQuery(QueryType type, const std::string& tableName, Args... args)
+    static std::string makeEventInsertQuery(const Document& doc)
     {
-        std::string query;
+        std::string query_col = "INSERT INTO event_history (";
+        std::string query_val = " VALUES (";
+        int index = 0;
 
-//        if (type == INSERT)
-//        {
-//            query = makeInsertQuery(tableName, std::forward<Args>(args)...);
-//        }
-
-        return query;
-    }
-
-    template<typename... Args>
-    static std::string makeQuery(QueryType type, const std::string& tableName, const std::string& whereClause, Args... args)
-    {
-        std::string query;
-
-        if (type == UPDATE)
+        if(doc.IsObject())
         {
-            query = makeUpdateQuery(tableName, whereClause, std::forward<Args>(args)...);
+            for (Value::ConstMemberIterator itr = doc.MemberBegin(); itr != doc.MemberEnd(); ++itr)
+            {
+                std::string key = itr->name.GetString();
+                std::string value = itr->value.GetString();
+                query_col += DB_EVENT_HISTORY_COLUMN_NAME[index] + ", ";
+                query_val += "'" + value + "', ";
+                index ++;
+            }
         }
 
+        std::string query = query_col.substr(0, query_col.size() - 2) + ")" + query_val.substr(0, query_val.size() - 2) + ");";
         return query;
     }
 
@@ -70,7 +67,7 @@ public:
         return oss.str();
     }
 
-    static std::string makeInsertQuery(const std::string& tableName, const std::vector<std::pair<std::string, std::string>>& columns)
+    static std::string makeLogInsertQuery(const std::string& tableName, const std::vector<std::pair<std::string, std::string>>& columns)
     {
         std::string query_col = "INSERT INTO " + tableName + " (";
         std::string query_val = " VALUES (";

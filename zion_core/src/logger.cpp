@@ -27,7 +27,7 @@ std::shared_ptr<spdlog::logger> Logger::logger_;
 Logger::Logger(std::shared_ptr<sqlite3> db)
 {
     std::cout << "Logger Start!" << std::endl;
-	init(db);
+	init();
 }
 
 Logger::~Logger()
@@ -35,7 +35,7 @@ Logger::~Logger()
 	LOG_INFO("Logger End!");
 }
 
-void Logger::init(const std::shared_ptr<sqlite3> db)
+void Logger::init()
 {
 	spdlog::flush_every(std::chrono::milliseconds(100));
 	auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
@@ -50,7 +50,7 @@ void Logger::init(const std::shared_ptr<sqlite3> db)
 	file_sink->set_level(spdlog::level::trace);
 
     auto db_log_sink = std::make_shared<db_sink<std::mutex>>();
-    db_log_sink->set_db(db);
+    db_log_sink->set_db();
     db_log_sink->set_level(spdlog::level::info);
 
     spdlog::sinks_init_list sink_list = { console_sink, file_sink, db_log_sink };

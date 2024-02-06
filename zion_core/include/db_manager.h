@@ -23,26 +23,28 @@
 class DBManager
 {
 public:
-    DBManager();
+    DBManager(int db_name_idx = 0);
     ~DBManager();
 
-    std::vector<sqlite3*> db_;
-    std::shared_ptr<sqlite3> getLogDB();
+    sqlite3* getDB();
     int enqueueQuery(std::shared_ptr<ic::MSG_T> msg);
 
-protected:
+private:
     bool openDB(std::string db_path);
     int createTable();
     bool closeDB();
     void queryThread();
     int runQuery(std::shared_ptr<ic::MSG_T> query);
 
-      std::unique_ptr<std::thread> queryThread_;
+private:
+    std::unique_ptr<std::thread> queryThread_;
     MessageQueue<std::shared_ptr<ic::MSG_T>> queQuery_;
     std::condition_variable cv_query_;
     std::mutex queryMutex_;
 
-    bool isOpen_;
-    bool isQueryThread_;
+    bool isOpen_ = false;
+    bool isQueryThread_ = false;
+
+    sqlite3* db_;
 };
 
