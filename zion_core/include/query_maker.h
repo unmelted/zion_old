@@ -26,7 +26,7 @@
 
 static std::array<std::string, (int)ic::DB_LOG_COLUMN::DB_LOG_COLUMN_SIZE> DB_LOG_COLUMN_NAME =
 {
-        "date", "level", "file", "msg",
+        "date", "pid", "tid" ,"level", "file", "msg",
 };
 
 

@@ -51,21 +51,12 @@ void Logger::init(const std::shared_ptr<sqlite3> db)
 
     auto db_log_sink = std::make_shared<db_sink<std::mutex>>();
     db_log_sink->set_db(db);
-//    if (db != nullptr)
-//    {
-//
-
-//        sink_list = { console_sink, file_sink, db_log_sink };
-//    }
-//    else
-//    {
-//        sink_list = { console_sink, file_sink };
-//    }
+    db_log_sink->set_level(spdlog::level::info);
 
     spdlog::sinks_init_list sink_list = { console_sink, file_sink, db_log_sink };
 	logger_ = std::make_shared<spdlog::logger>("ic", sink_list);
 	logger_->set_level(spdlog::level::trace);
 
 	spdlog::set_default_logger(logger_);
-	spdlog::set_pattern("[%Y-%m-%d %X.%e] [%^%l%$] [%s:%#] - %v");
+	spdlog::set_pattern("[%Y-%m-%d %X.%e] [%P] [%t] [%^%l%$] [%s:%#] %v");
 }

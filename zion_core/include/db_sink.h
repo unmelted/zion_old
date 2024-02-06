@@ -63,7 +63,8 @@ public :
             char* errMsg = nullptr;
             table_name = "Log_" + Configurator::get().getCurrentDateTime("datetime");
             std::string createQuery = "CREATE TABLE IF NOT EXISTS " + table_name +
-                                      " (cur_date DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now')), date TEXT, level TEXT, file TEXT, msg TEXT)";
+                                      " (cur_date DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now'))," +
+                                      " date TEXT, pid TEXT, tid TEXT, level TEXT, file TEXT, msg TEXT)";
             int result = sqlite3_exec(db_.get(), createQuery.c_str(), NULL, NULL, &errMsg);
             std::cout << "Create table query : " << createQuery << " Result : " << result << std::endl;
         }
