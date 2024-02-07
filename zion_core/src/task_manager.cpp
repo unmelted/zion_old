@@ -183,8 +183,8 @@ void TaskManager::makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
         sndDoc.AddMember("output", outfile, allocator);
     }
 
-//    msgmanager_->insertEventTable(sndDoc);
     std::string strSendString = getDocumentToString(sndDoc);
+    msgmanager_->insertEventTable(sndDoc, (int)ic::MSG_TYPE::MSG_TYPE_SND);
     msgmanager_->onRcvSndMessage("SR1", strSendString);
 }
 

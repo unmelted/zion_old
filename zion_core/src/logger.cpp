@@ -37,7 +37,7 @@ Logger::~Logger()
 
 void Logger::init()
 {
-	spdlog::flush_every(std::chrono::milliseconds(100));
+	spdlog::flush_every(std::chrono::milliseconds(50));
 	auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 	console_sink->set_level(spdlog::level::trace);
 

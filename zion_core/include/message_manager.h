@@ -32,7 +32,7 @@ public:
     void setDBManager(std::shared_ptr<DBManager> dbManager);
 	void onRcvMessage(std::string target, std::string pData);
 	void onRcvSndMessage(std::string target, std::string msg);
-    void insertEventTable(const Document& doc);
+    void insertEventTable(const Document& doc, int msg_type);
 
 private :
     void rcvMSGThread();

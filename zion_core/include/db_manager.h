@@ -28,6 +28,7 @@ public:
 
     sqlite3* getDB();
     int enqueueQuery(std::shared_ptr<ic::MSG_T> msg);
+    void commitTransaction();
 
 private:
     bool openDB(std::string db_path);

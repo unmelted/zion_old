@@ -132,3 +132,12 @@ void MsgManager::sndMSGThread()
 
 }
 
+void MsgManager::insertEventTable(const Document& doc, int msg_type)
+{
+    std::string query = QueryMaker::makeEventInsertQuery(doc);
+
+    std::shared_ptr<ic::MSG_T> msg_t = std::make_shared<ic::MSG_T>();
+    msg_t->type = msg_type;
+    msg_t->txt = query;
+    dbManager_->enqueueQuery(msg_t);
+}

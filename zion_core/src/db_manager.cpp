@@ -152,16 +152,16 @@ void DBManager::queryThread()
 int DBManager::runQuery(std::shared_ptr<ic::MSG_T> query)
 {
     int result = -1;
-    int target = -1;
 
-    if (query->type == (int)ic::MSG_TYPE::MSG_TYPE_LOG)
-    {
-        target = (int)ic::DB_TYPE::DB_TYPE_LOG;
-    }
-    else
-    {
-        target = (int)ic::DB_TYPE::DB_TYPE_LIVSMED;
-    }
+//    int target = -1;
+//    if (query->type == (int)ic::MSG_TYPE::MSG_TYPE_LOG)
+//    {
+//        target = (int)ic::DB_TYPE::DB_TYPE_LOG;
+//    }
+//    else
+//    {
+//        target = (int)ic::DB_TYPE::DB_TYPE_LIVSMED;
+//    }
 
     try
     {
@@ -185,4 +185,22 @@ int DBManager::runQuery(std::shared_ptr<ic::MSG_T> query)
     }
 
     return 0;
+}
+
+
+void DBManager::commitTransaction()
+{
+    std::string query = "COMMIT;";
+    char* errMsg = nullptr;
+    int result = sqlite3_exec(db_, query.c_str(), 0, 0, &errMsg);
+    if (result != SQLITE_OK)
+    {
+        std::string errorStr = errMsg;
+        sqlite3_free(errMsg);
+        throw std::runtime_error(errorStr);
+    }
+    else
+    {
+        LOG_DEBUG("Success to execute query: {}", query);
+    }
 }

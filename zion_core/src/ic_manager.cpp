@@ -85,6 +85,7 @@ int ICManager::validateMsg(char cSeparator, char* pData, int nDataSize)
 
 	std::string command = document[PROTOCOL_SECTION2].GetString();
 
+    msg_manager_->insertEventTable(document, (int)ic::MSG_TYPE::MSG_TYPE_RCV);
 	LOG_INFO("validateMsg command : {}", command);
 
     if (command == "CONNECT")

@@ -31,7 +31,7 @@ static std::array<std::string, (int)ic::DB_LOG_COLUMN::DB_LOG_COLUMN_SIZE> DB_LO
 
 static std::array<std::string, (int)ic::DB_EVENT_HISTORY_COLUMN::DB_EVENT_HISTORY_COLUMN_SIZE> DB_EVENT_HISTORY_COLUMN_NAME =
 {
-    "date", "type" ,"command", "subcommand", "action", "token", "from", "to", "data",
+    "type" ,"command", "subcommand", "action", "token", "from_where", "to_where", "data",
 };
 
 class QueryMaker
@@ -47,24 +47,29 @@ public:
         {
             for (Value::ConstMemberIterator itr = doc.MemberBegin(); itr != doc.MemberEnd(); ++itr)
             {
-                std::string key = itr->name.GetString();
-                std::string value = itr->value.GetString();
-                query_col += DB_EVENT_HISTORY_COLUMN_NAME[index] + ", ";
-                query_val += "'" + value + "', ";
-                index ++;
+                if(index < (int)ic::DB_EVENT_HISTORY_COLUMN::DB_EVENT_HISTORY_COLUMN_SIZE)
+                {
+                    query_col += DB_EVENT_HISTORY_COLUMN_NAME[index] + ", ";
+                    if (DB_EVENT_HISTORY_COLUMN_NAME[index] == "data")
+                    {
+                        StringBuffer buffer;
+                        Writer<StringBuffer> writer(buffer);
+                        itr->value.Accept(writer);
+                        query_val += std::string("'") + buffer.GetString() + "', ";
+                    }
+                    else
+                    {
+                        std::string value = itr->value.GetString();
+                        query_val += "'" + value + "', ";
+                    }
+
+                    index++;
+                }
             }
         }
 
         std::string query = query_col.substr(0, query_col.size() - 2) + ")" + query_val.substr(0, query_val.size() - 2) + ");";
         return query;
-    }
-
-    template<typename T>
-    static std::string toString(const T& value)
-    {
-        std::ostringstream oss;
-        oss << *value;
-        return oss.str();
     }
 
     static std::string makeLogInsertQuery(const std::string& tableName, const std::vector<std::pair<std::string, std::string>>& columns)
@@ -86,6 +91,15 @@ public:
     }
 
 private:
+
+    template<typename T>
+    static std::string toString(const T& value)
+    {
+        std::ostringstream oss;
+        oss << *value;
+        return oss.str();
+    }
+
     template<typename... Args>
     static void processArgs(std::stringstream& columns, std::stringstream& values, Args... args)
     {

@@ -34,7 +34,7 @@ std::vector<std::pair<std::string, std::string>> parseLogString(const std::strin
 
     for (std::sregex_iterator i = words_begin; i != words_end; ++i)
     {
-        std::smatch match = *i;
+        const std::smatch& match = *i;
         std::string match_str = match.str(1);
         columns.push_back({DB_LOG_COLUMN_NAME[index], match_str});
         index ++;
@@ -98,7 +98,7 @@ protected:
 
     void flush_() override
     {
-//        std::cout << std::flush;
+//        dbLogManager_->commitTransaction();
     }
 
 private:
