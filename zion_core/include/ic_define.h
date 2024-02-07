@@ -77,10 +77,11 @@ enum class DB_TYPE
 {
     DB_TYPE_LIVSMED,
     DB_TYPE_LOG,
-    DB_TYPE_SIZE,
+    DB_TYPE_SIZE,q
 };
 
 const string DB_DIRECTORY = "../db/";
+const string DB_CONFIG = DB_DIRECTORY + "db_config.json";
 const std::array<std::string, (int)DB_TYPE::DB_TYPE_SIZE> DB_NAME =
 {
     DB_DIRECTORY + "livsmed.db",

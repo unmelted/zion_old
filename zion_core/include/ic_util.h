@@ -56,15 +56,20 @@ private :
     int token_serial_ = 0;
 };
 
-static rapidjson::Document parsingJsonFile(std::string filename)
+static rapidjson::Document parsingJsonFile(const std::string& filename)
 {
-    std::ifstream ifs("config.json");
+    std::cout<<" parsingJsonFile  : " << filename << std::endl;
+    std::cout << "file exists :: " << std::filesystem::exists(filename) << std::endl;
+
+    if (!std::filesystem::exists(filename))
+        return nullptr;
+
+    std::ifstream ifs(filename);
     if (!ifs.is_open()) {
         std::cerr << "Can not open the file : " << filename << std::endl;
         return nullptr;
     }
 
-    // 파일 내용을 Document 객체로 파싱
     rapidjson::IStreamWrapper isw(ifs);
     rapidjson::Document doc;
     doc.ParseStream(isw);

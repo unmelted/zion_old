@@ -57,7 +57,7 @@ void MsgManager::setICServer(std::shared_ptr<ICServer> icServer)
 
 void MsgManager::setDBManager(std::shared_ptr<DBManager> dbManager)
 {
-    dbManager_ = dbManager;
+    this->dbManager_ = dbManager;
 }
 
 // this function is called by task_manager for sending a message.

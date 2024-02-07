@@ -16,8 +16,8 @@
  *
  */
 
-#include "db_manager.h"
 #include <utility>
+#include "db_manager.h"
 
 DBManager::DBManager(int db_name_idx)
 {
@@ -69,14 +69,17 @@ bool DBManager::openDB(std::string db_path)
 
 int DBManager::createTable()
 {
-    rapidjson::Document doc = parsingJsonFile("dbk.config");
-    if (doc.HasMember("create_table") and doc["create_table"].IsArray())
+    rapidjson::Document doc = parsingJsonFile(ic::DB_CONFIG);
+
+    if (doc.HasMember("create_table"))
     {
-        for (rapidjson::SizeType i = 0; i < doc["create_table"].Size(); i++)
+        const rapidjson::Value& tables = doc["create_table"];
+        for (auto it = tables.MemberBegin(); it != tables.MemberEnd(); ++it)
         {
             try
             {
-                std::string query = doc["create_table"][i].GetString();
+                std::string query = it->value.GetString();
+                LOG_INFO("Create Table Query: {}", query);
                 char* errMsg = nullptr;
                 int result = sqlite3_exec(db_, query.c_str(), 0, 0, &errMsg);
                 if (result != SQLITE_OK)
@@ -97,7 +100,6 @@ int DBManager::createTable()
             }
         }
     }
-
     return 0;
 }
 

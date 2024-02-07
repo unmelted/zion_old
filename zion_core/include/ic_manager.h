@@ -33,8 +33,6 @@ public:
 	ICManager();
 	~ICManager();
 
-    std::shared_ptr<DBManager> &getDBManager() { return db_manager_; }
-
 private:
 	int validateMsg(char cSeparator, char* pData, int nDataSize);
 
