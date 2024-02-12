@@ -24,8 +24,8 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <rapidjson/document.h>
-#include <rapidjson/istreamwrapper.h>
+#include "rapidjson/document.h"
+#include "rapidjson/istreamwrapper.h"
 
 class Configurator {
 

@@ -152,17 +152,6 @@ void DBManager::queryThread()
 int DBManager::runQuery(std::shared_ptr<ic::MSG_T> query)
 {
     int result = -1;
-
-//    int target = -1;
-//    if (query->type == (int)ic::MSG_TYPE::MSG_TYPE_LOG)
-//    {
-//        target = (int)ic::DB_TYPE::DB_TYPE_LOG;
-//    }
-//    else
-//    {
-//        target = (int)ic::DB_TYPE::DB_TYPE_LIVSMED;
-//    }
-
     try
     {
         char* errMsg = nullptr;

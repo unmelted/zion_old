@@ -19,6 +19,7 @@
 #pragma once
 
 #include <map>
+#include <unordered_map>
 #include <cstdio>
 #include <string>
 #include <time.h>
@@ -36,16 +37,15 @@
 #include <deque>
 #include <set>
 #include <cstdint>
-#include <map>
 #include <sqlite3.h>
 
 #define RAPIDJSON_HAS_STDSTRING 1
-#include "_3rdparty_/rapidjson/include/rapidjson/document.h"
-#include "_3rdparty_/rapidjson/include/rapidjson/writer.h"
-#include "_3rdparty_/rapidjson/include/rapidjson/stringbuffer.h"
-#include "_3rdparty_/rapidjson/include/rapidjson/prettywriter.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/prettywriter.h"
 
-#include "ic_server.h"
+//#include "ic_server.h"
 #include "logger.h"
 #include "message_queue.h"
 #include "ic_util.h"
@@ -80,7 +80,7 @@ enum class DB_TYPE
     DB_TYPE_SIZE,q
 };
 
-const string DB_DIRECTORY = "../db/";
+const string DB_DIRECTORY = "../../db/";
 const string DB_CONFIG = DB_DIRECTORY + "db_config.json";
 const std::array<std::string, (int)DB_TYPE::DB_TYPE_SIZE> DB_NAME =
 {

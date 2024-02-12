@@ -39,6 +39,10 @@
 #define LOG_CRITICAL(...) SPDLOG_CRITICAL(__VA_ARGS__)
 #define LOG_TRACE(...) SPDLOG_TRACE(__VA_ARGS__)
 
+#define LOGE_RETURN_VAL(cond, val) do{ if (!(cond)){LOG_TRACE(#cond "\n"); return (val);} } while(false)
+#define LOGE_RETURN(cond) do{ if (!(cond)){LOG_TRACE(#cond "\n"); return;} } while(false)
+#define LOGE_THROW_RUNTIME(cond) do{ if (!(cond)){LOG_ERROR(#cond "\n"); throw std::runtime_error(#cond "\n"); } } while(false)
+
 
 class Logger
 {

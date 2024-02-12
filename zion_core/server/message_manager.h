@@ -21,6 +21,7 @@
 
 #include "task_manager.h"
 #include "db_manager.h"
+#include "ic_server.h"
 
 class MsgManager {
 

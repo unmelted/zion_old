@@ -17,13 +17,7 @@
  */
 
 #pragma once
-#include <iostream>
-#include <functional>
-#include <cstring>
-#include <mutex>
-#include <thread>
 #include <list>
-#include <unordered_map>
 #include <sys/socket.h> // for socket(), bind(), connect()
 #include <arpa/inet.h> // for sockaddr_in, inet_ntoa()
 #include <unistd.h> // for close()

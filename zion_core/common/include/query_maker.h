@@ -24,6 +24,8 @@
 #include <sstream>
 #include <utility>
 
+using namespace rapidjson;
+
 static std::array<std::string, (int)ic::DB_LOG_COLUMN::DB_LOG_COLUMN_SIZE> DB_LOG_COLUMN_NAME =
 {
     "date", "pid", "tid" ,"level", "file", "msg",
