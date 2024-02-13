@@ -32,7 +32,7 @@ public:
     ~ICClient();
 
     int initialize();
-    void checkServerAvailability();
+    int checkServerAvailability();
     bool addServer(const std::string& name, const std::string& serverIP, int serverPort);
     bool connectToServers();
     bool sendData(const std::string& name, const std::string& data);

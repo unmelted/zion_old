@@ -22,27 +22,6 @@ using namespace rapidjson;
 
 ICClient::ICClient(const std::string& configContent)
 {
-    /*
-     * std::ifstream file(configFilePath);
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    file.close();
-    {
-      "servers": [
-        {
-          "name": "Server1",
-          "ip": "192.168.1.100",
-          "port": 8080
-        },
-        {
-          "name": "Server2",
-          "ip": "192.168.1.101",
-          "port": 8081
-        }
-      ]
-    }
-     */
-
     rapidjson::Document doc;
     doc.Parse(configContent.c_str());
 
@@ -52,15 +31,7 @@ ICClient::ICClient(const std::string& configContent)
         }
     }
 
-    if(servers_.empty())
-    {
-
-    }
-    else
-    {
-        checkServerAvailability();
-    }
-
+    initialize();
 }
 
 ICClient::~ICClient()
@@ -74,8 +45,9 @@ bool ICClient::addServer(const std::string& name, const std::string& serverIP, i
     return true;
 }
 
-void ICClient::checkServerAvailability()
+int ICClient::checkServerAvailability()
 {
+    int available_cnt = 0;
     for (auto & serverEntry : servers_)
     {
         auto& server = serverEntry.second;
@@ -98,6 +70,7 @@ void ICClient::checkServerAvailability()
         {
             server.isAvailable = true;
             close(testSocket);
+            available_cnt++;
         }
         else
         {
@@ -105,12 +78,30 @@ void ICClient::checkServerAvailability()
             server.isAvailable = false;
         }
     }
+
+    return available_cnt;
 }
 
 int ICClient::initialize()
 {
-    return 0;
+    if(servers_.empty())
+    {
 
+    }
+    else
+    {
+        int available_cnt = checkServerAvailability();
+        if (available_cnt > 0)
+        {
+            connectToServers();
+        }
+        else
+        {
+            std::cerr << "No server is available." << std::endl;
+        }
+    }
+
+    return 0;
 }
 
 bool ICClient::connectToServers()

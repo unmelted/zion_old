@@ -40,12 +40,12 @@ int main()
         "servers": [
         {
             "name": "Server1",
-            "ip": "192.168.1.100",
+            "ip": "127.0.0.1",
             "port": )" << ic::SERVER_PORT[static_cast<int>(ic::SERVER_TYPE::SERVER_ROBOT_CONTROL)] << R"(
         },
         {
             "name": "Server2",
-            "ip": "192.168.1.101",
+            "ip": "127.0.0.1",
             "port": )" << ic::SERVER_PORT[static_cast<int>(ic::SERVER_TYPE::SERVER_ROBOT_ALIVE)] << R"(
         }
         ]
