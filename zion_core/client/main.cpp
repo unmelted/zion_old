@@ -16,6 +16,7 @@
  *
  */
 
+#include <sstream>
 #include <csignal>
 #include "ic_client.h"
 
@@ -32,10 +33,30 @@ void signalHandler(int signum) {
 
 int main()
 {
+    // teporary data for initialize
+    std::ostringstream ss;
+    ss << R"(
+    {
+        "servers": [
+        {
+            "name": "Server1",
+            "ip": "192.168.1.100",
+            "port": )" << ic::SERVER_PORT[static_cast<int>(ic::SERVER_TYPE::SERVER_ROBOT_CONTROL)] << R"(
+        },
+        {
+            "name": "Server2",
+            "ip": "192.168.1.101",
+            "port": )" << ic::SERVER_PORT[static_cast<int>(ic::SERVER_TYPE::SERVER_ROBOT_ALIVE)] << R"(
+        }
+        ]
+    }
+    )";
+
+    std::string configContent = ss.str();
     LOG_INFO("ICManager Start!");
 
     signal(SIGINT, signalHandler);
-    ic_cli = std::make_unique<ICClient>();
+    ic_cli = std::make_unique<ICClient>(configContent);
     Logger logger;
 
     while (1)

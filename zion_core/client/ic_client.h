@@ -24,12 +24,15 @@
 #include <net/if.h>
 #include "ic_define.h"
 
+using namespace rapidjson;
 
 class ICClient {
 public:
-    ICClient();
+    ICClient(const std::string& configContent);
     ~ICClient();
 
+    int initialize();
+    void checkServerAvailability();
     bool addServer(const std::string& name, const std::string& serverIP, int serverPort);
     bool connectToServers();
     bool sendData(const std::string& name, const std::string& data);
@@ -41,7 +44,8 @@ private:
         std::string ip;
         int port;
         int socket;
-        ServerInfo(const std::string& ip, int port) : ip(ip), port(port), socket(-1) {}
+        bool isAvailable;
+        ServerInfo(const std::string& ip, int port) : ip(ip), port(port), socket(-1), isAvailable(false) {}
     };
 
     std::unordered_map<std::string, ServerInfo> servers_;

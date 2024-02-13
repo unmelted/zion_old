@@ -18,10 +18,51 @@
 
 #include "ic_client.h"
 
-ICClient::ICClient()
+using namespace rapidjson;
+
+ICClient::ICClient(const std::string& configContent)
 {
+    /*
+     * std::ifstream file(configFilePath);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    file.close();
+    {
+      "servers": [
+        {
+          "name": "Server1",
+          "ip": "192.168.1.100",
+          "port": 8080
+        },
+        {
+          "name": "Server2",
+          "ip": "192.168.1.101",
+          "port": 8081
+        }
+      ]
+    }
+     */
+
+    rapidjson::Document doc;
+    doc.Parse(configContent.c_str());
+
+    if (doc.HasMember("servers") && doc["servers"].IsArray()) {
+        for (const auto& server : doc["servers"].GetArray()) {
+            addServer(server["name"].GetString(), server["ip"].GetString(), server["port"].GetInt());
+        }
+    }
+
+    if(servers_.empty())
+    {
+
+    }
+    else
+    {
+        checkServerAvailability();
+    }
 
 }
+
 ICClient::~ICClient()
 {
     closeConnections();
@@ -31,6 +72,45 @@ bool ICClient::addServer(const std::string& name, const std::string& serverIP, i
 {
     servers_.emplace(name, ServerInfo(serverIP, serverPort));
     return true;
+}
+
+void ICClient::checkServerAvailability()
+{
+    for (auto & serverEntry : servers_)
+    {
+        auto& server = serverEntry.second;
+
+        int testSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (testSocket < 0)
+        {
+            std::cerr << "Socket creation failed for test." << std::endl;
+            server.isAvailable = false;
+            continue;
+        }
+
+        struct sockaddr_in serverAddr;
+        memset(&serverAddr, 0, sizeof(serverAddr));
+        serverAddr.sin_family = AF_INET;
+        serverAddr.sin_addr.s_addr = inet_addr(server.ip.c_str());
+        serverAddr.sin_port = htons(server.port);
+
+        if (connect(testSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) >= 0)
+        {
+            server.isAvailable = true;
+            close(testSocket);
+        }
+        else
+        {
+            std::cerr << "Connection to " << server.ip << ":" << server.port << " failed." << std::endl;
+            server.isAvailable = false;
+        }
+    }
+}
+
+int ICClient::initialize()
+{
+    return 0;
+
 }
 
 bool ICClient::connectToServers()
