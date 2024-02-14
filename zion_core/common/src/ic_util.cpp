@@ -27,6 +27,22 @@ Configurator&  Configurator::get() {
 void Configurator::setDirectory() {
     std::cout << "setDirectory create directory : " << LOG << std::endl;
     std::filesystem::create_directories(LOG);
+    std::filesystem::create_directories(DB);
+    std::filesystem::path db_src1 = "../../db/livsmed.db";
+    std::filesystem::path db_src2 = "../../db/livsmed_log.db";
+    std::filesystem::path db_src3 = "../../db/db_config.json";
+    std::filesystem::path db_dst = DB;
+
+    try
+    {
+        std::filesystem::copy(db_src1, db_dst, std::filesystem::copy_options::update_existing);
+        std::filesystem::copy(db_src2, db_dst, std::filesystem::copy_options::update_existing);
+        std::filesystem::copy(db_src3, db_dst, std::filesystem::copy_options::update_existing);
+    }
+    catch (std::filesystem::filesystem_error& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
 
 }
 

@@ -17,15 +17,16 @@
  */
 
 #include <csignal>
-#include "ic_manager.h"
+#include "svr_manager.h"
 
-std::unique_ptr<ICManager> icManager;
+std::unique_ptr<ServerManager> svrManager;
 
-void signalHandler(int signum) {
+void signalHandler(int signum)
+{
     LOG_TRACE("Interrupt signal {} received.", signum);
 
     signal(SIGINT, signalHandler);
-    icManager.reset();
+    svrManager.reset();
 
     exit(signum);
 }
@@ -35,7 +36,7 @@ int main()
     LOG_INFO("ICManager Start!");
 
     signal(SIGINT, signalHandler);
-    icManager = std::make_unique<ICManager>();
+    svrManager = std::make_unique<ServerManager>();
     Logger logger;
 
     while (1)

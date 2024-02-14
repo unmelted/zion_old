@@ -18,9 +18,9 @@
 
 #include <sstream>
 #include <csignal>
-#include "ic_client.h"
+#include "client_manager.h"
 
-std::unique_ptr<ICClient> ic_cli;
+std::unique_ptr<ClientManager> ic_cli;
 
 void signalHandler(int signum) {
     LOG_TRACE("Interrupt signal {} received.", signum);
@@ -34,29 +34,11 @@ void signalHandler(int signum) {
 int main()
 {
     // teporary data for initialize
-    std::ostringstream ss;
-    ss << R"(
-    {
-        "servers": [
-        {
-            "name": "Server1",
-            "ip": "127.0.0.1",
-            "port": )" << ic::SERVER_PORT[static_cast<int>(ic::SERVER_TYPE::SERVER_ROBOT_CONTROL)] << R"(
-        },
-        {
-            "name": "Server2",
-            "ip": "127.0.0.1",
-            "port": )" << ic::SERVER_PORT[static_cast<int>(ic::SERVER_TYPE::SERVER_ROBOT_ALIVE)] << R"(
-        }
-        ]
-    }
-    )";
 
-    std::string configContent = ss.str();
     LOG_INFO("ICManager Start!");
 
     signal(SIGINT, signalHandler);
-    ic_cli = std::make_unique<ICClient>(configContent);
+    ic_cli = std::make_unique<ClientManager>();
     Logger logger;
 
     while (1)

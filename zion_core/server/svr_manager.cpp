@@ -16,29 +16,32 @@
  *
  */
 
-#include "ic_manager.h"
+#include "svr_manager.h"
 #include <string.h>
 
 
-ICManager::ICManager()
+ServerManager::ServerManager()
+: ICManager<ICServer, SvrMsgManager>()
+, msg_rspndr_(new MessageResponder())
 {
+    Configurator::get().setDirectory();
+
     // along the server type, ic_server starts with specific socket
     // and have handler the function for validating the json foramt (dependency injection)
-    icServer_ = std::make_shared<ICServer>((int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL);
-	icServer_->beginSocket(ic::SERVER_PORT[(int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL], 0);
-	icServer_->setHandler(std::bind(&ICManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
+    socketServer_ = std::make_shared<ICServer>((int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL);
+	socketServer_->beginSocket(ic::SERVER_PORT[(int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL], 0);
+	socketServer_->setHandler(std::bind(&ServerManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
 
     db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
     msg_rspndr_ = std::make_unique<MessageResponder>();
     msg_manager_ = std::make_unique<SvrMsgManager>();
-    msg_rspndr_->setICServer(icServer_);
-	msg_manager_->setSocketServer(icServer_);
+    msg_rspndr_->setICServer(socketServer_);
+	msg_manager_->setSocketServer(socketServer_);
     msg_manager_->setDBManager(db_manager_);
 
-	Configurator::get().setDirectory();
 }
 
-ICManager::~ICManager()
+ServerManager::~ServerManager()
 {
 
 }
@@ -46,7 +49,8 @@ ICManager::~ICManager()
 // this function check the command format
 // if received message fits the command format well,
 // deliver the message to message_parser or message_manager for further process
-int ICManager::validateMsg(char cSeparator, char* pData, int nDataSize)
+/*
+int ServerManager::validateMsg(char cSeparator, char* pData, int nDataSize)
 {
 
     if( cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON)
@@ -114,4 +118,4 @@ int ICManager::validateMsg(char cSeparator, char* pData, int nDataSize)
     }
 
 	return 1;
-}
+} */

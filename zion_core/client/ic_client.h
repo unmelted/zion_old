@@ -35,6 +35,14 @@ public:
     bool sendData(const std::string& name, const std::string& data);
     void requestStop();
 
+    typedef std::function<int(char cSeparator, char* pData, int nDataSize)> callback;
+    callback classifier;
+
+    void setHandler(callback f)
+    {
+        classifier = std::move(f);
+    }
+
 private:
     struct ServerInfo {
         std::string ip;
@@ -45,7 +53,6 @@ private:
     };
 
     std::unordered_map<std::string, ServerInfo> servers_;
-    std::shared_ptr<DBManager> db_manager_;
     std::vector<std::thread> threads_;
     std::atomic<bool> stop_ = false;
 

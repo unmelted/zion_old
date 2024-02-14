@@ -45,7 +45,6 @@
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/prettywriter.h"
 
-//#include "ic_server.h"
 #include "logger.h"
 #include "message_queue.h"
 #include "ic_util.h"
@@ -80,7 +79,7 @@ enum class DB_TYPE
     DB_TYPE_SIZE,q
 };
 
-const string DB_DIRECTORY = "../../db/";
+const string DB_DIRECTORY = "db/";
 const string DB_CONFIG = DB_DIRECTORY + "db_config.json";
 const std::array<std::string, (int)DB_TYPE::DB_TYPE_SIZE> DB_NAME =
 {

@@ -12,21 +12,26 @@
  * Dissemination of this information or reproduction of this material is
  * strictly forbidden unless prior written permission is obtained from LIVSMED.
  *
- * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
+ * Created by EunKyung Ma(ekma@livsmed.com) on 2024/02/14.
  *
  */
-#include "svr_message.h"
+
+#pragma once
+
+#include "ic_define.h"
+#include "ic_manager.h"
+#include "ic_client.h"
+#include "client_message.h"
 
 using namespace rapidjson;
 
-SvrMsgManager::SvrMsgManager()
-: SocketMsgManager<ICServer>()
-, taskmanager_(3, this)
+class ClientManager : public ICManager<ICClient, ClientMsgManager>
 {
+public:
+    ClientManager();
+    ~ClientManager();
 
-}
+private:
 
-SvrMsgManager::~SvrMsgManager()
-{
+};
 
-}

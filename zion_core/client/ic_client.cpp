@@ -22,9 +22,6 @@ using namespace rapidjson;
 
 ICClient::ICClient(const std::string& configContent)
 {
-    db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
-    Configurator::get().setDirectory();
-
     rapidjson::Document doc;
     doc.Parse(configContent.c_str());
 

@@ -89,7 +89,7 @@ private:
 
     bool isMainSocketThread_;
     int serverSockets_;
-    int srverPorts_;
+    int serverPorts_;
     std::vector<char> sendBuffer_;
 };
 

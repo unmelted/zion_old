@@ -51,6 +51,8 @@ public:
     float lapTimer(TIMER *times);
 
     static inline const std::filesystem::path LOG {std::filesystem::current_path().append("log") };
+    static inline const std::filesystem::path DB {std::filesystem::current_path().append("db") };
+
 
 private :
     int token_serial_ = 0;

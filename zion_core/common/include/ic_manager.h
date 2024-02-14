@@ -12,34 +12,33 @@
  * Dissemination of this information or reproduction of this material is
  * strictly forbidden unless prior written permission is obtained from LIVSMED.
  *
- * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
+ * Created by EunKyung Ma(ekma@livsmed.com) on 2024/02/14.
  *
  */
 
 #pragma once
 
-#include "ic_server.h"
 #include "ic_define.h"
 #include <functional>
-#include "message_responder.h"
-#include "svr_message.h"
 #include "db_manager.h"
 
 using namespace rapidjson;
 
+template <typename T, typename U>
 class ICManager
 {
 public:
-	ICManager();
-	~ICManager();
+    ICManager();
+    ~ICManager();
 
-private:
-	int validateMsg(char cSeparator, char* pData, int nDataSize);
+protected:
+    int validateMsg(char cSeparator, char* pData, int nDataSize);
 
-    std::shared_ptr<ICServer> icServer_;
-    std::unique_ptr<MessageResponder> msg_rspndr_;
-    std::unique_ptr<SvrMsgManager> msg_manager_;
+    std::shared_ptr<T> socketServer_;
+//    std::unique_ptr<MessageResponder> msg_rspndr_;
+    std::unique_ptr<U> msg_manager_;
     std::shared_ptr<DBManager> db_manager_;
 
 };
 
+#include "ic_manager.tpp"

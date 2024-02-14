@@ -23,7 +23,7 @@ ICServer::ICServer(int type)
 	isMainSocketThread_ = false;
 	mainSocketThread_ = nullptr;
 	serverSockets_ = 0;
-    srverPorts_ = 0;
+    serverPorts_ = 0;
 
 }
 
@@ -56,7 +56,7 @@ bool ICServer::beginSocket(int nPort, int nType)
 	if (isMainSocketThread_)
 		return false;
 
-	srverPorts_ = nPort;
+	serverPorts_ = nPort;
 	isMainSocketThread_ = true;
 	mainSocketThread_ =  std::make_unique<std::thread>(&ICServer::runSocket, this);
 
@@ -72,7 +72,7 @@ void ICServer::runSocket()
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(srverPorts_);
+	serv_adr.sin_port = htons(serverPorts_);
 
 	if (::bind(serverSockets_, (struct sockaddr*)&serv_adr, sizeof(serv_adr)) == -1)
 	{

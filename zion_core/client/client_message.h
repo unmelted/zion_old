@@ -12,21 +12,26 @@
  * Dissemination of this information or reproduction of this material is
  * strictly forbidden unless prior written permission is obtained from LIVSMED.
  *
- * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
+ * Created by EunKyung Ma(ekma@livsmed.com) on 2024/02/14.
  *
  */
-#include "svr_message.h"
 
-using namespace rapidjson;
 
-SvrMsgManager::SvrMsgManager()
-: SocketMsgManager<ICServer>()
-, taskmanager_(3, this)
+#pragma once
+
+#include "socket_message.h"
+#include "db_manager.h"
+#include "ic_client.h"
+
+class ClientMsgManager : public SocketMsgManager<ICClient>
 {
 
-}
+public:
 
-SvrMsgManager::~SvrMsgManager()
-{
+    ClientMsgManager();
+    ~ClientMsgManager();
 
-}
+
+private :
+
+};
