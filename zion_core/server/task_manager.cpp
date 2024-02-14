@@ -17,11 +17,11 @@
  */
 
 #include "task_manager.h"
-#include "message_manager.h"
+#include "svr_message.h"
 
 using namespace rapidjson;
 
-TaskManager::TaskManager(size_t num_worker_, MsgManager *msg_manager)
+TaskManager::TaskManager(size_t num_worker_, SvrMsgManager *msg_manager)
 : num_worker_(num_worker_)
 , stop_all_(false)
 , watching_(true)

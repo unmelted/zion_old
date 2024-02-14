@@ -22,6 +22,9 @@ using namespace rapidjson;
 
 ICClient::ICClient(const std::string& configContent)
 {
+    db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
+    Configurator::get().setDirectory();
+
     rapidjson::Document doc;
     doc.Parse(configContent.c_str());
 
@@ -36,7 +39,13 @@ ICClient::ICClient(const std::string& configContent)
 
 ICClient::~ICClient()
 {
-    closeConnections();
+    requestStop();
+    for (auto& thread : threads_)
+    {
+        thread.join();
+    }
+
+    closeSocket();
 }
 
 bool ICClient::addServer(const std::string& name, const std::string& serverIP, int serverPort)
@@ -138,6 +147,9 @@ bool ICClient::connectToServer(ServerInfo& server)
         return false;
     }
 
+    threads_.emplace_back(&ICClient::receive, this, server);
+
+
     return true;
 }
 
@@ -159,28 +171,42 @@ bool ICClient::sendData(const std::string& name, const std::string& data)
     return true;
 }
 
-std::string ICClient::receiveData(const std::string& name)
+void ICClient::receive(ServerInfo server)
 {
-    auto it = servers_.find(name);
-    if (it == servers_.end())
+    while (!stop_)
     {
-        std::cerr << "Server not found: " << name << std::endl;
-        return "";
+        char buffer[1024];
+        memset(buffer, 0, sizeof(buffer));
+        ssize_t bytesRead = recv(server.socket, buffer, sizeof(buffer), 0);
+
+        if (bytesRead == -1)
+        {
+            std::cerr << "Failed to receive data from server: " << server.ip << std::endl;
+            break; // 오류 발생 시 루프 종료
+        }
+        else if (bytesRead == 0)
+        {
+            std::cerr << "Connection closed by server: " << server.ip << std::endl;
+            break; // 서버 연결 종료 시 루프 종료
+        }
+
+        std::string received(buffer, bytesRead);
+        std::cout << "Data received from server: " << received << std::endl;
     }
 
-    char buffer[1024];
-    memset(buffer, 0, sizeof(buffer));
-    ssize_t bytesRead = recv(it->second.socket, buffer, sizeof(buffer), 0);
-    if (bytesRead == -1)
+    if(server.socket != -1)
     {
-        std::cerr << "Failed to receive data from server: " << name << std::endl;
-        return "";
+        close(server.socket);
+        server.socket = -1;
     }
-
-    return std::string(buffer, bytesRead);
 }
 
-void ICClient::closeConnections()
+void ICClient::requestStop()
+{
+    stop_ = true;
+}
+
+void ICClient::closeSocket()
 {
     for (auto& server: servers_)
     {

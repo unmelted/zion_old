@@ -21,7 +21,7 @@
 
 #include "ic_define.h"
 
-class MsgManager;
+class SvrMsgManager;
 
 using namespace rapidjson;
 
@@ -29,7 +29,7 @@ class TaskManager
 {
 
 public:
-    TaskManager(size_t num_worker_, MsgManager *msg_manager);
+    TaskManager(size_t num_worker_, SvrMsgManager *msg_manager);
     ~TaskManager();
 
     void onRcvTask(std::shared_ptr<ic::MSG_T> pData);
@@ -56,7 +56,7 @@ private:
     MessageQueue<int> future_;
     MessageQueue<std::shared_ptr<ic::MSG_T>> queTaskMSG_;
 
-    MsgManager *msgmanager_;
+    SvrMsgManager *msgmanager_;
 
     size_t num_worker_;
     size_t cur_worker_;

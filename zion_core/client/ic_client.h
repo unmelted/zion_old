@@ -23,6 +23,7 @@
 #include <stdlib.h> // for exit()
 #include <net/if.h>
 #include "ic_define.h"
+#include "db_manager.h"
 
 using namespace rapidjson;
 
@@ -31,13 +32,8 @@ public:
     ICClient(const std::string& configContent);
     ~ICClient();
 
-    int initialize();
-    int checkServerAvailability();
-    bool addServer(const std::string& name, const std::string& serverIP, int serverPort);
-    bool connectToServers();
     bool sendData(const std::string& name, const std::string& data);
-    std::string receiveData(const std::string& name);
-    void closeConnections();
+    void requestStop();
 
 private:
     struct ServerInfo {
@@ -49,6 +45,17 @@ private:
     };
 
     std::unordered_map<std::string, ServerInfo> servers_;
+    std::shared_ptr<DBManager> db_manager_;
+    std::vector<std::thread> threads_;
+    std::atomic<bool> stop_ = false;
 
+private :
+    int initialize();
+    int checkServerAvailability();
+    bool addServer(const std::string& name, const std::string& serverIP, int serverPort);
+    bool connectToServers();
     bool connectToServer(ServerInfo& server);
+    void receive(ServerInfo server);
+    void closeSocket();
+
 };

@@ -170,7 +170,7 @@ int main() {
 //    sndDoc.AddMember("Version", ver, allocator);
     strSendString = GetDocumentToString(sndDoc);
 
-    SendData(strSendString.c_str(), sock);
+    (strSendString.c_str(), sock);
 
     //send(sock, &mtdProtoHeader, mtdProtoHeader.nSize, 0);
     std::cout << "Hello message sent\n";

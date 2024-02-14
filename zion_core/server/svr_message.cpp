@@ -15,31 +15,19 @@
  * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
  *
  */
-
-#pragma once
-
-#include "ic_server.h"
-#include "ic_define.h"
-#include <functional>
-#include "message_responder.h"
 #include "svr_message.h"
-#include "db_manager.h"
 
 using namespace rapidjson;
 
-class ICManager
+SvrMsgManager::SvrMsgManager()
+: SocketMsgManager<ICServer>()
+, taskmanager_(3, this)
 {
-public:
-	ICManager();
-	~ICManager();
+    setDBManager(std::make_shared<DBManager>());
+    setSocketServer(std::make_shared<ICServer>(1));
+}
 
-private:
-	int validateMsg(char cSeparator, char* pData, int nDataSize);
+SvrMsgManager::~SvrMsgManager()
+{
 
-    std::shared_ptr<ICServer> icServer_;
-    std::unique_ptr<MessageResponder> msg_rspndr_;
-    std::unique_ptr<SvrMsgManager> msg_manager_;
-    std::shared_ptr<DBManager> db_manager_;
-
-};
-
+}

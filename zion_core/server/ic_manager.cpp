@@ -30,9 +30,9 @@ ICManager::ICManager()
 
     db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
     msg_rspndr_ = std::make_unique<MessageResponder>();
-    msg_manager_ = std::make_unique<MsgManager>();
+    msg_manager_ = std::make_unique<SvrMsgManager>();
     msg_rspndr_->setICServer(icServer_);
-	msg_manager_->setICServer(icServer_);
+	msg_manager_->setSocketServer(icServer_);
     msg_manager_->setDBManager(db_manager_);
 
 	Configurator::get().setDirectory();
