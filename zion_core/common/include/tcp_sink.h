@@ -26,37 +26,43 @@
 #include <arpa/inet.h>
 #include <memory>
 #include <string>
-
+#include "ic_define.h"
 
 template<typename Mutex>
 class tcp_sink : public spdlog::sinks::base_sink <Mutex>
 {
 
 public :
-    tcp_sink(const std::string& host, int port) {
-        // 소켓 생성
+    tcp_sink()
+    {
+        const std::string host = "127.0.0.1";
+        int port = ic::SERVER_PORT[(int)ic::SERVER_TYPE::SERVER_ROBOT_LOGMONITOR];
+
         socket_ = socket(AF_INET, SOCK_STREAM, 0);
-        if (socket_ < 0) {
+        if (socket_ < 0)
+        {
             throw std::runtime_error("Cannot open socket");
         }
 
-        // 서버 주소 설정
         struct sockaddr_in serv_addr;
         serv_addr.sin_family = AF_INET;
         serv_addr.sin_port = htons(port);
-        if (inet_pton(AF_INET, host.c_str(), &serv_addr.sin_addr) <= 0) {
+        if (inet_pton(AF_INET, host.c_str(), &serv_addr.sin_addr) <= 0)
+        {
             close(socket_);
             throw std::runtime_error("Invalid address/ Address not supported");
         }
 
-        // 서버에 연결
-        if (connect(socket_, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+
+        if (connect(socket_, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+        {
             close(socket_);
             throw std::runtime_error("Connection Failed");
         }
     }
 
-    ~tcp_sink() {
+    ~tcp_sink()
+    {
         close(socket_);
     }
 

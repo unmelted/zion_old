@@ -62,7 +62,7 @@ void SocketMsgManager<T>::setDBManager(std::shared_ptr<DBManager> dbManager)
 }
 
 // this function is called by task_manager for sending a message.
-// this function store the msg in queue for sengin.
+// this function store the msg in queue for sengin.ㅏ
 template <typename T>
 void SocketMsgManager<T>::onRcvSndMessage(std::string target, std::string msg)
 {

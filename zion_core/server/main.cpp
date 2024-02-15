@@ -33,10 +33,9 @@ void signalHandler(int signum)
 
 int main()
 {
-    Logger logger;
+    Logger logger; //just declare for initialization, not use
     signal(SIGINT, signalHandler);
     svrManager = std::make_unique<ServerManager>();
-
 
     while (1)
     {

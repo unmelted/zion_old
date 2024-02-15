@@ -55,7 +55,7 @@ class db_sink : public spdlog::sinks::base_sink <Mutex>
 {
 public :
 
-    void set_db()
+    void initialize()
     {
         dbLogManager_ = std::make_unique<DBManager>((int)ic::DB_TYPE::DB_TYPE_LOG);
 
@@ -101,7 +101,7 @@ protected:
 //        dbLogManager_->commitTransaction();
     }
 
-private:
+public:
     std::string table_name;
     std::unique_ptr<DBManager> dbLogManager_;
 };

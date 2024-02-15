@@ -22,12 +22,16 @@
 DBManager::DBManager(int db_name_idx)
 {
     std::string db_path = ic::DB_NAME[db_name_idx];
+    std::cout <<"try to open DB: " << db_path << std::endl;
+
     if (!openDB(db_path))
     {
-        LOG_ERROR("Failed to open DB: {}", db_path);
+        std::cout <<"Failed to open DB: " << db_path << std::endl;
         return;
     }
 
+    // until this process, can't use logger because logger is not initialized yet.
+    
     if (db_name_idx == (int)ic::DB_TYPE::DB_TYPE_LIVSMED )
     {
         createTable();
@@ -58,12 +62,12 @@ bool DBManager::openDB(std::string db_path)
     int nRet = sqlite3_open(db_path.c_str(), &db_);
     if (nRet != SQLITE_OK)
     {
-        LOG_ERROR("Can't open database: {}", sqlite3_errmsg(db_));
+        std::cout<<"Can't open database: {}" << sqlite3_errmsg(db_) << std::endl;
         return false;
     }
 
     isOpen_ = true;
-    LOG_INFO("DBManager Opened : {}", db_path);
+    std::cout <<"DBManager Opened : " <<  db_path << std::endl;
     return true;
 }
 

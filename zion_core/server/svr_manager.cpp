@@ -39,6 +39,14 @@ ServerManager::ServerManager()
 	msg_manager_->setSocketServer(socketServer_);
     msg_manager_->setDBManager(db_manager_);
 
+
+    LOG_TRACE("test log trace");
+    LOG_DEBUG("test log debug");
+    LOG_INFO("test log info");
+    LOG_WARN("test log warn");
+    LOG_ERROR("test log error");
+    LOG_CRITICAL("test log critical");
+
 }
 
 ServerManager::~ServerManager()
