@@ -85,7 +85,7 @@ void MessageResponder::parseThread(void* param, std::string strMessage)
 		return;
 	}
 
-	LOG_DEBUG("section {} {} {}", strSection1, strSection2, strSection3);
+//	LOG_DEBUG("section {} {} {}", strSection1, strSection2, strSection3);
 
 	std::string strSendString = getDocumentToString(sendDocument);
 	pMain->icServer_->sendData(protocol.From, strSendString);

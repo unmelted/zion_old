@@ -47,6 +47,7 @@ ICClient::~ICClient()
 
 bool ICClient::addServer(const std::string& name, const std::string& serverIP, int serverPort)
 {
+    LOG_DEBUG("Add server: {} {} {}", name, serverIP, serverPort);
     servers_.emplace(name, ServerInfo(serverIP, serverPort));
     return true;
 }
@@ -96,15 +97,15 @@ int ICClient::initialize()
     }
     else
     {
-        int available_cnt = checkServerAvailability();
-        if (available_cnt > 0)
+//        int available_cnt = checkServerAvailability();
+//        if (available_cnt > 0)
         {
             connectToServers();
         }
-        else
-        {
-            std::cerr << "No server is available." << std::endl;
-        }
+//        else
+//        {
+//            std::cerr << "No server is available." << std::endl;
+//        }
     }
 
     return 0;
@@ -114,9 +115,11 @@ bool ICClient::connectToServers()
 {
     for (auto& server : servers_)
     {
+        LOG_DEBUG("Connect to server: {} {} {} ", server.first, server.second.ip, server.second.port);
+
         if (!connectToServer(server.second))
         {
-            std::cerr << "Failed to connect to server: " << server.first << std::endl;
+            LOG_ERROR("Failed to connect to server: {}", server.first);
             return false;
         }
     }
@@ -125,18 +128,22 @@ bool ICClient::connectToServers()
 
 bool ICClient::connectToServer(ServerInfo& server)
 {
-    server.socket = socket(PF_INET, SOCK_STREAM, 0);
-    if (server.socket == -1)
-    {
-        std::cerr << "Failed to create socket for server: " << server.ip << std::endl;
-        return false;
+    int sock = 0;
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        std::cout << "\n Socket creation error \n";
+        return -1;
     }
 
     struct sockaddr_in serverAddr;
     memset(&serverAddr, 0, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = inet_addr(server.ip.c_str());
     serverAddr.sin_port = htons(server.port);
+
+    if(inet_pton(AF_INET, server.ip.c_str(), &serverAddr.sin_addr) <= 0)
+    {
+        std::cerr << "Invalid address/ Address not supported: " << server.ip << std::endl;
+        return false;
+    }
 
     if (connect(server.socket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1)
     {

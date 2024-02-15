@@ -32,12 +32,13 @@
 #include <sqlite3.h>
 
 
-#define LOG_ERROR(...) SPDLOG_ERROR(__VA_ARGS__)
-#define LOG_WARN(...) SPDLOG_WARN(__VA_ARGS__)
-#define LOG_INFO(...) SPDLOG_INFO(__VA_ARGS__)
-#define LOG_DEBUG(...) SPDLOG_DEBUG(__VA_ARGS__)
-#define LOG_CRITICAL(...) SPDLOG_CRITICAL(__VA_ARGS__)
-#define LOG_TRACE(...) SPDLOG_TRACE(__VA_ARGS__)
+#define LOG_TRACE(...) SPDLOG_LOGGER_TRACE(Logger::logger_, __VA_ARGS__)
+#define LOG_DEBUG(...) SPDLOG_LOGGER_DEBUG(Logger::logger_, __VA_ARGS__)
+#define LOG_INFO(...)  SPDLOG_LOGGER_INFO(Logger::logger_, __VA_ARGS__)
+#define LOG_WARN(...)  SPDLOG_LOGGER_WARN(Logger::logger_, __VA_ARGS__)
+#define LOG_ERROR(...) SPDLOG_LOGGER_ERROR(Logger::logger_, __VA_ARGS__)
+#define LOG_CRITICAL(...) SPDLOG_LOGGER_CRITICAL(Logger::logger_, __VA_ARGS__)
+
 
 #define LOGE_RETURN_VAL(cond, val) do{ if (!(cond)){LOG_TRACE(#cond "\n"); return (val);} } while(false)
 #define LOGE_RETURN(cond) do{ if (!(cond)){LOG_TRACE(#cond "\n"); return;} } while(false)
@@ -52,7 +53,7 @@ public:
 
     static void init();
 
-private:
+public:
     static std::shared_ptr<spdlog::logger> logger_;
 
 };

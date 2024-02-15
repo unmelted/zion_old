@@ -20,7 +20,7 @@
 #include <string>
 #include "logger.h"
 #include "db_sink.h"
-//#include "ic_util.h"
+#include "tcp_sink.h"
 
 std::shared_ptr<spdlog::logger> Logger::logger_;
 
@@ -28,6 +28,14 @@ Logger::Logger(std::shared_ptr<sqlite3> db)
 {
     std::cout << "Logger Start!" << std::endl;
 	init();
+
+    LOG_TRACE("ICManager Start!");
+    LOG_DEBUG("ICManager Start!");
+    LOG_INFO("ICManager Start!");
+    LOG_WARN("ICManager Start!");
+    LOG_ERROR("ICManager Start!");
+    LOG_CRITICAL("ICManager Start!");
+
 }
 
 Logger::~Logger()
@@ -49,14 +57,17 @@ void Logger::init()
 	auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(fileName, 1024 * 1000 * 10, 10);
 	file_sink->set_level(spdlog::level::trace);
 
-    auto db_log_sink = std::make_shared<db_sink<std::mutex>>();
-    db_log_sink->set_db();
-    db_log_sink->set_level(spdlog::level::info);
+//    auto db_log_sink = std::make_shared<db_sink<std::mutex>>();
+//    db_log_sink->set_db();
+//    db_log_sink->set_level(spdlog::level::trace);
 
-    spdlog::sinks_init_list sink_list = { console_sink, file_sink, db_log_sink };
+    spdlog::sinks_init_list sink_list = { console_sink, file_sink };
 	logger_ = std::make_shared<spdlog::logger>("ic", sink_list);
-	logger_->set_level(spdlog::level::trace);
+	logger_->set_level(spdlog::level::level_enum::trace);
+    logger_->sinks()[0]->set_pattern("[%Y-%m-%d %X.%e] [%P] [%t] [%^%l%$] [%s:%#] %v");
+    logger_->sinks()[1]->set_pattern("[%Y-%m-%d %X.%e] [%P] [%t] [%^%l%$] [%s:%#] %v");
 
+    spdlog::register_logger(logger_);
 	spdlog::set_default_logger(logger_);
-	spdlog::set_pattern("[%Y-%m-%d %X.%e] [%P] [%t] [%^%l%$] [%s:%#] %v");
+    spdlog::set_level(spdlog::level::level_enum::trace);
 }

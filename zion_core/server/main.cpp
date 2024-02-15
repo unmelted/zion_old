@@ -33,11 +33,10 @@ void signalHandler(int signum)
 
 int main()
 {
-    LOG_INFO("ICManager Start!");
-
+    Logger logger;
     signal(SIGINT, signalHandler);
     svrManager = std::make_unique<ServerManager>();
-    Logger logger;
+
 
     while (1)
     {

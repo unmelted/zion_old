@@ -76,7 +76,7 @@ enum class DB_TYPE
 {
     DB_TYPE_LIVSMED,
     DB_TYPE_LOG,
-    DB_TYPE_SIZE,q
+    DB_TYPE_SIZE,
 };
 
 const string DB_DIRECTORY = "db/";
@@ -92,13 +92,15 @@ enum class SERVER_TYPE
     SERVER_TYPE_NONE,
     SERVER_ROBOT_CONTROL,
     SERVER_ROBOT_ALIVE,
+    SERVER_ROBOT_LOGMONITOR,
 };
 
 const int SERVER_PORT[] =
 {
     -1,
     0x4D15,
-    0x4D16
+    0x4D16,
+    0x4D17,
 };
 
 enum class COMMAND_CLASS
