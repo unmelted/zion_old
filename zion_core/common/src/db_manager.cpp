@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2024 LIVSMED, INC.
  * All Rights Reserved.
- *
+ *≤
  * NOTICE: All information contained herein is, and remains the property
  * of LIVSMED and its suppliers, if any. The intellectual and technical concepts
  * contained herein are proprietary to LIVSMED and its suppliers and may be
@@ -31,7 +31,7 @@ DBManager::DBManager(int db_name_idx)
     }
 
     // until this process, can't use logger because logger is not initialized yet.
-    
+
     if (db_name_idx == (int)ic::DB_TYPE::DB_TYPE_LIVSMED )
     {
         createTable();

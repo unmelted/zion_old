@@ -18,7 +18,7 @@
 
 #include "ic_server.h"
 
-ICServer::ICServer(int type)
+ICServer::ICServer()
 {
 	isMainSocketThread_ = false;
 	mainSocketThread_ = nullptr;
@@ -51,8 +51,9 @@ void ICServer::closeSocket(int nSock)
 	shutdown(nSock, SHUT_RDWR);
 }
 
-bool ICServer::beginSocket(int nPort, int nType)
+bool ICServer::beginSocket(int nPort)
 {
+    LOG_DEBUG("beginSocket with port : {} ", nPort);
 	if (isMainSocketThread_)
 		return false;
 
@@ -60,11 +61,20 @@ bool ICServer::beginSocket(int nPort, int nType)
 	isMainSocketThread_ = true;
 	mainSocketThread_ =  std::make_unique<std::thread>(&ICServer::runSocket, this);
 
+    LOG_TRACE("beginSocket");
+    LOG_DEBUG("beginSocket");
+    LOG_INFO("beginSocket");
+    LOG_WARN("beginSocket");
+    LOG_ERROR("beginSocket");
+    LOG_CRITICAL("beginSocket");
+
 	return true;
 }
 
 void ICServer::runSocket()
 {
+    std::cout << "runSocket function is started : " << serverPorts_ << std::endl;
+
 	struct sockaddr_in serv_adr, clnt_adr;
 	int clnt_adr_sz;
 
@@ -85,6 +95,7 @@ void ICServer::runSocket()
 		return;
 	}
 
+    LOG_DEBUG("runSocket function will start loop : {} ", serverPorts_);
 
 	while (isMainSocketThread_)
 	{
@@ -131,6 +142,7 @@ void ICServer::runSocket()
 		threadData->socket = clientSocket;
 
         std::thread(&ICServer::handle_client, this, std::move(threadData)).detach();
+        std::cout << "runSocket function is end loop : " << serverPorts_ << std::endl;
 
 	}
 

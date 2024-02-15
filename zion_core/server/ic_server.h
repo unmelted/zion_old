@@ -31,10 +31,10 @@ using namespace rapidjson;
 class ICServer
 {
 public : 
-    ICServer(int type);
+    ICServer();
     ~ICServer();
 
-    bool beginSocket(int nPort, int nType);
+    bool beginSocket(int nPort);
     bool sendData(const std::string& clientName, std::string strJson);
 
     typedef std::function<int(char cSeparator, char* pData, int nDataSize)> callback;

@@ -28,8 +28,8 @@ ServerManager::ServerManager()
 
     // along the server type, ic_server starts with specific socket
     // and have handler the function for validating the json foramt (dependency injection)
-    socketServer_ = std::make_shared<ICServer>((int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL);
-	socketServer_->beginSocket(ic::SERVER_PORT[(int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL], 0);
+    socketServer_ = std::make_shared<ICServer>();
+	socketServer_->beginSocket(ic::SERVER_PORT[(int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL]);
 	socketServer_->setHandler(std::bind(&ServerManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
 
     db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
@@ -38,14 +38,6 @@ ServerManager::ServerManager()
     msg_rspndr_->setICServer(socketServer_);
 	msg_manager_->setSocketServer(socketServer_);
     msg_manager_->setDBManager(db_manager_);
-
-
-    LOG_TRACE("test log trace");
-    LOG_DEBUG("test log debug");
-    LOG_INFO("test log info");
-    LOG_WARN("test log warn");
-    LOG_ERROR("test log error");
-    LOG_CRITICAL("test log critical");
 
 }
 

@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <array>
 #include <map>
 #include <unordered_map>
 #include <cstdio>

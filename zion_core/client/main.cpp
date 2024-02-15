@@ -20,32 +20,27 @@
 #include <csignal>
 #include "client_manager.h"
 
-std::unique_ptr<ClientManager> ic_cli;
+std::unique_ptr<ClientManager> cliManager;
 
 void signalHandler(int signum) {
     LOG_TRACE("Interrupt signal {} received.", signum);
 
     signal(SIGINT, signalHandler);
-//        ic_cli.reset();
-
+    cliManager.reset();
     exit(signum);
 }
 
 int main()
 {
-    // teporary data for initialize
-
-    LOG_INFO("ICManager Start!");
-
+    // array<bool, 4> represent the sink of log
+    // refer the enum Logger::sink_enum
+    Logger logger({true, true, false, false});
     signal(SIGINT, signalHandler);
-    ic_cli = std::make_unique<ClientManager>();
-    Logger logger;
+    cliManager = std::make_unique<ClientManager>();
 
     while (1)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    logger.~Logger();
-    return 1;
 }
 

@@ -48,13 +48,27 @@
 class Logger
 {
 public:
-    Logger(std::shared_ptr<sqlite3> db = nullptr);
+    Logger(std::array<bool, 4> sink_type);
     ~Logger();
 
     static void init();
 
+private :
+    static void set_sink_type(std::array<bool, 4> sink_type);
+
+private:
+    enum class sink_enum
+    {
+        console_sink,
+        file_sink,
+        db_sink,
+        tcp_sink,
+        num_sink_type,
+    };
+
+    static std::array<bool, static_cast<int>(sink_enum::num_sink_type)> sink_type_list_;
+
 public:
     static std::shared_ptr<spdlog::logger> logger_;
-
 };
 

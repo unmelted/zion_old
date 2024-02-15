@@ -33,7 +33,9 @@ void signalHandler(int signum)
 
 int main()
 {
-    Logger logger; //just declare for initialization, not use
+    // array<bool, 4> represent the sink of log
+    // refer the enum Logger::sink_enum
+    Logger logger({true, true, false, false});
     signal(SIGINT, signalHandler);
     svrManager = std::make_unique<ServerManager>();
 
@@ -41,6 +43,4 @@ int main()
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    logger.~Logger();
-    return 1;
 }

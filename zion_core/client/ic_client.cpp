@@ -134,6 +134,7 @@ bool ICClient::connectToServer(ServerInfo& server)
         return -1;
     }
 
+    server.socket = sock;
     struct sockaddr_in serverAddr;
     memset(&serverAddr, 0, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;
