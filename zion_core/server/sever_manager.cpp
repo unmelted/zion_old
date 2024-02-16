@@ -17,12 +17,9 @@
  */
 
 #include "sever_manager.h"
-#include <string.h>
-
 
 ServerManager::ServerManager()
 : ICManager<ICServer, SeverMsgManager>()
-, msg_rspndr_(new MessageResponder())
 {
     std::ostringstream ss;
     ss << R"(
@@ -46,13 +43,14 @@ ServerManager::ServerManager()
 
     // along the server type, ic_server starts with specific socket
     // and have handler the function for validating the json format (dependency injection)
+    std::shared_ptr<ICServer> socketServer_;
     socketServer_ = std::make_shared<ICServer>(configContent);
 	socketServer_->beginSocket(ic::SERVER_PORT[(int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL]);
 	socketServer_->setHandler(std::bind(&ServerManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
-
-    msg_rspndr_ = std::make_unique<MessageResponder>();
+    socket_list_.push_back(socketServer_);
+    msg_rspndr_ = std::make_unique<MessageResponder<ICServer>>();
     msg_manager_ = std::make_unique<SeverMsgManager>();
-    msg_rspndr_->setICServer(socketServer_);
+    msg_rspndr_->setServer(socketServer_);
 	msg_manager_->setSocketServer(socketServer_);
     msg_manager_->setDBManager(db_manager_);
 
@@ -66,43 +64,11 @@ ServerManager::~ServerManager()
 // this function check the command format
 // if received message fits the command format well,
 // deliver the message to message_parser or message_manager for further process
-/*
 int ServerManager::validateMsg(char cSeparator, char* pData, int nDataSize)
 {
-
-    if( cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON)
-    {
-        LOG_ERROR("validateMsg cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON");
-        return 0;
-    }
-
     std::string strMessage = pData;
 	Document document;
-	bool isSuccess = false;
-	try
-    {
-        isSuccess = document.Parse(strMessage.c_str()).HasParseError();
-	}
-	catch (...)
-    {
-        isSuccess = false;
-	}
-
-	if (isSuccess)
-	{
-        LOG_ERROR("Json Parsing Faile {} ", strMessage);
-		return 0;
-	}
-
-    if (!document.HasMember("Type")
-        || !document.HasMember("Command")
-        || !document.HasMember("SubCommand")
-        || !document.HasMember("Action")
-        || !document.HasMember("Token"))
-    {
-        LOG_ERROR("Json component missing. can't execute.");
-        return 0;
-    }
+    document.Parse(strMessage.c_str()).HasParseError();
 
 	std::string command = document[PROTOCOL_SECTION2].GetString();
 
@@ -135,4 +101,4 @@ int ServerManager::validateMsg(char cSeparator, char* pData, int nDataSize)
     }
 
 	return 1;
-} */
+}

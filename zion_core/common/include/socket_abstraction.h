@@ -44,6 +44,5 @@ protected :
     virtual void closeSocket(int nSock) = 0;
     virtual void runSocket() = 0;
 
-private:
 
 };

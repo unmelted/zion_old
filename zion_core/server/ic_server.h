@@ -50,14 +50,6 @@ public :
     bool beginSocket(int nPort) override;
     bool sendData(const std::string& name, const std::string& strJson) override;
 
-//    typedef std::function<int(char cSeparator, char* pData, int nDataSize)> callback;
-//    callback classifier;
-//
-//    void setHandler(callback f)
-//    {
-//        classifier = std::move(f);
-//    }
-
 	std::list<std::string> getIPList();
 	std::string getLocalCompare(std::string strIP);
 
@@ -86,6 +78,6 @@ private:
     int serverSockets_;
     int serverPorts_;
     std::vector<char> sendBuffer_;
-//    std::unique_ptr<MessageResponder> msg_rspndr_;
+
 };
 

@@ -19,8 +19,8 @@
 #pragma once
 
 #include "ic_define.h"
-#include <functional>
 #include "db_manager.h"
+#include "message_responder.h"
 
 using namespace rapidjson;
 
@@ -32,12 +32,12 @@ class ICManager
 //    ~ICManager();
 
 protected:
-    int validateMsg(char cSeparator, char* pData, int nDataSize);
+    virtual int validateMsg(char cSeparator, char* pData, int nDataSize);
 
-    std::shared_ptr<T> socketServer_;
+    std::vector<std::shared_ptr<T>> socket_list_;
     std::unique_ptr<U> msg_manager_;
     std::shared_ptr<DBManager> db_manager_;
-
+    std::unique_ptr<MessageResponder<T>> msg_rspndr_;
 };
 
 #include "ic_manager.tpp"

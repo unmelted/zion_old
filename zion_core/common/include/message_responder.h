@@ -19,17 +19,17 @@
 #pragma once
 
 #include "ic_define.h"
-#include "ic_server.h"
 
 using namespace rapidjson;
 
+template <typename T>
 class MessageResponder
 {
 
 public:
 	MessageResponder();
 	~MessageResponder();
-	void setICServer(std::shared_ptr<ICServer> icServer);
+	void setServer(std::shared_ptr<T> server);
 
 	bool isThreadStop();
 	void parseAndSendResponse(std::string strMessage);
@@ -40,7 +40,9 @@ private:
 	std::string getDocumentToString(Document& document);
 
 private:
-    std::shared_ptr<ICServer> icServer_;
+    std::shared_ptr<T> server_;
     bool isThreadStop_;
 
 };
+
+#include "message_responder.tpp"

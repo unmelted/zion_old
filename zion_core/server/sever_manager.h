@@ -18,13 +18,10 @@
 
 #pragma once
 
+#include <functional>
 #include "ic_manager.h"
 #include "ic_server.h"
-#include "ic_define.h"
-#include <functional>
-#include "message_responder.h"
 #include "sever_message.h"
-#include "db_manager.h"
 
 using namespace rapidjson;
 
@@ -34,9 +31,9 @@ public:
     ServerManager();
 	~ServerManager();
 
-private:
+private :
+    int validateMsg(char cSeparator, char* pData, int nDataSize) override;
 
-    std::unique_ptr<MessageResponder> msg_rspndr_;
 
 };
 

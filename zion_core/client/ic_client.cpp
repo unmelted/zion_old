@@ -45,8 +45,8 @@ ICClient::~ICClient()
     {
         thread.join();
     }
-
-    closeSocket();
+    int sock_ = 11; //temporary for compile.
+    closeSocket(sock_);
 }
 
 int ICClient::checkServerAvailability()

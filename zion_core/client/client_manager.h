@@ -32,6 +32,7 @@ public:
     ~ClientManager();
 
 private:
+    int validateMsg(char cSeparator, char* pData, int nDataSize) override;
 
 };
 

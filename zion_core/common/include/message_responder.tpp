@@ -16,37 +16,41 @@
  *
  */
 
-#include "message_responder.h"
-#include "error_manager.h"
 #include <set>
 #include <future>
+#include "ic_define.h"
 #include "ic_util.h"
-#include "logger.h"
+#include "message_responder.h"
+#include "error_manager.h"
 
-
-MessageResponder::MessageResponder()
+template <typename T>
+MessageResponder<T>::MessageResponder()
 {
 
 }
 
-MessageResponder::~MessageResponder()
+template <typename T>
+MessageResponder<T>::~MessageResponder()
 {
 
 }
 
-void MessageResponder::parseAndSendResponse(std::string strMessage)
+template <typename T>
+void MessageResponder<T>::parseAndSendResponse(std::string strMessage)
 {
 	std::thread th(&MessageResponder::parseThread, this, this, strMessage);
 
 	th.join();
 }
 
-bool MessageResponder::isThreadStop()
+template <typename T>
+bool MessageResponder<T>::isThreadStop()
 {
 	return isThreadStop_;
 }
 
-void MessageResponder::parseThread(void* param, std::string strMessage)
+template <typename T>
+void MessageResponder<T>::parseThread(void* param, std::string strMessage)
 {
 	MessageResponder* pMain = (MessageResponder*)param;
 	if (pMain->isThreadStop())
@@ -78,7 +82,7 @@ void MessageResponder::parseThread(void* param, std::string strMessage)
 	{
 		sendDocument[PROTOCOL_ERRORMSG].SetString(getErrorCodeToString(nResultCode), allocator);
 		std::string sendString = getDocumentToString(sendDocument);
-		if (pMain->icServer_->sendData(protocol.From, sendString))
+		if (pMain->server_->sendData(protocol.From, sendString))
 		{
             LOG_ERROR("sendData failed in parsThread: {}", sendString);
 		}
@@ -88,15 +92,17 @@ void MessageResponder::parseThread(void* param, std::string strMessage)
 //	LOG_DEBUG("section {} {} {}", strSection1, strSection2, strSection3);
 
 	std::string strSendString = getDocumentToString(sendDocument);
-	pMain->icServer_->sendData(protocol.From, strSendString);
+	pMain->server_->sendData(protocol.From, strSendString);
 }
 
-void MessageResponder::setICServer(std::shared_ptr<ICServer> icServer)
+template <typename T>
+void MessageResponder<T>::setServer(std::shared_ptr<T> server)
 {
-	icServer_ = icServer;
+	server_ = server;
 }
 
-std::string MessageResponder::getDocumentToString(Document& document)
+template <typename T>
+std::string MessageResponder<T>::getDocumentToString(Document& document)
 {
 	StringBuffer strbuf;
 	strbuf.Clear();
@@ -107,7 +113,8 @@ std::string MessageResponder::getDocumentToString(Document& document)
 	return ownShipRadarString;
 }
 
-int MessageResponder::getBasicReturnJson(Document& document, ic::Protocol& protocol)
+template <typename T>
+int MessageResponder<T>::getBasicReturnJson(Document& document, ic::Protocol& protocol)
 {
 	if (document.HasMember(PROTOCOL_SECTION1))
 		protocol.Type = document[PROTOCOL_SECTION1].GetString();

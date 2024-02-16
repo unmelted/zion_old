@@ -41,10 +41,11 @@ ClientManager::ClientManager()
 
     // along the server type, ic_server starts with specific socket
     // and have handler the function for validating the json format (dependency injection)
+    std::shared_ptr<ICClient> socketServer_;
     socketServer_ = std::make_shared<ICClient>(configContent);
     socketServer_->beginSocket();
     socketServer_->setHandler(std::bind(&ClientManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
-
+    socket_list_.push_back(socketServer_);
     msg_manager_ = std::make_unique<ClientMsgManager>();
     msg_manager_->setSocketServer(socketServer_);
     msg_manager_->setDBManager(db_manager_);
@@ -54,4 +55,31 @@ ClientManager::ClientManager()
 ClientManager::~ClientManager()
 {
 
+}
+
+
+// this function check the command format
+// if received message fits the command format well,
+// deliver the message to message_parser or message_manager for further process
+int ClientManager::validateMsg(char cSeparator, char* pData, int nDataSize)
+{
+    std::string strMessage = pData;
+    Document document;
+    document.Parse(strMessage.c_str()).HasParseError();
+
+    std::string command = document[PROTOCOL_SECTION2].GetString();
+
+    msg_manager_->insertEventTable(document, (int)ic::MSG_TYPE::MSG_TYPE_RCV);
+    LOG_INFO("validateMsg command : {}", command);
+
+    if (command == "CONNECT")
+    {
+        // pas this command
+    }
+    else
+    {
+
+    }
+
+    return 1;
 }

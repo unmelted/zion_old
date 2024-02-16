@@ -61,7 +61,5 @@ int ICManager<T, U>::validateMsg(char cSeparator, char* pData, int nDataSize)
         return 0;
     }
 
-
-
     return 1;
 }
