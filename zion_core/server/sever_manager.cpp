@@ -16,25 +16,42 @@
  *
  */
 
-#include "svr_manager.h"
+#include "sever_manager.h"
 #include <string.h>
 
 
 ServerManager::ServerManager()
-: ICManager<ICServer, SvrMsgManager>()
+: ICManager<ICServer, SeverMsgManager>()
 , msg_rspndr_(new MessageResponder())
 {
+    std::ostringstream ss;
+    ss << R"(
+    {
+        "servers": [
+        {
+            "name": "Main",
+            "port": )" << ic::SERVER_PORT[static_cast<int>(ic::SERVER_TYPE::SERVER_ROBOT_CONTROL)] << R"(
+        },
+        {
+            "name": "LOG_MONITOR",
+            "port": )" << ic::SERVER_PORT[static_cast<int>(ic::SERVER_TYPE::SERVER_ROBOT_LOGMONITOR)] << R"(
+        }]
+    }
+    )";
+    std::string configContent = ss.str();
+    std::cout << "configContent: " << configContent << std::endl;
+
     Configurator::get().setDirectory();
     db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
 
     // along the server type, ic_server starts with specific socket
-    // and have handler the function for validating the json foramt (dependency injection)
-    socketServer_ = std::make_shared<ICServer>();
+    // and have handler the function for validating the json format (dependency injection)
+    socketServer_ = std::make_shared<ICServer>(configContent);
 	socketServer_->beginSocket(ic::SERVER_PORT[(int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL]);
 	socketServer_->setHandler(std::bind(&ServerManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
 
     msg_rspndr_ = std::make_unique<MessageResponder>();
-    msg_manager_ = std::make_unique<SvrMsgManager>();
+    msg_manager_ = std::make_unique<SeverMsgManager>();
     msg_rspndr_->setICServer(socketServer_);
 	msg_manager_->setSocketServer(socketServer_);
     msg_manager_->setDBManager(db_manager_);

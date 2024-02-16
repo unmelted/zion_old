@@ -15,18 +15,18 @@
  * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
  *
  */
-#include "svr_message.h"
+#include "sever_message.h"
 
 using namespace rapidjson;
 
-SvrMsgManager::SvrMsgManager()
+SeverMsgManager::SeverMsgManager()
 : SocketMsgManager<ICServer>()
 , taskmanager_(3, this)
 {
 
 }
 
-SvrMsgManager::~SvrMsgManager()
+SeverMsgManager::~SeverMsgManager()
 {
 
 }

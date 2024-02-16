@@ -21,11 +21,6 @@
 ClientManager::ClientManager()
 : ICManager<ICClient, ClientMsgManager>()
 {
-    // along the server type, ic_server starts with specific socket
-    // and have handler the function for validating the json foramt (dependency injection)
-    Configurator::get().setDirectory();
-    db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
-
     std::ostringstream ss;
     ss << R"(
     {
@@ -40,7 +35,14 @@ ClientManager::ClientManager()
 
     std::string configContent = ss.str();
     std::cout << "configContent: " << configContent << std::endl;
+
+    Configurator::get().setDirectory();
+    db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
+
+    // along the server type, ic_server starts with specific socket
+    // and have handler the function for validating the json format (dependency injection)
     socketServer_ = std::make_shared<ICClient>(configContent);
+    socketServer_->beginSocket();
     socketServer_->setHandler(std::bind(&ClientManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
 
     msg_manager_ = std::make_unique<ClientMsgManager>();

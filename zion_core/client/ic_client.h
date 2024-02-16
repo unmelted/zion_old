@@ -17,34 +17,15 @@
  */
 
 #pragma once
-#include <sys/socket.h> // for socket(), bind(), connect()
-#include <arpa/inet.h> // for sockaddr_in, inet_ntoa()
-#include <unistd.h> // for close()
-#include <stdlib.h> // for exit()
-#include <net/if.h>
-#include "ic_define.h"
-#include "db_manager.h"
+#include "socket_abstraction.h"
 
 using namespace rapidjson;
 
-class ICClient {
-public:
-    ICClient(const std::string& configContent);
-    ~ICClient();
-
-    bool sendData(const std::string& name, const std::string& data);
-    void requestStop();
-
-    typedef std::function<int(char cSeparator, char* pData, int nDataSize)> callback;
-    callback classifier;
-
-    void setHandler(callback f)
-    {
-        classifier = std::move(f);
-    }
-
+class ICClient : public SocketHandlerAbs
+{
 private:
-    struct ServerInfo {
+    struct ServerInfo
+    {
         std::string ip;
         int port;
         int socket;
@@ -52,17 +33,27 @@ private:
         ServerInfo(const std::string& ip, int port) : ip(ip), port(port), socket(-1), isAvailable(false) {}
     };
 
+public:
+    ICClient(const std::string& configContent);
+    ~ICClient();
+
+    bool beginSocket(int nPort) override;
+    bool sendData(const std::string& name, const std::string& strJson) override;
+
+
+private :
+    void closeSocket(int nSock) override;
+    void runSocket() override;
+    void receive(ServerInfo server) ;
+
+    int checkServerAvailability();
+    bool connectToServer(ServerInfo& server);
+    void requestStop();
+
+
+private :
     std::unordered_map<std::string, ServerInfo> servers_;
     std::vector<std::thread> threads_;
     std::atomic<bool> stop_ = false;
-
-private :
-    int initialize();
-    int checkServerAvailability();
-    bool addServer(const std::string& name, const std::string& serverIP, int serverPort);
-    bool connectToServers();
-    bool connectToServer(ServerInfo& server);
-    void receive(ServerInfo server);
-    void closeSocket();
 
 };

@@ -92,10 +92,6 @@ int DBManager::createTable()
                     sqlite3_free(errMsg);
                     throw std::runtime_error(errorStr);
                 }
-                else
-                {
-//                    LOG_DEBUG("Success to execute query: {}", query);
-                }
             }
             catch (const std::runtime_error& e)
             {

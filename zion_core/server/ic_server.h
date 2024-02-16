@@ -18,37 +18,12 @@
 
 #pragma once
 #include <list>
-#include <sys/socket.h> // for socket(), bind(), connect()
-#include <arpa/inet.h> // for sockaddr_in, inet_ntoa()
-#include <unistd.h> // for close()
-#include <stdlib.h> // for exit()
-# include <sys/ioctl.h>
-# include <net/if.h>
-#include "ic_define.h"
+#include "socket_abstraction.h"
 
 using namespace rapidjson;
 
-class ICServer
+class ICServer : public SocketHandlerAbs
 {
-public : 
-    ICServer();
-    ~ICServer();
-
-    bool beginSocket(int nPort);
-    bool sendData(const std::string& clientName, std::string strJson);
-
-    typedef std::function<int(char cSeparator, char* pData, int nDataSize)> callback;
-    callback classifier;
-
-    void setHandler(callback f)
-    {
-        classifier = std::move(f);
-    }
-
-	std::list<std::string> getIPList();
-	std::string getLocalCompare(std::string strIP);
-
-
 private:
     // this struct is for handling with client_name
     // a member in unordered_map
@@ -68,17 +43,37 @@ private:
         int socket;
     };
 
-    bool addClient(const std::string& clientIp, int clientSocket, int packetSize);
-    void removeClient(const std::string& clientName);
-    void closeSocket(int nSock);
-    void runSocket();
+public : 
+    ICServer(const std::string& configContent);
+    ~ICServer();
 
-    void* handle_client(std::unique_ptr<ClientSockThreadData> threadData);
-    int receive(int clnt_sock, char* pRecv, int nSize, int flags);
+    bool beginSocket(int nPort) override;
+    bool sendData(const std::string& name, const std::string& strJson) override;
+
+//    typedef std::function<int(char cSeparator, char* pData, int nDataSize)> callback;
+//    callback classifier;
+//
+//    void setHandler(callback f)
+//    {
+//        classifier = std::move(f);
+//    }
+
+	std::list<std::string> getIPList();
+	std::string getLocalCompare(std::string strIP);
 
 
 private:
+    void closeSocket(int nSock) override;
+    void runSocket() override;
+    int receive(int clnt_sock, char* pRecv, int nSize, int flags);
 
+    void* handle_client(std::unique_ptr<ClientSockThreadData> threadData);
+    bool addClient(const std::string& clientIp, int clientSocket, int packetSize);
+    void removeClient(const std::string& clientName);
+
+
+private:
+    std::unordered_map<std::string, int> serverPorList_;
     std::mutex sockMutex_;
     std::mutex sendMutex_;
 
@@ -91,5 +86,6 @@ private:
     int serverSockets_;
     int serverPorts_;
     std::vector<char> sendBuffer_;
+//    std::unique_ptr<MessageResponder> msg_rspndr_;
 };
 

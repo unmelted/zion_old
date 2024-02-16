@@ -30,13 +30,6 @@ Logger::Logger(std::array<bool, 4> sink_type)
     std::cout << "Logger Start!" << std::endl;
     set_sink_type(sink_type);
     init();
-
-//    LOG_TRACE("Logger Start!");
-//    LOG_DEBUG("Logger Start!");
-//    LOG_INFO("Logger Start!");
-//    LOG_WARN("Logger Start!");
-//    LOG_ERROR("Logger Start!");
-//    LOG_CRITICAL("Logger Start!");
 }
 
 Logger::~Logger()

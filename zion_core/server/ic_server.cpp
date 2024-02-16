@@ -18,13 +18,26 @@
 
 #include "ic_server.h"
 
-ICServer::ICServer()
+ICServer::ICServer(const std::string& configContent)
 {
 	isMainSocketThread_ = false;
 	mainSocketThread_ = nullptr;
 	serverSockets_ = 0;
     serverPorts_ = 0;
 
+    rapidjson::Document doc;
+    doc.Parse(configContent.c_str());
+
+    if (doc.HasMember("servers") && doc["servers"].IsArray())
+    {
+        for (const auto& server : doc["servers"].GetArray())
+        {
+            std::string name = server["name"].GetString();
+            int port = server["port"].GetInt();
+            serverPorList_.emplace(name, port);
+            LOG_DEBUG("Add server: {} {}", name, port);
+        }
+    }
 }
 
 ICServer::~ICServer()
@@ -49,12 +62,13 @@ ICServer::~ICServer()
 void ICServer::closeSocket(int nSock)
 {
 	shutdown(nSock, SHUT_RDWR);
+    close(nSock);
 }
 
 bool ICServer::beginSocket(int nPort)
 {
     std::cout << "beginSocket with port : " << nPort << std::endl;
-//    LOG_DEBUG("beginSocket with port : {} ", nPort);
+
 	if (isMainSocketThread_)
 		return false;
 
@@ -62,13 +76,7 @@ bool ICServer::beginSocket(int nPort)
 	isMainSocketThread_ = true;
 	mainSocketThread_ =  std::make_unique<std::thread>(&ICServer::runSocket, this);
 
-    LOG_TRACE("beginSocket");
-    LOG_DEBUG("beginSocket");
     LOG_INFO("beginSocket");
-    LOG_WARN("beginSocket");
-    LOG_ERROR("beginSocket");
-    LOG_CRITICAL("beginSocket");
-
 	return true;
 }
 
@@ -80,10 +88,23 @@ void ICServer::runSocket()
 	int clnt_adr_sz;
 
 	serverSockets_ = (int)socket(PF_INET, SOCK_STREAM, 0);
+    if (serverSockets_ == -1)
+    {
+        LOG_CRITICAL("Socket Creation Error");
+        return;
+    }
+
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	serv_adr.sin_port = htons(serverPorts_);
+
+    int optval = 1;
+    if (setsockopt(serverSockets_, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, sizeof(optval)) == -1)
+    {
+        LOG_CRITICAL("Socket Opt. SO_REUSEADDR Error");
+        return;
+    }
 
 	if (::bind(serverSockets_, (struct sockaddr*)&serv_adr, sizeof(serv_adr)) == -1)
 	{
@@ -126,7 +147,7 @@ void ICServer::runSocket()
 
         if ((str_len = receive(clientSocket, (char*)&header, sizeof(header), 0)) == 0)
         {
-            LOG_ERROR("Client disconnected or error occurred: IP {} Socket {}", clientIP, clientSocket);
+            LOG_WARN("Client disconnected or error occurred: IP {} Socket {}", clientIP, clientSocket);
             continue;
         }
 
@@ -210,7 +231,7 @@ void* ICServer::handle_client(std::unique_ptr<ClientSockThreadData> threadData)
 	return NULL;
 }
 
-bool ICServer::sendData(const std::string& clientName, std::string strJson)
+bool ICServer::sendData(const std::string& name, const std::string& strJson)
 {
     int nSize = static_cast<int>(strJson.size());
     char cType = static_cast<char>(ic::PACKET_SEPARATOR::PACKETTYPE_JSON);
@@ -225,11 +246,11 @@ bool ICServer::sendData(const std::string& clientName, std::string strJson)
 
     sockMutex_.lock();
     int nSend = -1;
-    auto clientInfoIterator = clientMap_.find(clientName);
+    auto clientInfoIterator = clientMap_.find(name);
     if (clientInfoIterator != clientMap_.end())
     {
         ClientInfo& clientInfo = clientInfoIterator->second;
-        LOG_INFO("SendData clientName : {} clientIP : {} ", clientName, clientInfo.clientIp);
+        LOG_INFO("SendData clientName : {} clientIP : {} ", name, clientInfo.clientIp);
         nSend = send(clientInfo.clientSocket, sendBuffer_.data(), sendBuffer_.size(), 0);
     }
     else

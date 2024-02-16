@@ -27,15 +27,14 @@ using namespace rapidjson;
 template <typename T, typename U>
 class ICManager
 {
-public:
-    ICManager();
-    ~ICManager();
+//public:
+//    ICManager();
+//    ~ICManager();
 
 protected:
     int validateMsg(char cSeparator, char* pData, int nDataSize);
 
     std::shared_ptr<T> socketServer_;
-//    std::unique_ptr<MessageResponder> msg_rspndr_;
     std::unique_ptr<U> msg_manager_;
     std::shared_ptr<DBManager> db_manager_;
 

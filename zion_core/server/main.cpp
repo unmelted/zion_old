@@ -17,7 +17,7 @@
  */
 
 #include <csignal>
-#include "svr_manager.h"
+#include "sever_manager.h"
 
 std::unique_ptr<ServerManager> svrManager;
 
@@ -35,7 +35,7 @@ int main()
 {
     // array<bool, 4> represent the sink of log
     // refer the enum Logger::sink_enum
-    Logger logger({true, true, true, false});
+    Logger logger({true, true, false, false});
     signal(SIGINT, signalHandler);
     svrManager = std::make_unique<ServerManager>();
 

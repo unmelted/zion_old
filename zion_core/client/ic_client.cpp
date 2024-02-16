@@ -25,13 +25,17 @@ ICClient::ICClient(const std::string& configContent)
     rapidjson::Document doc;
     doc.Parse(configContent.c_str());
 
-    if (doc.HasMember("servers") && doc["servers"].IsArray()) {
-        for (const auto& server : doc["servers"].GetArray()) {
-            addServer(server["name"].GetString(), server["ip"].GetString(), server["port"].GetInt());
+    if (doc.HasMember("servers") && doc["servers"].IsArray())
+    {
+        for (const auto& server : doc["servers"].GetArray())
+        {
+            std::string name = server["name"].GetString();
+            std::string ip = server["ip"].GetString();
+            int port = server["port"].GetInt();
+            servers_.emplace(name, ServerInfo(ip, port));
+            LOG_DEBUG("Add server: {} {} {}", name, ip, port);
         }
     }
-
-    initialize();
 }
 
 ICClient::~ICClient()
@@ -43,13 +47,6 @@ ICClient::~ICClient()
     }
 
     closeSocket();
-}
-
-bool ICClient::addServer(const std::string& name, const std::string& serverIP, int serverPort)
-{
-    LOG_DEBUG("Add server: {} {} {}", name, serverIP, serverPort);
-    servers_.emplace(name, ServerInfo(serverIP, serverPort));
-    return true;
 }
 
 int ICClient::checkServerAvailability()
@@ -89,32 +86,25 @@ int ICClient::checkServerAvailability()
     return available_cnt;
 }
 
-int ICClient::initialize()
+bool ICClient::beginSocket(int nPort)
 {
     if(servers_.empty())
     {
-
+        LOG_INFO("There is no server to connect.");
     }
     else
     {
-        connectToServers();
-    }
-
-    return 0;
-}
-
-bool ICClient::connectToServers()
-{
-    for (auto& server : servers_)
-    {
-        LOG_DEBUG("Connect to server: {} {} {} ", server.first, server.second.ip, server.second.port);
-
-        if (!connectToServer(server.second))
+        for (auto& server : servers_)
         {
-            LOG_ERROR("Failed to connect to server: {}", server.first);
-            return false;
+            LOG_DEBUG("Connect to server: {} {} {} ", server.first, server.second.ip, server.second.port);
+
+            if (!connectToServer(server.second))
+            {
+                LOG_ERROR("Failed to connect to server: {}", server.first);
+            }
         }
     }
+
     return true;
 }
 
@@ -191,7 +181,7 @@ void ICClient::receive(ServerInfo server)
 
     if(server.socket != -1)
     {
-        close(server.socket);
+        closeSocket(server.socket);
         server.socket = -1;
         LOG_INFO("Socket closed: {} : {} ", server.ip, server.port);
     }
@@ -203,14 +193,11 @@ void ICClient::requestStop()
     stop_ = true;
 }
 
-void ICClient::closeSocket()
+void ICClient::closeSocket(int nSock)
 {
-    for (auto& server: servers_)
-    {
-        if (server.second.socket != -1)
-        {
-            close(server.second.socket);
-            server.second.socket = -1;
-        }
-    }
+//    close(server.second.socket);
+//    server.second.socket = -1;
+    shutdown(nSock, SHUT_RDWR);
+    close(nSock);
+
 }

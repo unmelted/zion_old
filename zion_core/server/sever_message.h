@@ -16,27 +16,25 @@
  *
  */
 
+
 #pragma once
 
-#include "ic_manager.h"
-#include "ic_server.h"
-#include "ic_define.h"
-#include <functional>
-#include "message_responder.h"
-#include "svr_message.h"
+#include "socket_message.h"
+#include "task_manager.h"
 #include "db_manager.h"
+#include "ic_server.h"
 
-using namespace rapidjson;
-
-class ServerManager : public ICManager<ICServer, SvrMsgManager>
+class SeverMsgManager : public SocketMsgManager<ICServer>
 {
+
 public:
-    ServerManager();
-	~ServerManager();
 
-private:
+    SeverMsgManager();
+    ~SeverMsgManager();
 
-    std::unique_ptr<MessageResponder> msg_rspndr_;
+
+private :
+
+    TaskManager taskmanager_;
 
 };
-

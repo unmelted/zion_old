@@ -19,28 +19,6 @@
 #include "ic_manager.h"
 #include <string.h>
 
-template <typename T, typename U>
-ICManager<T, U>::ICManager()
-{
-    // along the server type, ic_server starts with specific socket
-    // and have handler the function for validating the json foramt (dependency injection)
-//    socketServer_ = std::make_shared<T>((int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL);
-//    socketServer_->beginSocket(ic::SERVER_PORT[(int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL], 0);
-//    socketServer_->setHandler(std::bind(&ICManager<T, U>::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
-//
-//    db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
-//    msg_manager_ = std::make_unique<U>();
-//    msg_manager_->setSocketServer(socketServer_);
-//    msg_manager_->setDBManager(db_manager_);
-//
-//    Configurator::get().setDirectory();
-}
-
-template <typename T, typename U>
-ICManager<T, U>::~ICManager()
-{
-
-}
 
 // this function check the command format
 // if received message fits the command format well,
