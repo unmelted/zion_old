@@ -35,7 +35,7 @@ int main()
 {
     // array<bool, 4> represent the sink of log
     // refer the enum Logger::sink_enum
-    Logger logger({true, true, false, false});
+    Logger logger({true, true, true, false});
     signal(SIGINT, signalHandler);
     svrManager = std::make_unique<ServerManager>();
 

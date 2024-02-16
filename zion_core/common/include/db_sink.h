@@ -55,7 +55,7 @@ class db_sink : public spdlog::sinks::base_sink <Mutex>
 {
 public :
 
-    void initialize()
+    int initialize()
     {
         dbLogManager_ = std::make_unique<DBManager>((int)ic::DB_TYPE::DB_TYPE_LOG);
 
@@ -72,7 +72,10 @@ public :
         catch (const std::exception& e)
         {
             std::cout << "create table query error : " << e.what() << std::endl;
+            return -1;
         }
+
+        return 1;
     }
 
     std::shared_ptr<sqlite3> db_;

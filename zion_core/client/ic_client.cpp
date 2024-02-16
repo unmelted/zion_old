@@ -97,15 +97,7 @@ int ICClient::initialize()
     }
     else
     {
-//        int available_cnt = checkServerAvailability();
-//        if (available_cnt > 0)
-        {
-            connectToServers();
-        }
-//        else
-//        {
-//            std::cerr << "No server is available." << std::endl;
-//        }
+        connectToServers();
     }
 
     return 0;
@@ -130,8 +122,8 @@ bool ICClient::connectToServer(ServerInfo& server)
 {
     int sock = 0;
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        std::cout << "\n Socket creation error \n";
-        return -1;
+        LOG_ERROR("Socket creation error.");
+        return false;
     }
 
     server.socket = sock;
@@ -142,19 +134,17 @@ bool ICClient::connectToServer(ServerInfo& server)
 
     if(inet_pton(AF_INET, server.ip.c_str(), &serverAddr.sin_addr) <= 0)
     {
-        std::cerr << "Invalid address/ Address not supported: " << server.ip << std::endl;
+        LOG_ERROR("Invalid address/ Address not supported: {}", server.ip);
         return false;
     }
 
     if (connect(server.socket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1)
     {
-        std::cerr << "Failed to connect to the server: " << server.ip << std::endl;
+        LOG_ERROR("Failed to connect to the server: {}", server.ip);
         return false;
     }
 
     threads_.emplace_back(&ICClient::receive, this, server);
-
-
     return true;
 }
 
@@ -163,13 +153,13 @@ bool ICClient::sendData(const std::string& name, const std::string& data)
     auto it = servers_.find(name);
     if (it == servers_.end())
     {
-        std::cerr << "Server not found: " << name << std::endl;
+        LOG_ERROR("Server not found: {}", name);
         return false;
     }
 
     if (send(it->second.socket, data.c_str(), data.size(), 0) == -1)
     {
-        std::cerr << "Failed to send data to server: " << name << std::endl;
+        LOG_ERROR("Failed to send data to server: {}", name);
         return false;
     }
 
@@ -187,27 +177,29 @@ void ICClient::receive(ServerInfo server)
         if (bytesRead == -1)
         {
             std::cerr << "Failed to receive data from server: " << server.ip << std::endl;
-            break; // 오류 발생 시 루프 종료
+            break;
         }
         else if (bytesRead == 0)
         {
-            std::cerr << "Connection closed by server: " << server.ip << std::endl;
-            break; // 서버 연결 종료 시 루프 종료
+            LOG_ERROR("Connection closed by server: {}", server.ip);
+            break;
         }
 
         std::string received(buffer, bytesRead);
-        std::cout << "Data received from server: " << received << std::endl;
+        LOG_INFO("Data received from server: {}", received);
     }
 
     if(server.socket != -1)
     {
         close(server.socket);
         server.socket = -1;
+        LOG_INFO("Socket closed: {} : {} ", server.ip, server.port);
     }
 }
 
 void ICClient::requestStop()
 {
+    LOG_INFO("Request stop is called");
     stop_ = true;
 }
 

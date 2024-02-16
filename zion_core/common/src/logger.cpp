@@ -31,17 +31,18 @@ Logger::Logger(std::array<bool, 4> sink_type)
     set_sink_type(sink_type);
     init();
 
-    LOG_TRACE("Logger Start!");
-    LOG_DEBUG("Logger Start!");
-    LOG_INFO("Logger Start!");
-    LOG_WARN("Logger Start!");
-    LOG_ERROR("Logger Start!");
-    LOG_CRITICAL("Logger Start!");
+//    LOG_TRACE("Logger Start!");
+//    LOG_DEBUG("Logger Start!");
+//    LOG_INFO("Logger Start!");
+//    LOG_WARN("Logger Start!");
+//    LOG_ERROR("Logger Start!");
+//    LOG_CRITICAL("Logger Start!");
 }
 
 Logger::~Logger()
 {
-	LOG_INFO("Logger End!");
+    spdlog::shutdown();
+    LOG_INFO("Logger End!");
 }
 
 void Logger::set_sink_type(std::array<bool, 4> sink_type)
@@ -58,6 +59,7 @@ void Logger::init()
     spdlog::flush_every(std::chrono::milliseconds(50));
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
     console_sink->set_level(spdlog::level::trace);
+    std::cout << "console_sink is on. (default) " << std::endl;
 
     shared_ptr<spdlog::sinks::rotating_file_sink_mt> file_sink;
     shared_ptr<db_sink<std::mutex>> db_log_sink;
@@ -72,7 +74,7 @@ void Logger::init()
         std::string fileName("log/ic_");
         std::string date = Configurator::get().getCurrentDateTime("date");
         fileName += date + ".txt";
-        std::cout << "--- log file name : " << fileName << std::endl;
+        std::cout << "file sink is on. : " << fileName << std::endl;
 
         file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(fileName, 1024 * 1000 * 10, 10);
         file_sink->set_level(spdlog::level::level_enum::trace);
@@ -82,9 +84,12 @@ void Logger::init()
     if(sink_type_list_[static_cast<int>(sink_enum::db_sink)])
     {
         db_log_sink = std::make_shared<db_sink<std::mutex>>();
-        db_log_sink->initialize();
-        db_log_sink->set_level(spdlog::level::trace);
-        sink_list.push_back(db_log_sink);
+        if (db_log_sink->initialize() > 0)
+        {
+            db_log_sink->set_level(spdlog::level::trace);
+            sink_list.push_back(db_log_sink);
+            std::cout << "db_sink is on. " << std::endl;
+        }
     }
 
     if(sink_type_list_[static_cast<int>(sink_enum::tcp_sink)])
@@ -92,6 +97,7 @@ void Logger::init()
         tcp_log_sink = std::make_shared<tcp_sink<std::mutex>>();
         tcp_log_sink->set_level(spdlog::level::level_enum::info);
         sink_list.push_back(tcp_log_sink);
+        std::cout << "tcp_sink is on. " << std::endl;
     }
 
     logger_ = std::make_shared<spdlog::logger>("ic", sink_list.begin(), sink_list.end());
@@ -106,4 +112,6 @@ void Logger::init()
     spdlog::register_logger(logger_);
     spdlog::set_default_logger(logger_);
     spdlog::set_level(spdlog::level::level_enum::trace);
+
+    std::cout << "Logger init done!" << std::endl;
 }

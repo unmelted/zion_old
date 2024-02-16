@@ -25,6 +25,7 @@ ServerManager::ServerManager()
 , msg_rspndr_(new MessageResponder())
 {
     Configurator::get().setDirectory();
+    db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
 
     // along the server type, ic_server starts with specific socket
     // and have handler the function for validating the json foramt (dependency injection)
@@ -32,7 +33,6 @@ ServerManager::ServerManager()
 	socketServer_->beginSocket(ic::SERVER_PORT[(int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL]);
 	socketServer_->setHandler(std::bind(&ServerManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
 
-    db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
     msg_rspndr_ = std::make_unique<MessageResponder>();
     msg_manager_ = std::make_unique<SvrMsgManager>();
     msg_rspndr_->setICServer(socketServer_);

@@ -18,6 +18,7 @@
 
 #pragma once
 
+// this define should be placed before the include of spdlog.h. DO NOT REMOVE!
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 #include <spdlog/spdlog.h>
 #include <spdlog/async.h>
@@ -38,9 +39,6 @@
 #define LOG_WARN(...)  SPDLOG_LOGGER_WARN(Logger::logger_, __VA_ARGS__)
 #define LOG_ERROR(...) SPDLOG_LOGGER_ERROR(Logger::logger_, __VA_ARGS__)
 #define LOG_CRITICAL(...) SPDLOG_LOGGER_CRITICAL(Logger::logger_, __VA_ARGS__)
-
-
-
 
 #define LOGE_RETURN_VAL(cond, val) do{ if (!(cond)){LOG_TRACE(#cond "\n"); return (val);} } while(false)
 #define LOGE_RETURN(cond) do{ if (!(cond)){LOG_TRACE(#cond "\n"); return;} } while(false)

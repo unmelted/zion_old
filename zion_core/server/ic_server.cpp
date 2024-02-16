@@ -53,7 +53,8 @@ void ICServer::closeSocket(int nSock)
 
 bool ICServer::beginSocket(int nPort)
 {
-    LOG_DEBUG("beginSocket with port : {} ", nPort);
+    std::cout << "beginSocket with port : " << nPort << std::endl;
+//    LOG_DEBUG("beginSocket with port : {} ", nPort);
 	if (isMainSocketThread_)
 		return false;
 

@@ -21,7 +21,7 @@
 
 DBManager::DBManager(int db_name_idx)
 {
-    std::string db_path = ic::DB_NAME[db_name_idx];
+    const std::string& db_path = ic::DB_NAME[db_name_idx];
     std::cout <<"try to open DB: " << db_path << std::endl;
 
     if (!openDB(db_path))
@@ -170,12 +170,18 @@ int DBManager::runQuery(std::shared_ptr<ic::MSG_T> query)
         }
         else
         {
-            LOG_DEBUG("Success to execute query: {}", query->txt);
+            if (query->type != (int)ic::MSG_TYPE::MSG_TYPE_LOG)
+            {
+                LOG_DEBUG("Success to execute query: {}", query->txt);
+            }
         }
     }
     catch (const std::runtime_error& e)
     {
-        LOG_ERROR("Failed to execute query: {}", e.what());
+        if (query->type != (int)ic::MSG_TYPE::MSG_TYPE_LOG)
+        {
+            LOG_ERROR("Failed to execute query: {}", e.what());
+        }
         return -1;
     }
 
