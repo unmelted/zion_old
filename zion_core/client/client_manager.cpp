@@ -58,6 +58,10 @@ ClientManager::~ClientManager()
 
 }
 
+int ClientManager::initialize()
+{
+
+}
 
 // this function check the command format
 // if received message fits the command format well,

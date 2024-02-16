@@ -27,13 +27,12 @@ using namespace rapidjson;
 template <typename T, typename U>
 class ICManager
 {
-//public:
-//    ICManager();
-//    ~ICManager();
 
 protected:
+    virtual int initialize() = 0;
     virtual int validateMsg(char cSeparator, char* pData, int nDataSize);
 
+    std::vector<ic::ServerInfo> server_info_list_;
     std::vector<std::shared_ptr<T>> socket_list_;
     std::unique_ptr<U> msg_manager_;
     std::shared_ptr<DBManager> db_manager_;
