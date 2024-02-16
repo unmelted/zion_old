@@ -24,14 +24,6 @@ using namespace rapidjson;
 class ICClient : public SocketHandlerAbs
 {
 private:
-    struct ServerInfo
-    {
-        std::string ip;
-        int port;
-        int socket;
-        bool isAvailable;
-        ServerInfo(const std::string& ip, int port) : ip(ip), port(port), socket(-1), isAvailable(false) {}
-    };
 
 public:
     ICClient(const std::string& configContent);
@@ -42,17 +34,17 @@ public:
 
 
 private :
-    void closeSocket(int nSock) override;
     void runSocket() override;
-    void receive(ServerInfo server) ;
+    void closeSocket(int nSock) override;
+    void receive(ic::ServerInfo server) ;
 
     int checkServerAvailability();
-    bool connectToServer(ServerInfo& server);
+    bool connectToServer(ic::ServerInfo& server);
     void requestStop();
 
 
 private :
-    std::unordered_map<std::string, ServerInfo> servers_;
+    std::unordered_map<std::string, ic::ServerInfo> servers_;
     std::vector<std::thread> threads_;
     std::atomic<bool> stop_ = false;
 

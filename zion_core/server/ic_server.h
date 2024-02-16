@@ -55,10 +55,10 @@ public :
 
 
 private:
-    void closeSocket(int nSock) override;
     void runSocket() override;
-    int receive(int clnt_sock, char* pRecv, int nSize, int flags);
+    void closeSocket(int nSock) override;
 
+    int receive(int clnt_sock, char* pRecv, int nSize, int flags);
     void* handle_client(std::unique_ptr<ClientSockThreadData> threadData);
     bool addClient(const std::string& clientIp, int clientSocket, int packetSize);
     void removeClient(const std::string& clientName);

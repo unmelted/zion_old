@@ -32,7 +32,7 @@ ICClient::ICClient(const std::string& configContent)
             std::string name = server["name"].GetString();
             std::string ip = server["ip"].GetString();
             int port = server["port"].GetInt();
-            servers_.emplace(name, ServerInfo(ip, port));
+            servers_.emplace(name, ic::ServerInfo(ip, port));
             LOG_DEBUG("Add server: {} {} {}", name, ip, port);
         }
     }
@@ -108,7 +108,13 @@ bool ICClient::beginSocket(int nPort)
     return true;
 }
 
-bool ICClient::connectToServer(ServerInfo& server)
+void ICClient::runSocket()
+{
+    //TODO: Implement
+}
+
+
+bool ICClient::connectToServer(ic::ServerInfo& server)
 {
     int sock = 0;
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -156,7 +162,7 @@ bool ICClient::sendData(const std::string& name, const std::string& data)
     return true;
 }
 
-void ICClient::receive(ServerInfo server)
+void ICClient::receive(ic::ServerInfo server)
 {
     while (!stop_)
     {

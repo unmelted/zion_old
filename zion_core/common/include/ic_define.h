@@ -104,6 +104,17 @@ const int SERVER_PORT[] =
     0x4D17,
 };
 
+struct ServerInfo
+{
+    std::string ip;
+    int port;
+    int socket;
+    bool isAvailable;
+    bool waitWhenDisconnect;
+    ServerInfo(const std::string& ip, int port) : ip(ip), port(port), socket(-1), isAvailable(false), waitWhenDisconnect(false){}
+};
+
+
 enum class COMMAND_CLASS
 {
     COMMAND_NONE = 0,

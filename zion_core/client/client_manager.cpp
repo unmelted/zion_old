@@ -43,7 +43,8 @@ ClientManager::ClientManager()
     // and have handler the function for validating the json format (dependency injection)
     std::shared_ptr<ICClient> socketServer_;
     socketServer_ = std::make_shared<ICClient>(configContent);
-    socketServer_->beginSocket();
+    int port = 10; // temporary for compile
+    socketServer_->beginSocket(port);
     socketServer_->setHandler(std::bind(&ClientManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
     socket_list_.push_back(socketServer_);
     msg_manager_ = std::make_unique<ClientMsgManager>();
@@ -63,6 +64,8 @@ ClientManager::~ClientManager()
 // deliver the message to message_parser or message_manager for further process
 int ClientManager::validateMsg(char cSeparator, char* pData, int nDataSize)
 {
+    ICManager::validateMsg(cSeparator, pData, nDataSize);
+
     std::string strMessage = pData;
     Document document;
     document.Parse(strMessage.c_str()).HasParseError();

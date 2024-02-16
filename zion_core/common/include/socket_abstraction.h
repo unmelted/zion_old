@@ -21,8 +21,8 @@
 #include <arpa/inet.h> // for sockaddr_in, inet_ntoa()
 #include <unistd.h> // for close()
 #include <stdlib.h> // for exit()
-# include <sys/ioctl.h>
-# include <net/if.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
 #include "ic_define.h"
 
 class SocketHandlerAbs
@@ -41,8 +41,8 @@ public:
     }
 
 protected :
-    virtual void closeSocket(int nSock) = 0;
     virtual void runSocket() = 0;
+    virtual void closeSocket(int nSock) = 0;
 
 
 };
