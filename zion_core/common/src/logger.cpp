@@ -95,15 +95,6 @@ void Logger::init()
     }
 
     logger_ = std::make_shared<spdlog::logger>("ic", sink_list.begin(), sink_list.end());
-
-    for (auto& sink : logger_->sinks())
-    {
-        std::cout << " set sink list .. " << std::endl;
-        sink->set_pattern("[%Y-%m-%d %X.%e] [%P] [%t] [%^%l%$] [%s:%#] %v");
-    }
-
-//    spdlog::sinks_init_list sink_list = { console_sink, file_sink };
-    logger_ = std::make_shared<spdlog::logger>("ic", sink_list.begin(), sink_list.end());
     logger_->set_level(spdlog::level::level_enum::trace);
 
     for (auto& sink : logger_->sinks())
