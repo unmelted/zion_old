@@ -83,7 +83,7 @@ int DBManager::createTable()
             try
             {
                 std::string query = it->value.GetString();
-                LOG_INFO("Create Table Query: {}", query);
+//                LOG_INFO("Create Table Query: {}", query);
                 char* errMsg = nullptr;
                 int result = sqlite3_exec(db_, query.c_str(), 0, 0, &errMsg);
                 if (result != SQLITE_OK)
@@ -94,7 +94,7 @@ int DBManager::createTable()
                 }
                 else
                 {
-                    LOG_DEBUG("Success to execute query: {}", query);
+//                    LOG_DEBUG("Success to execute query: {}", query);
                 }
             }
             catch (const std::runtime_error& e)
@@ -104,6 +104,8 @@ int DBManager::createTable()
             }
         }
     }
+
+    LOG_DEBUG("Create Table Done.");
     return 0;
 }
 

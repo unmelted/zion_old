@@ -28,7 +28,7 @@ std::array<bool, static_cast<int>(Logger::sink_enum::num_sink_type)> Logger::sin
 Logger::Logger(std::array<bool, 4> sink_type)
 {
     std::cout << "Logger Start!" << std::endl;
-//    set_sink_type(sink_type);
+    set_sink_type(sink_type);
     init();
 
     LOG_TRACE("Logger Start!");
@@ -59,23 +59,58 @@ void Logger::init()
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
     console_sink->set_level(spdlog::level::trace);
 
-    std::string fileName("log/ic_");
-    std::string date = Configurator::get().getCurrentDateTime("date");
-    fileName += date + ".txt";
-//    std::cout << "--- log file name : " << fileName << std::endl;
+    shared_ptr<spdlog::sinks::rotating_file_sink_mt> file_sink;
+    shared_ptr<db_sink<std::mutex>> db_log_sink;
+    shared_ptr<tcp_sink<std::mutex>> tcp_log_sink;
 
-    auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(fileName, 1024 * 1000 * 10, 10);
-    file_sink->set_level(spdlog::level::trace);
+    std::vector<std::shared_ptr<spdlog::sinks::sink>> sink_list;
 
-//    auto db_log_sink = std::make_shared<db_sink<std::mutex>>();
-//    db_log_sink->set_db();
-//    db_log_sink->set_level(spdlog::level::trace);
+    sink_list.push_back(console_sink);
 
-    spdlog::sinks_init_list sink_list = { console_sink, file_sink };
-    logger_ = std::make_shared<spdlog::logger>("ic", sink_list);
+    if(sink_type_list_[static_cast<int>(sink_enum::file_sink)])
+    {
+        std::string fileName("log/ic_");
+        std::string date = Configurator::get().getCurrentDateTime("date");
+        fileName += date + ".txt";
+        std::cout << "--- log file name : " << fileName << std::endl;
+
+        file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(fileName, 1024 * 1000 * 10, 10);
+        file_sink->set_level(spdlog::level::level_enum::trace);
+        sink_list.push_back(file_sink);
+    }
+
+    if(sink_type_list_[static_cast<int>(sink_enum::db_sink)])
+    {
+        db_log_sink = std::make_shared<db_sink<std::mutex>>();
+        db_log_sink->initialize();
+        db_log_sink->set_level(spdlog::level::trace);
+        sink_list.push_back(db_log_sink);
+    }
+
+    if(sink_type_list_[static_cast<int>(sink_enum::tcp_sink)])
+    {
+        tcp_log_sink = std::make_shared<tcp_sink<std::mutex>>();
+        tcp_log_sink->set_level(spdlog::level::level_enum::info);
+        sink_list.push_back(tcp_log_sink);
+    }
+
+    logger_ = std::make_shared<spdlog::logger>("ic", sink_list.begin(), sink_list.end());
+
+    for (auto& sink : logger_->sinks())
+    {
+        std::cout << " set sink list .. " << std::endl;
+        sink->set_pattern("[%Y-%m-%d %X.%e] [%P] [%t] [%^%l%$] [%s:%#] %v");
+    }
+
+//    spdlog::sinks_init_list sink_list = { console_sink, file_sink };
+    logger_ = std::make_shared<spdlog::logger>("ic", sink_list.begin(), sink_list.end());
     logger_->set_level(spdlog::level::level_enum::trace);
-    logger_->sinks()[0]->set_pattern("[%Y-%m-%d %X.%e] [%P] [%t] [%^%l%$] [%s:%#] %v");
-    logger_->sinks()[1]->set_pattern("[%Y-%m-%d %X.%e] [%P] [%t] [%^%l%$] [%s:%#] %v");
+
+    for (auto& sink : logger_->sinks())
+    {
+        sink->set_pattern("[%Y-%m-%d %X.%e] [%P] [%t] [%^%l%$] [%s:%#] %v");
+        sink->set_level(spdlog::level::level_enum::trace);
+    }
 
     spdlog::register_logger(logger_);
     spdlog::set_default_logger(logger_);

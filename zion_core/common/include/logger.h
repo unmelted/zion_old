@@ -18,6 +18,7 @@
 
 #pragma once
 
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 #include <spdlog/spdlog.h>
 #include <spdlog/async.h>
 #include "spdlog/sinks/base_sink.h"
@@ -31,13 +32,14 @@
 #include <fmt/format.h>
 #include <sqlite3.h>
 
-
 #define LOG_TRACE(...) SPDLOG_LOGGER_TRACE(Logger::logger_, __VA_ARGS__)
 #define LOG_DEBUG(...) SPDLOG_LOGGER_DEBUG(Logger::logger_, __VA_ARGS__)
 #define LOG_INFO(...)  SPDLOG_LOGGER_INFO(Logger::logger_, __VA_ARGS__)
 #define LOG_WARN(...)  SPDLOG_LOGGER_WARN(Logger::logger_, __VA_ARGS__)
 #define LOG_ERROR(...) SPDLOG_LOGGER_ERROR(Logger::logger_, __VA_ARGS__)
 #define LOG_CRITICAL(...) SPDLOG_LOGGER_CRITICAL(Logger::logger_, __VA_ARGS__)
+
+
 
 
 #define LOGE_RETURN_VAL(cond, val) do{ if (!(cond)){LOG_TRACE(#cond "\n"); return (val);} } while(false)
