@@ -20,7 +20,7 @@
 using namespace rapidjson;
 
 ClientMsgManager::ClientMsgManager()
-        : SocketMsgManager<ICClient>()
+: SocketMsgManager()
 {
 
 }

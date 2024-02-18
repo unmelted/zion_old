@@ -33,7 +33,9 @@ public:
 
 private:
     int initialize() override;
-    int validateMsg(char cSeparator, char* pData, int nDataSize) override;
+    int classifier(const ic::ClientInfo& info, char* pData, int nDataSize) override;
 
+private :
+    std::unique_ptr<ClientMsgManager> msg_manager_;
 };
 

@@ -83,18 +83,12 @@ void SocketMsgManager::rcvMSGThread()
         if (queRcvMSG_.IsQueue())
         {
             msg = queRcvMSG_.Dequeue();
-//            taskmanager_.onRcvTask(msg); // call for storing the msg in taskMSG que.
             if (msg != nullptr)
             {
-//                LOG_INFO("rcvMSGThread : {} ", msg->txt);
-//                Document recvDoc;
-//                recvDoc.Parse(msg->txt);
-//
-//                string section2 = recvDoc["Command"].GetString();
-//                string action = recvDoc["Action"].GetString();
-//                if (section2 == "START") {
+                LOG_INFO("rcvMSGThread : socket {} port {} : command {}  ",
+                        msg->first.socket, msg->first.port, msg->second.command);
+
 //                    taskmanager_.commandTask((int)ic::COMMAND_CLASS::COMMAND_START, msg->txt);
-//                }
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(3));

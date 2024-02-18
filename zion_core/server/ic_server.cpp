@@ -21,22 +21,23 @@
 #include <utility>
 
 ICServer::ICServer(ic::ServerInfo info)
-: isMainSocketThread_(false)
-, mainSocketThread_(nullptr)
-, info_(std::move(info))
 {
+    isThreadRunning_ = false;
+    mainThread_ = nullptr;
+    info_= info;
+
     LOG_DEBUG("ICServer Constructor Server info {} open port : {}", info_.name, info_.port);
 }
 
 ICServer::~ICServer()
 {
-	isMainSocketThread_ = false;
+	isThreadRunning_ = false;
     closeServer();
 
-	if (mainSocketThread_ != nullptr)
+	if (mainThread_ != nullptr)
 	{
-		mainSocketThread_->join();
-		mainSocketThread_ = nullptr;
+		mainThread_->join();
+		mainThread_ = nullptr;
 	}
 
     LOG_DEBUG("Destroy ICServer Done");
@@ -60,12 +61,9 @@ void ICServer::closeSocket(int nSock)
 
 bool ICServer::beginSocket()
 {
-	if (isMainSocketThread_)
-		return false;
-
     LOG_INFO("beginSocket : port {} ", info_.port);
-	isMainSocketThread_ = true;
-	mainSocketThread_ =  std::make_unique<std::thread>(&ICServer::runSocket, this);
+	isThreadRunning_ = true;
+	mainThread_ =  std::make_unique<std::thread>(&ICServer::runSocket, this);
 
 	return true;
 }
@@ -112,7 +110,7 @@ void ICServer::runSocket()
 
     LOG_DEBUG("runSocket function will start loop : {} ", info_.port);
 
-	while (isMainSocketThread_)
+	while (isThreadRunning_)
 	{
 		clnt_adr_sz = sizeof(clnt_adr);
 		int client_socket = (int)(accept(info_.socket, (struct sockaddr*)&clnt_adr, (socklen_t*)&clnt_adr_sz));
@@ -157,7 +155,7 @@ void ICServer::runSocket()
  		std::unique_ptr<ClientSockThreadData> threadData = std::make_unique<ClientSockThreadData>(cinfo, this);
 
         std::thread(&ICServer::socketThread, this, std::move(threadData)).detach();
-        std::cout << "runSocket function is end loop : " << info_.port << std::endl;
+        LOG_INFO("runSocket function is end loop. port {} ", info_.port);
 
 	}
 
@@ -176,7 +174,7 @@ void* ICServer::socketThread(std::unique_ptr<ClientSockThreadData> threadData)
 
 	ICServer* pSocketMgr = threadData->pthis;
 
-	while (pSocketMgr->isMainSocketThread_)
+	while (pSocketMgr->isThreadRunning_)
 	{
 		int str_len = 0;
 		int nPacketSize = 0;

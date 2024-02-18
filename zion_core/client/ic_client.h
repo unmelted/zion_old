@@ -18,29 +18,38 @@
 
 #pragma once
 #include "socket_abstraction.h"
-#include "client_message.h"
 
 using namespace rapidjson;
 
 class ICClient : public SocketHandlerAbs
 {
+private :
+    struct ClientSockThreadData
+    {
+        ic::ServerInfo info;
+        ICClient* pthis;
+        ClientSockThreadData(const ic::ServerInfo& cinfo, ICClient* server)
+                : info(cinfo), pthis(server)
+        {
+            std::cout << "Client info : " << cinfo.ip << " " << cinfo.port << std::endl;
+        }
+    };
+
 public:
     ICClient(const ic::ServerInfo& info);
     ~ICClient();
 
-    bool beginSocket(int nPort) override;
+    bool beginSocket() override;
+    int getSocket() override;
 
 private :
     void runSocket() override;
     void closeSocket(int nSock) override;
-    void receive(ic::ServerInfo server) ;
 
-    bool connectToServer(ic::ServerInfo& server);
-    void requestStop();
+    void closeServer();
+    void receiveThread();
+    void reconnect();
 
 private :
-    std::unordered_map<std::string, ic::ServerInfo> servers_;
-    std::vector<std::thread> threads_;
-    std::atomic<bool> stop_ = false;
-
+    std::unique_ptr<std::thread> rcvThread_;
 };

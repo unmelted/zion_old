@@ -39,7 +39,6 @@ public:
     TaskManager(size_t num_worker_);
     ~TaskManager();
 
-    void onRcvTask(std::shared_ptr<ic::MSG_T> pData);
     int commandTask(int mode, const ic::MSG_T& task);
 
 private:

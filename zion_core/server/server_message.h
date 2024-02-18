@@ -33,7 +33,6 @@ public:
     SeverMsgManager();
     ~SeverMsgManager();
 
-
 private :
 
 };

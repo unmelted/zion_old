@@ -18,138 +18,147 @@
 
 #include "ic_client.h"
 
-using namespace rapidjson;
-
 ICClient::ICClient(const ic::ServerInfo& info)
 {
-    rapidjson::Document doc;
-//    doc.Parse(configContent.c_str());
-//
-//    if (doc.HasMember("servers") && doc["servers"].IsArray())
-//    {
-//        for (const auto& server : doc["servers"].GetArray())
-//        {
-//            std::string name = server["name"].GetString();
-//            std::string ip = server["ip"].GetString();
-//            int port = server["port"].GetInt();
-//            servers_.emplace(name, ic::ServerInfo(ip, port));
-//            LOG_DEBUG("Add server: {} {} {}", name, ip, port);
-//        }
-//    }
+    isThreadRunning_ = false;
+    mainThread_ = nullptr;
+    info_= info;
 
+    LOG_DEBUG("ICClient Constructor Server info: {} {} {}", info.name, info.ip, info.port);
 }
 
 ICClient::~ICClient()
 {
-    requestStop();
-    for (auto& thread : threads_)
+    isThreadRunning_ = false;
+    closeServer();
+
+    if (mainThread_ != nullptr)
     {
-        thread.join();
+        mainThread_->join();
     }
-    int sock_ = 11; //temporary for compile.
-    closeSocket(sock_);
-}
-
-bool ICClient::beginSocket(int nPort)
-{
-    if(servers_.empty())
+    if (rcvThread_ != nullptr)
     {
-        LOG_INFO("There is no server to connect.");
-    }
-    else
-    {
-        for (auto& server : servers_)
-        {
-            LOG_DEBUG("Connect to server: {} {} {} ", server.first, server.second.ip, server.second.port);
-
-            if (!connectToServer(server.second))
-            {
-                LOG_ERROR("Failed to connect to server: {}", server.first);
-            }
-        }
-    }
-
-    return true;
-}
-
-void ICClient::runSocket()
-{
-    //TODO: Implement
-}
-
-
-bool ICClient::connectToServer(ic::ServerInfo& server)
-{
-    int sock = 0;
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        LOG_ERROR("Socket creation error.");
-        return false;
-    }
-
-    server.socket = sock;
-    struct sockaddr_in serverAddr;
-    memset(&serverAddr, 0, sizeof(serverAddr));
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(server.port);
-
-    if(inet_pton(AF_INET, server.ip.c_str(), &serverAddr.sin_addr) <= 0)
-    {
-        LOG_ERROR("Invalid address/ Address not supported: {}", server.ip);
-        return false;
-    }
-
-    if (connect(server.socket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1)
-    {
-        LOG_ERROR("Failed to connect to the server: {}", server.ip);
-        return false;
-    }
-
-    threads_.emplace_back(&ICClient::receive, this, server);
-    return true;
-}
-
-void ICClient::receive(ic::ServerInfo server)
-{
-    while (!stop_)
-    {
-        char buffer[1024];
-        memset(buffer, 0, sizeof(buffer));
-        ssize_t bytesRead = recv(server.socket, buffer, sizeof(buffer), 0);
-
-        if (bytesRead == -1)
-        {
-            std::cerr << "Failed to receive data from server: " << server.ip << std::endl;
-            break;
-        }
-        else if (bytesRead == 0)
-        {
-            LOG_ERROR("Connection closed by server: {}", server.ip);
-            break;
-        }
-
-        std::string received(buffer, bytesRead);
-        LOG_INFO("Data received from server: {}", received);
-    }
-
-    if(server.socket != -1)
-    {
-        closeSocket(server.socket);
-        server.socket = -1;
-        LOG_INFO("Socket closed: {} : {} ", server.ip, server.port);
+        rcvThread_->join();
     }
 }
 
-void ICClient::requestStop()
+void ICClient::closeServer()
 {
-    LOG_INFO("Request stop is called");
-    stop_ = true;
+    closeSocket(info_.socket);
 }
 
 void ICClient::closeSocket(int nSock)
 {
-//    close(server.second.socket);
-//    server.second.socket = -1;
+    LOG_INFO("CloseServer is called");
     shutdown(nSock, SHUT_RDWR);
     close(nSock);
 
+}
+
+bool ICClient::beginSocket()
+{
+    LOG_INFO("beginSocket : port {} ", info_.port);
+    isThreadRunning_ = true;
+    mainThread_ =  std::make_unique<std::thread>(&ICClient::runSocket, this);
+
+    return true;
+}
+
+int ICClient::getSocket()
+{
+    return info_.socket;
+}
+
+void ICClient::runSocket()
+{
+    while (isThreadRunning_)
+    {
+        int sock = 0;
+        if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+        {
+            LOG_ERROR("Socket creation error.");
+            continue;
+        }
+
+        info_.socket = sock;
+        struct sockaddr_in serverAddr;
+        memset(&serverAddr, 0, sizeof(serverAddr));
+        serverAddr.sin_family = AF_INET;
+        serverAddr.sin_port = htons(info_.port);
+
+        if (inet_pton(AF_INET, info_.ip.c_str(), &serverAddr.sin_addr) <= 0)
+        {
+            LOG_ERROR("Invalid address/ Address not supported: {}", info_.ip);
+            closeSocket(info_.socket);
+            continue;
+        }
+
+        if (connect(info_.socket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1)
+        {
+            LOG_ERROR("Failed to connect to the server: {}", info_.ip);
+            closeSocket(info_.socket);
+
+            std::this_thread::sleep_for(std::chrono::seconds(3));
+            continue;
+        }
+        else
+        {
+            LOG_INFO("Successfully connected to server. Starting receive thread.");
+            rcvThread_ = std::make_unique<std::thread>(&ICClient::receiveThread, this);
+            break;
+        }
+    }
+
+    if (mainThread_ && mainThread_->joinable())
+    {
+        mainThread_->join();
+        mainThread_.reset();
+    }
+}
+
+void ICClient::receiveThread()
+{
+    while (isThreadRunning_)
+    {
+        char buffer[1024];
+        memset(buffer, 0, sizeof(buffer));
+        ssize_t bytesRead = recv(info_.socket, buffer, sizeof(buffer), 0);
+
+        if (bytesRead == -1)
+        {
+            LOG_ERROR("Failed to receive data from server");
+            isThreadRunning_ = false;
+            break;
+        }
+        else if (bytesRead == 0)
+        {
+            LOG_WARN("Connection closed by server {} : {} ", info_.ip, info_.port);
+            isThreadRunning_ = false;
+            break;
+        }
+
+//        std::string received(buffer, bytesRead);
+//        LOG_INFO("Data received from server: {}", received);
+    }
+
+    if(info_.socket != -1)
+    {
+        closeSocket(info_.socket);
+        info_.socket = -1;
+        LOG_INFO("Socket closed: {} : {} ", info_.ip, info_.port);
+    }
+
+    if (rcvThread_ && rcvThread_->joinable())
+    {
+        rcvThread_->join();
+        rcvThread_.reset();
+    }
+
+    reconnect();
+}
+
+void ICClient::reconnect()
+{
+    isThreadRunning_ = true;
+    mainThread_ =  std::make_unique<std::thread>(&ICClient::runSocket, this);
 }

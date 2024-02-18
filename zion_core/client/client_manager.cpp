@@ -19,7 +19,7 @@
 #include "client_manager.h"
 
 ClientManager::ClientManager()
-: ICManager<ICClient, ClientMsgManager>()
+: ICManager<ICClient>()
 {
     std::ostringstream ss;
     ss << R"(
@@ -39,6 +39,29 @@ ClientManager::ClientManager()
     Configurator::get().setDirectory();
     db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
 
+    rapidjson::Document doc;
+    doc.Parse(configContent.c_str());
+
+    if (doc.HasMember("servers") && doc["servers"].IsArray())
+    {
+        for (const auto& server : doc["servers"].GetArray())
+        {
+            std::string ip = server["ip"].GetString();
+            std::string name = server["name"].GetString();
+            int port = server["port"].GetInt();
+
+            ic::ClientInfo info(name, ip, port);
+            std::shared_ptr<ICClient> socketServer_;
+            socketServer_ = std::make_shared<ICClient>(info);
+
+            server_info_list_.push_back(info);
+            socket_list_.push_back(socketServer_);
+            LOG_DEBUG("Add server: {} {}", name, port);
+        }
+    }
+
+    msg_manager_ = std::make_unique<ClientMsgManager>();
+    msg_manager_->setDBManager(db_manager_);
 }
 
 ClientManager::~ClientManager()
@@ -50,26 +73,22 @@ int ClientManager::initialize()
 {
     // along the server type, ic_server starts with specific socket
     // and have handler the function for validating the json format (dependency injection)
-    for (auto& info : server_info_list_)
+    for( auto& socket : socket_list_)
     {
-        std::shared_ptr<ICClient> socketServer_;
-        socketServer_ = std::make_shared<ICClient>(info);
-        socketServer_->beginSocket(info.port);
-        socketServer_->setHandler(std::bind(&ClientManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
-        socket_list_.push_back(socketServer_);
+        LOG_DEBUG(" loop in initialize : socket {}", socket->getSocket());
+        socket->beginSocket();
+        socket->setHandler(std::bind(&ClientManager::classifier, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
     }
 
-    msg_manager_ = std::make_unique<ClientMsgManager>();
-    msg_manager_->setSocketServer(socketServer_);
-    msg_manager_->setDBManager(db_manager_);
+    return 0;
 }
 
 // this function check the command format
 // if received message fits the command format well,
 // deliver the message to message_parser or message_manager for further process
-int ClientManager::validateMsg(char cSeparator, char* pData, int nDataSize)
+int ClientManager::classifier(const ic::ServerInfo& info, char* pData, int nDataSize)
 {
-    ICManager::validateMsg(cSeparator, pData, nDataSize);
+    ICManager::classifier(info, pData, nDataSize);
 
     std::string strMessage = pData;
     Document document;
@@ -77,7 +96,7 @@ int ClientManager::validateMsg(char cSeparator, char* pData, int nDataSize)
 
     std::string command = document[PROTOCOL_SECTION2].GetString();
 
-    msg_manager_->insertEventTable(document, (int)ic::MSG_TYPE::MSG_TYPE_RCV);
+//    msg_manager_->insertEventTable(document, (int)ic::MSG_TYPE::MSG_TYPE_RCV);
     LOG_INFO("validateMsg command : {}", command);
 
     if (command == "CONNECT")

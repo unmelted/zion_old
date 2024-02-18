@@ -56,12 +56,6 @@ TaskManager::~TaskManager()
     LOG_DEBUG("TaskManager Destroyed Done.");
 }
 
-// message_manager call this function with task message
-void TaskManager::onRcvTask(std::shared_ptr<ic::MSG_T> ptrMsg)
-{
-    queTaskMSG_.Enqueue(ptrMsg);
-}
-
 template <class F, class... Args>
 void TaskManager::enqueueJob(MessageQueue<int>* fu, shared_ptr<ic::MSG_T> task, F &&f, Args &&...args)
 {

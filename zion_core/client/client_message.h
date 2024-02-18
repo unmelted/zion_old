@@ -32,7 +32,5 @@ public:
     ~ClientMsgManager();
 
 private :
-    MessageQueue<std::shared_ptr<ic::MSG_T>> queRcvMSG_;
-    MessageQueue<std::shared_ptr<std::pair<std::string, std::string>>> queSndMSG_;
 
 };

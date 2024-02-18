@@ -19,7 +19,6 @@
 #pragma once
 #include <list>
 #include "socket_abstraction.h"
-#include "server_message.h"
 
 using namespace rapidjson;
 
@@ -61,12 +60,8 @@ private:
     std::string getLocalCompare(std::string strIP);
 
 private:
-    bool isMainSocketThread_;
     std::mutex infoMutex_;
-    std::unique_ptr<std::thread> mainSocketThread_;
     std::unordered_map<std::string, ic::ClientInfo> clientMap_;
-
-    ic::ServerInfo info_;
 
     std::vector<int> clientSocketsList_;
 

@@ -46,5 +46,8 @@ protected :
     virtual void closeSocket(int nSock) = 0;
 
 protected:
+    bool isThreadRunning_ = false;
+    std::unique_ptr<std::thread> mainThread_;
+    ic::ServerInfo info_;
 
 };
