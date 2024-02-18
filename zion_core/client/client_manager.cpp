@@ -39,18 +39,6 @@ ClientManager::ClientManager()
     Configurator::get().setDirectory();
     db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
 
-    // along the server type, ic_server starts with specific socket
-    // and have handler the function for validating the json format (dependency injection)
-    std::shared_ptr<ICClient> socketServer_;
-    socketServer_ = std::make_shared<ICClient>(configContent);
-    int port = 10; // temporary for compile
-    socketServer_->beginSocket(port);
-    socketServer_->setHandler(std::bind(&ClientManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
-    socket_list_.push_back(socketServer_);
-    msg_manager_ = std::make_unique<ClientMsgManager>();
-    msg_manager_->setSocketServer(socketServer_);
-    msg_manager_->setDBManager(db_manager_);
-
 }
 
 ClientManager::~ClientManager()
@@ -60,7 +48,20 @@ ClientManager::~ClientManager()
 
 int ClientManager::initialize()
 {
+    // along the server type, ic_server starts with specific socket
+    // and have handler the function for validating the json format (dependency injection)
+    for (auto& info : server_info_list_)
+    {
+        std::shared_ptr<ICClient> socketServer_;
+        socketServer_ = std::make_shared<ICClient>(info);
+        socketServer_->beginSocket(info.port);
+        socketServer_->setHandler(std::bind(&ClientManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
+        socket_list_.push_back(socketServer_);
+    }
 
+    msg_manager_ = std::make_unique<ClientMsgManager>();
+    msg_manager_->setSocketServer(socketServer_);
+    msg_manager_->setDBManager(db_manager_);
 }
 
 // this function check the command format

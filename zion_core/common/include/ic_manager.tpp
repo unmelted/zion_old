@@ -17,22 +17,13 @@
  */
 
 #include "ic_manager.h"
-#include <string.h>
-
 
 // this function check the command format
 // if received message fits the command format well,
 // deliver the message to message_parser or message_manager for further process
-template <typename T, typename U>
-int ICManager<T, U>::validateMsg(char cSeparator, char* pData, int nDataSize)
+template <typename T>
+int ICManager<T>::classifier(const ic::ServerInfo& info, char* pData, int nDataSize)
 {
-
-    if( cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON)
-    {
-        LOG_ERROR("validateMsg cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON");
-        return 0;
-    }
-
     std::string strMessage = pData;
     Document document;
     bool isSuccess = false;

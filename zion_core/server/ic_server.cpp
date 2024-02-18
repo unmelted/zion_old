@@ -18,38 +18,20 @@
 
 #include "ic_server.h"
 
-ICServer::ICServer(const std::string& configContent)
+#include <utility>
+
+ICServer::ICServer(ic::ServerInfo info)
+: isMainSocketThread_(false)
+, mainSocketThread_(nullptr)
+, info_(std::move(info))
 {
-	isMainSocketThread_ = false;
-	mainSocketThread_ = nullptr;
-	serverSockets_ = 0;
-    serverPorts_ = 0;
-
-    rapidjson::Document doc;
-    doc.Parse(configContent.c_str());
-
-    if (doc.HasMember("servers") && doc["servers"].IsArray())
-    {
-        for (const auto& server : doc["servers"].GetArray())
-        {
-            std::string name = server["name"].GetString();
-            int port = server["port"].GetInt();
-            serverPorList_.emplace(name, port);
-            LOG_DEBUG("Add server: {} {}", name, port);
-        }
-    }
+    LOG_DEBUG("ICServer Constructor Server info {} open port : {}", info_.name, info_.port);
 }
 
 ICServer::~ICServer()
 {
 	isMainSocketThread_ = false;
-
-    for(int socket : clientSocketsList_)
-    {
-        closeSocket(socket);
-    }
-
-	closeSocket(serverSockets_);
+    closeServer();
 
 	if (mainSocketThread_ != nullptr)
 	{
@@ -57,6 +39,17 @@ ICServer::~ICServer()
 		mainSocketThread_ = nullptr;
 	}
 
+    LOG_DEBUG("Destroy ICServer Done");
+}
+
+void ICServer::closeServer()
+{
+    for(auto& client : clientMap_)
+    {
+        closeSocket(client.second.socket);
+    }
+
+    closeSocket(info_.port);
 }
 
 void ICServer::closeSocket(int nSock)
@@ -65,30 +58,30 @@ void ICServer::closeSocket(int nSock)
     close(nSock);
 }
 
-bool ICServer::beginSocket(int nPort)
+bool ICServer::beginSocket()
 {
-    std::cout << "beginSocket with port : " << nPort << std::endl;
-
 	if (isMainSocketThread_)
 		return false;
 
-	serverPorts_ = nPort;
+    LOG_INFO("beginSocket : port {} ", info_.port);
 	isMainSocketThread_ = true;
 	mainSocketThread_ =  std::make_unique<std::thread>(&ICServer::runSocket, this);
 
-    LOG_INFO("beginSocket");
 	return true;
+}
+
+int ICServer::getSocket()
+{
+    return info_.socket;
 }
 
 void ICServer::runSocket()
 {
-    std::cout << "runSocket function is started : " << serverPorts_ << std::endl;
-
-	struct sockaddr_in serv_adr, clnt_adr;
+    struct sockaddr_in serv_adr, clnt_adr;
 	int clnt_adr_sz;
 
-	serverSockets_ = (int)socket(PF_INET, SOCK_STREAM, 0);
-    if (serverSockets_ == -1)
+	info_.socket = (int)socket(PF_INET, SOCK_STREAM, 0);
+    if (info_.socket == -1)
     {
         LOG_CRITICAL("Socket Creation Error");
         return;
@@ -97,92 +90,90 @@ void ICServer::runSocket()
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(serverPorts_);
+	serv_adr.sin_port = htons(info_.port);
 
     int optval = 1;
-    if (setsockopt(serverSockets_, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, sizeof(optval)) == -1)
+    if (setsockopt(info_.socket, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, sizeof(optval)) == -1)
     {
         LOG_CRITICAL("Socket Opt. SO_REUSEADDR Error");
         return;
     }
 
-	if (::bind(serverSockets_, (struct sockaddr*)&serv_adr, sizeof(serv_adr)) == -1)
+	if (::bind(info_.socket, (struct sockaddr*)&serv_adr, sizeof(serv_adr)) == -1)
 	{
         LOG_CRITICAL("Socket Bind Error");
 		return;
 	}
-	if (listen(serverSockets_, 5) == -1)
+	if (listen(info_.socket, 5) == -1)
 	{
         LOG_CRITICAL("Socket Listen Error");
 		return;
 	}
 
-    LOG_DEBUG("runSocket function will start loop : {} ", serverPorts_);
+    LOG_DEBUG("runSocket function will start loop : {} ", info_.port);
 
 	while (isMainSocketThread_)
 	{
 		clnt_adr_sz = sizeof(clnt_adr);
-		int clientSocket = (int)(accept(serverSockets_, (struct sockaddr*)&clnt_adr, (socklen_t*)&clnt_adr_sz));
+		int client_socket = (int)(accept(info_.socket, (struct sockaddr*)&clnt_adr, (socklen_t*)&clnt_adr_sz));
 
-		if (clientSocket <= 0)
+		if (client_socket <= 0)
 			continue;
 
-		sockMutex_.lock();
-        clientSocketsList_.push_back(clientSocket);
-        sockMutex_.unlock();
+		infoMutex_.lock();
+        clientSocketsList_.push_back(client_socket);
+        infoMutex_.unlock();
 
-        std::string clientIP = inet_ntoa(clnt_adr.sin_addr);
-		std::string strIP = getLocalCompare(clientIP);
+        std::string client_ip = inet_ntoa(clnt_adr.sin_addr);
+		std::string str_ip = getLocalCompare(client_ip);
 
-        if (strIP.compare(""))
+        if (str_ip.compare(""))
         {
-            LOG_ERROR("Invalid client IP : {} local IP : {} only local client is accepted.", clientIP, strIP);
+            LOG_ERROR("Invalid client IP : {} local IP : {} only local client is accepted.", client_ip, str_ip);
             continue;
         }
 
-        LOG_INFO("Connected Client IP : {} Local IP Address : {}", clientIP, strIP);
+        LOG_INFO("Connected Client IP : {} Local IP Address : {}", client_ip, str_ip);
 
         int str_len = 0;
         ic::ProtocolHeader header;
 
-        if ((str_len = receive(clientSocket, (char*)&header, sizeof(header), 0)) == 0)
+        if ((str_len = receive(client_socket, (char*)&header, sizeof(header), 0)) == 0)
         {
-            LOG_WARN("Client disconnected or error occurred: IP {} Socket {}", clientIP, clientSocket);
+            LOG_WARN("Client disconnected or error occurred: IP {} Socket {}", client_ip, client_socket);
             continue;
         }
 
-        if (!addClient(clientIP, clientSocket, header.nSize))
+        LOG_DEBUG("After add client : IP {} Socket {}", client_ip, client_socket);
+        ic::ClientInfo cinfo("client_t", client_ip, info_.port);
+        cinfo.socket = client_socket;
+
+        if (!addClient(cinfo, header.nSize))
         {
-            LOG_ERROR("addClient failed : IP {} Socket {}", clientIP, clientSocket);
+            LOG_ERROR("addClient failed : IP {} Socket {}", client_ip, client_socket);
             continue;
         }
 
-        LOG_DEBUG("after add clinet failed : IP {} Socket {}", clientIP, clientSocket);
-		std::unique_ptr<ClientSockThreadData> threadData = std::make_unique<ClientSockThreadData>();
-		threadData->pthis = this;
-		threadData->clientIp = clientIP;
-		threadData->socket = clientSocket;
+ 		std::unique_ptr<ClientSockThreadData> threadData = std::make_unique<ClientSockThreadData>(cinfo, this);
 
-        std::thread(&ICServer::handle_client, this, std::move(threadData)).detach();
-        std::cout << "runSocket function is end loop : " << serverPorts_ << std::endl;
+        std::thread(&ICServer::socketThread, this, std::move(threadData)).detach();
+        std::cout << "runSocket function is end loop : " << info_.port << std::endl;
 
 	}
 
-    sockMutex_.lock();
+    infoMutex_.lock();
     for(int socket : clientSocketsList_)
     {
         closeSocket(socket);
     }
     clientSocketsList_.clear();
-    sockMutex_.unlock();
+    infoMutex_.unlock();
 }
 
-void* ICServer::handle_client(std::unique_ptr<ClientSockThreadData> threadData)
+void* ICServer::socketThread(std::unique_ptr<ClientSockThreadData> threadData)
 {
-    LOG_DEBUG("handle_client is started.");
+    LOG_DEBUG("socketThread is started.");
 
-	int clnt_sock = threadData->socket;
-	std::string clnt_IP = threadData->clientIp;
 	ICServer* pSocketMgr = threadData->pthis;
 
 	while (pSocketMgr->isMainSocketThread_)
@@ -191,9 +182,9 @@ void* ICServer::handle_client(std::unique_ptr<ClientSockThreadData> threadData)
 		int nPacketSize = 0;
 		ic::ProtocolHeader header;
 
-		if ((str_len = pSocketMgr->receive(clnt_sock, (char*)&header, sizeof(header), 0)) == 0)
+		if ((str_len = pSocketMgr->receive(threadData->info.socket, (char*)&header, sizeof(header), 0)) == 0)
 		{
-            LOG_INFO("Client disconnected or error occurred: Socket {}", clnt_sock);
+            LOG_INFO("Client disconnected or error occurred: Socket {}", threadData->info.socket);
 			break;
 		}
 
@@ -211,87 +202,45 @@ void* ICServer::handle_client(std::unique_ptr<ClientSockThreadData> threadData)
 		if (nPacketSize >= 0)
 		{
 			pData.resize(nPacketSize + 1), 0;
-			if ((str_len = pSocketMgr->receive(clnt_sock, pData.data(), nPacketSize, 0)) == 0)
+			if ((str_len = pSocketMgr->receive(threadData->info.socket, pData.data(), nPacketSize, 0)) == 0)
 			{
 				break;
 			}
 		}
 
-        int nErrorCode = pSocketMgr->classifier(header.cSeparator, pData.data(), nPacketSize);
+        if( header.cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON)
+        {
+            LOG_ERROR("validateMsg cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON");
+            break;
+        }
+
+        int nErrorCode = pSocketMgr->classifier(threadData->info, pData.data(), nPacketSize);
         if (nErrorCode != (int)ErrorCommon::COMMON_ERR_NONE)
         {
             LOG_ERROR("Classifier Error {} ", nErrorCode);
         }
-
 	}
 
-    pSocketMgr->removeClient(clnt_IP);
-	pSocketMgr->closeSocket(clnt_sock);
+    pSocketMgr->removeClient(threadData->info.ip);
+	pSocketMgr->closeSocket(threadData->info.socket);
 
 	return NULL;
 }
 
-bool ICServer::sendData(const std::string& name, const std::string& strJson)
-{
-    int nSize = static_cast<int>(strJson.size());
-    char cType = static_cast<char>(ic::PACKET_SEPARATOR::PACKETTYPE_JSON);
-    int nSendSize = sizeof(int) + 1 + nSize;
-
-    sendMutex_.lock();
-    sendBuffer_.reserve(nSendSize);
-
-    sendBuffer_.insert(sendBuffer_.end(), reinterpret_cast<char*>(&nSize), reinterpret_cast<char*>(&nSize) + sizeof(int));
-    sendBuffer_.push_back(cType);
-    sendBuffer_.insert(sendBuffer_.end(), strJson.begin(), strJson.end());
-
-    sockMutex_.lock();
-    int nSend = -1;
-    auto clientInfoIterator = clientMap_.find(name);
-    if (clientInfoIterator != clientMap_.end())
-    {
-        ClientInfo& clientInfo = clientInfoIterator->second;
-        LOG_INFO("SendData clientName : {} clientIP : {} ", name, clientInfo.clientIp);
-        nSend = send(clientInfo.clientSocket, sendBuffer_.data(), sendBuffer_.size(), 0);
-    }
-    else
-    {
-        // todo : add error handling when client is not found
-    }
-
-	sockMutex_.unlock();
-	sendMutex_.unlock();
-    sendBuffer_.clear();
-    std::vector<char>().swap(sendBuffer_);
-
-	if (nSend != nSendSize)
-	{
-        LOG_ERROR("Send Fail nSend != nSendSize {} {} ", nSend, nSendSize);
-		return false;
-	}
-    else
-    {
-        LOG_INFO("Send Success nSend == nSendSize {} {} ", nSend, nSendSize);
-        return true;
-    }
-
-	return true;
-
-}
-
 // addClient() and removeClinet() function handles just clientMap_
 // clientSocketsLists_ is handled in runSocket() function
-bool ICServer::addClient(const std::string& clientIp, int clientSocket, int packetSize)
+bool ICServer::addClient(const ic::ClientInfo& info, int packetSize)
 {
     int str_len = 0;
     std::vector<char> pData;
     pData.resize(packetSize + 1), 0;
-    if ((str_len = receive(clientSocket, pData.data(), packetSize, 0)) == 0)
+    if ((str_len = receive(info.socket, pData.data(), packetSize, 0)) == 0)
     {
-        LOG_INFO("Client disconnected or error occurred: Socket {}", clientSocket);
+        LOG_INFO("Client disconnected or error occurred: Socket {}", info.socket);
         return false;
     }
 
-    if (classifier((char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON, pData.data(), packetSize) != 1)
+    if (classifier(info, pData.data(), packetSize) != 1)
     {
         LOG_ERROR("Classifier Error");
         return false;
@@ -312,14 +261,9 @@ bool ICServer::addClient(const std::string& clientIp, int clientSocket, int pack
 
     std::string clientName = document[PROTOCOL_FROM].GetString();
 
-    sockMutex_.lock();
-
-    struct ClientInfo clientInfo;
-    clientInfo.clientIp = clientIp;
-    clientInfo.clientSocket = clientSocket;
-    clientMap_[clientName] = clientInfo;
-
-    sockMutex_.unlock();
+    infoMutex_.lock();
+    clientMap_[clientName] = info;
+    infoMutex_.unlock();
 
     LOG_INFO("Client Connected and addClient success: {} ", clientName);
     return true;
@@ -327,10 +271,10 @@ bool ICServer::addClient(const std::string& clientIp, int clientSocket, int pack
 
 void ICServer::removeClient(const std::string& client_ip)
 {
-    sockMutex_.lock();
+    infoMutex_.lock();
     for (auto it = clientMap_.begin(); it != clientMap_.end();)
     {
-        if (it->second.clientIp == client_ip)
+        if (it->second.ip == client_ip)
         {
             it = clientMap_.erase(it);
             break;
@@ -340,13 +284,13 @@ void ICServer::removeClient(const std::string& client_ip)
             ++it;
         }
     }
-    sockMutex_.unlock();
+    infoMutex_.unlock();
 
     LOG_INFO("RemoveClient success: {} ", client_ip);
     for (auto it = clientMap_.begin(); it != clientMap_.end();)
     {
         LOG_INFO("Current clientMap_ name : {} ", it->first);
-        LOG_INFO("Current clientMap_ ip : {} ", it->second.clientIp);
+        LOG_INFO("Current clientMap_ ip : {} ", it->second.ip);
     }
 }
 
@@ -414,27 +358,24 @@ std::list<std::string> ICServer::getIPList()
 	return lstIPAddress;
 }
 
-std::string ICServer::getLocalCompare(std::string strIP)
+std::string ICServer::getLocalCompare(std::string ip)
 {
-	std::string _strIP = "";
-
+	std::string str_ip;
 	std::list<std::string> _list = getIPList();
 	std::list<std::string>::iterator iter;
-
-	std::string strC = strIP.substr(0, strIP.rfind('.'));
+	std::string strC = ip.substr(0, ip.rfind('.'));
 
 	for (iter = _list.begin(); iter != _list.end(); iter++)
 	{
 		std::string strData = *iter;
-
 		std::string strDiff = strData.substr(0, strData.rfind('.'));
 
 		if (strDiff == strC)
 		{
-			_strIP = strData;
+			str_ip = strData;
 			break;
 		}
 	}
 
-	return _strIP;
+	return str_ip;
 }

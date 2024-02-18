@@ -84,19 +84,13 @@ protected:
 
     void sink_it_(const spdlog::details::log_msg& msg) override
     {
-
         spdlog::memory_buf_t formatted;
         spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
 //        std::cout << "db_sink logger " << fmt::to_string(formatted);
         std::string format_str = fmt::to_string(formatted);
         auto qeury_str = parseLogString(format_str);
         auto query = QueryMaker::makeLogInsertQuery(table_name, qeury_str);
-
-        std::shared_ptr<ic::MSG_T> logMsg = std::make_shared<ic::MSG_T>();
-        logMsg->type = (int)ic::MSG_TYPE::MSG_TYPE_LOG;
-        logMsg->txt = query;
-        dbLogManager_->enqueueQuery(logMsg);
-
+        dbLogManager_->enqueueQuery(query);
     }
 
     void flush_() override

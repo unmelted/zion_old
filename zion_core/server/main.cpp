@@ -17,7 +17,7 @@
  */
 
 #include <csignal>
-#include "sever_manager.h"
+#include "server_manager.h"
 
 std::unique_ptr<ServerManager> svrManager;
 

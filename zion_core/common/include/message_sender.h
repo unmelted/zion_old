@@ -15,18 +15,30 @@
  * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
  *
  */
-#include "sever_message.h"
+
+#pragma once
+
+#include <sys/socket.h>
+#include "ic_define.h"
 
 using namespace rapidjson;
 
-SeverMsgManager::SeverMsgManager()
-: SocketMsgManager<ICServer>()
-, taskmanager_(3, this)
+class MessageSender
 {
 
-}
+public:
+    MessageSender();
+	~MessageSender();
 
-SeverMsgManager::~SeverMsgManager()
-{
+	void parseAndSend(const ic::ServerInfo& info, std::string strMessage);
 
-}
+private:
+    bool sendData(const ic::ServerInfo& info, const std::string& strJson);
+	void runThread(const ic::ServerInfo& info, std::string strMessage);
+	int getBasicReturnJson(Document& document, ic::Protocol& mtdProtocol);
+	std::string getDocumentToString(Document& document);
+
+private:
+    std::mutex bufferMutex_;
+    std::vector<char> sendBuffer_;
+};

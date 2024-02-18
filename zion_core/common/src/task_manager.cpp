@@ -17,17 +17,15 @@
  */
 
 #include "task_manager.h"
-#include "sever_message.h"
 
 using namespace rapidjson;
 
-TaskManager::TaskManager(size_t num_worker_, SeverMsgManager *msg_manager)
+TaskManager::TaskManager(size_t num_worker_)
 : num_worker_(num_worker_)
 , stop_all_(false)
 , watching_(true)
 {
 
-    msgmanager_ = msg_manager;
     cur_worker_ = 0;
     worker_.reserve(num_worker_);
     for (size_t i = 0; i < num_worker_; ++i)
@@ -65,7 +63,7 @@ void TaskManager::onRcvTask(std::shared_ptr<ic::MSG_T> ptrMsg)
 }
 
 template <class F, class... Args>
-void TaskManager::enqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args)
+void TaskManager::enqueueJob(MessageQueue<int>* fu, shared_ptr<ic::MSG_T> task, F &&f, Args &&...args)
 {
     if (stop_all_)
     {
@@ -75,6 +73,11 @@ void TaskManager::enqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args)
     using return_type = typename std::invoke_result<F, Args...>::type;
     auto job = std::make_shared<std::packaged_task<return_type()>>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
     std::future<return_type> job_result_future = job->get_future();
+
+    std::lock_guard<std::mutex> lock(taskInfoMutex);
+    std::string token = "abcd"; //teporary
+    taskInfo.push_back(TaskInfo(std::move(job_result_future), token, task));
+
     {
         std::lock_guard<std::mutex> lock(jobMutex_);
         jobs.push([job]()
@@ -85,7 +88,7 @@ void TaskManager::enqueueJob(MessageQueue<int> *fu, F &&f, Args &&...args)
 }
 
 // message_manager call this function for doing task after message parsing
-int TaskManager::commandTask(int mode, std::string arg)
+int TaskManager::commandTask(int mode, const ic::MSG_T& task)
 {
 
     if (cur_worker_ == num_worker_)
@@ -94,11 +97,12 @@ int TaskManager::commandTask(int mode, std::string arg)
 
     if (mode == (int)ic::COMMAND_CLASS::COMMAND_VERSION)
     {
-        LOG_INFO("TEST API COMMAND_VERSION {} ", arg.c_str());
+        LOG_INFO("TEST API COMMAND_VERSION {} ", task.command);
     }
     else if (mode == (int)ic::COMMAND_CLASS::COMMAND_START)
     {
-         enqueueJob(&future_, &TaskManager::taskStart, this, 19);
+        auto task_ptr = std::make_shared<ic::MSG_T>(task);
+        enqueueJob(&future_, task_ptr, &TaskManager::taskStart, this, 19);
     }
     else if (mode == (int)ic::COMMAND_CLASS::COMMAND_STOP)
     {
@@ -118,11 +122,21 @@ void TaskManager::watchFuture()
 {
     while (watching_)
     {
-        if (future_.IsQueue())
+        std::unique_lock<std::mutex> lock(taskInfoMutex);
+        for (auto it = taskInfo.begin(); it != taskInfo.end(); )
         {
-            makeSendMsg(queTaskMSG_.Dequeue(), future_.Dequeue());
-            cur_worker_--;
+            if (it->resultFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            {
+                int result = it->resultFuture.get();
+                makeSendMsg(it->taskMsg, result);
+                it = taskInfo.erase(it); // 작업 처리 후 TaskInfo 제거
+            }
+            else
+            {
+                ++it;
+            }
         }
+        lock.unlock();
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
@@ -164,7 +178,7 @@ void TaskManager::makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
     if (result == (int)ErrorCommon::COMMON_ERR_TYPE_NAME_STRING)
     {
         Document recvDoc;
-        recvDoc.Parse(ptrMsg->txt);
+//        recvDoc.Parse(ptrMsg->txt);
         std::string outfile; 
         if (recvDoc.HasMember("output")) 
             outfile = recvDoc["output"].GetString();
@@ -184,8 +198,8 @@ void TaskManager::makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
     }
 
     std::string strSendString = getDocumentToString(sndDoc);
-    msgmanager_->insertEventTable(sndDoc, (int)ic::MSG_TYPE::MSG_TYPE_SND);
-    msgmanager_->onRcvSndMessage("SR1", strSendString);
+//    msgmanager_->insertEventTable(sndDoc, (int)ic::MSG_TYPE::MSG_TYPE_SND);
+//    msgmanager_->onRcvSndMessage(ptrMsg->socket, strSendString);
 }
 
 std::string TaskManager::getDocumentToString(Document &document)

@@ -25,7 +25,7 @@
 
 using namespace rapidjson;
 
-class ClientManager : public ICManager<ICClient, ClientMsgManager>
+class ClientManager : public ICManager<ICClient>
 {
 public:
     ClientManager();

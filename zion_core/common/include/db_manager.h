@@ -23,23 +23,22 @@
 class DBManager
 {
 public:
-    DBManager(int db_name_idx = 0);
+    DBManager(int db_name_idx);
     ~DBManager();
 
     sqlite3* getDB();
-    int enqueueQuery(std::shared_ptr<ic::MSG_T> msg);
-    void commitTransaction();
+    int enqueueQuery(const std::string& query);
 
 private:
     bool openDB(std::string db_path);
     int createTable();
     bool closeDB();
     void queryThread();
-    int runQuery(std::shared_ptr<ic::MSG_T> query);
+    int runQuery(const shared_ptr<std::string>& query);
 
 private:
     std::unique_ptr<std::thread> queryThread_;
-    MessageQueue<std::shared_ptr<ic::MSG_T>> queQuery_;
+    MessageQueue<std::shared_ptr<std::string>> queQuery_;
     std::condition_variable cv_query_;
     std::mutex queryMutex_;
 

@@ -18,22 +18,29 @@
 
 
 #pragma once
-
 #include "ic_define.h"
-
-class SeverMsgManager;
 
 using namespace rapidjson;
 
 class TaskManager
 {
+private:
+    struct TaskInfo
+    {
+        std::future<int> resultFuture;
+        std::string token;
+        std::shared_ptr<ic::MSG_T> taskMsg;
+
+        TaskInfo(std::future<int> future, std::string tk, std::shared_ptr<ic::MSG_T> msg)
+                : resultFuture(std::move(future)), token(std::move(tk)), taskMsg(std::move(msg)) {}
+    };
 
 public:
-    TaskManager(size_t num_worker_, SeverMsgManager *msg_manager);
+    TaskManager(size_t num_worker_);
     ~TaskManager();
 
     void onRcvTask(std::shared_ptr<ic::MSG_T> pData);
-    int commandTask(int mode, std::string arg);
+    int commandTask(int mode, const ic::MSG_T& task);
 
 private:
     void watchFuture();
@@ -41,7 +48,7 @@ private:
     void makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result);
     std::string getDocumentToString(Document &document);
     template <class F, class... Args>
-    void enqueueJob(MessageQueue<int>* fu, F &&f, Args &&...args);
+    void enqueueJob(MessageQueue<int>* fu, shared_ptr<ic::MSG_T> task, F &&f, Args &&...args);
 
     int taskStart(int argument);
 
@@ -56,7 +63,8 @@ private:
     MessageQueue<int> future_;
     MessageQueue<std::shared_ptr<ic::MSG_T>> queTaskMSG_;
 
-    SeverMsgManager *msgmanager_;
+    std::vector<TaskInfo> taskInfo;
+    std::mutex taskInfoMutex;
 
     size_t num_worker_;
     size_t cur_worker_;

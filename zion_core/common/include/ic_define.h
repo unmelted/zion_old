@@ -104,16 +104,22 @@ const int SERVER_PORT[] =
     0x4D17,
 };
 
-struct ServerInfo
-{
+struct ServerInfo {
+    std::string name;
     std::string ip;
     int port;
     int socket;
     bool isAvailable;
     bool waitWhenDisconnect;
-    ServerInfo(const std::string& ip, int port) : ip(ip), port(port), socket(-1), isAvailable(false), waitWhenDisconnect(false){}
+
+    ServerInfo() : port(0), socket(-1), isAvailable(false), waitWhenDisconnect(false) {}
+
+    ServerInfo(const std::string& name, const std::string& ip, int port)
+            : name(name), ip(ip), port(port), socket(-1), isAvailable(false), waitWhenDisconnect(false) {}
+
 };
 
+typedef ServerInfo ClientInfo;
 
 enum class COMMAND_CLASS
 {
@@ -168,19 +174,15 @@ enum class MSG_TYPE
     MSG_TYPE_DB_DELETE,
 };
 
-typedef struct _MSG_T
+struct MSG_T
 {
-    int type;
-    std::string target;
-    std::string txt;
-
-    _MSG_T(void)
-    : txt{}
-    , type(-1)
-    {
-    }
-
-} MSG_T;
+    std::string command;
+    std::string subcommand;
+    std::string action;
+    std::string from;
+    std::string to;
+    std::string data;
+};
 
 
 // Packet Separator Type

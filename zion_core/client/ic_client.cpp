@@ -20,22 +20,23 @@
 
 using namespace rapidjson;
 
-ICClient::ICClient(const std::string& configContent)
+ICClient::ICClient(const ic::ServerInfo& info)
 {
     rapidjson::Document doc;
-    doc.Parse(configContent.c_str());
+//    doc.Parse(configContent.c_str());
+//
+//    if (doc.HasMember("servers") && doc["servers"].IsArray())
+//    {
+//        for (const auto& server : doc["servers"].GetArray())
+//        {
+//            std::string name = server["name"].GetString();
+//            std::string ip = server["ip"].GetString();
+//            int port = server["port"].GetInt();
+//            servers_.emplace(name, ic::ServerInfo(ip, port));
+//            LOG_DEBUG("Add server: {} {} {}", name, ip, port);
+//        }
+//    }
 
-    if (doc.HasMember("servers") && doc["servers"].IsArray())
-    {
-        for (const auto& server : doc["servers"].GetArray())
-        {
-            std::string name = server["name"].GetString();
-            std::string ip = server["ip"].GetString();
-            int port = server["port"].GetInt();
-            servers_.emplace(name, ic::ServerInfo(ip, port));
-            LOG_DEBUG("Add server: {} {} {}", name, ip, port);
-        }
-    }
 }
 
 ICClient::~ICClient()
@@ -47,43 +48,6 @@ ICClient::~ICClient()
     }
     int sock_ = 11; //temporary for compile.
     closeSocket(sock_);
-}
-
-int ICClient::checkServerAvailability()
-{
-    int available_cnt = 0;
-    for (auto & serverEntry : servers_)
-    {
-        auto& server = serverEntry.second;
-
-        int testSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-        if (testSocket < 0)
-        {
-            std::cerr << "Socket creation failed for test." << std::endl;
-            server.isAvailable = false;
-            continue;
-        }
-
-        struct sockaddr_in serverAddr;
-        memset(&serverAddr, 0, sizeof(serverAddr));
-        serverAddr.sin_family = AF_INET;
-        serverAddr.sin_addr.s_addr = inet_addr(server.ip.c_str());
-        serverAddr.sin_port = htons(server.port);
-
-        if (connect(testSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) >= 0)
-        {
-            server.isAvailable = true;
-            close(testSocket);
-            available_cnt++;
-        }
-        else
-        {
-            std::cerr << "Connection to " << server.ip << ":" << server.port << " failed." << std::endl;
-            server.isAvailable = false;
-        }
-    }
-
-    return available_cnt;
 }
 
 bool ICClient::beginSocket(int nPort)
@@ -141,24 +105,6 @@ bool ICClient::connectToServer(ic::ServerInfo& server)
     }
 
     threads_.emplace_back(&ICClient::receive, this, server);
-    return true;
-}
-
-bool ICClient::sendData(const std::string& name, const std::string& data)
-{
-    auto it = servers_.find(name);
-    if (it == servers_.end())
-    {
-        LOG_ERROR("Server not found: {}", name);
-        return false;
-    }
-
-    if (send(it->second.socket, data.c_str(), data.size(), 0) == -1)
-    {
-        LOG_ERROR("Failed to send data to server: {}", name);
-        return false;
-    }
-
     return true;
 }
 

@@ -15,26 +15,17 @@
  * Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
  *
  */
+#include "server_message.h"
 
+using namespace rapidjson;
 
-#pragma once
-
-#include "socket_message.h"
-#include "task_manager.h"
-#include "db_manager.h"
-#include "ic_server.h"
-
-class SeverMsgManager : public SocketMsgManager<ICServer>
+SeverMsgManager::SeverMsgManager()
+: SocketMsgManager()
 {
 
-public:
+}
 
-    SeverMsgManager();
-    ~SeverMsgManager();
+SeverMsgManager::~SeverMsgManager()
+{
 
-
-private :
-
-    TaskManager taskmanager_;
-
-};
+}

@@ -29,10 +29,10 @@ class SocketHandlerAbs
 {
 
 public:
-    virtual bool beginSocket(int nPort) = 0;
-    virtual bool sendData(const std::string& name, const std::string& strJson) = 0;
+    virtual bool beginSocket() = 0;
+    virtual int getSocket() = 0;
 
-    typedef std::function<int(char cSeparator, char* pData, int nDataSize)> callback;
+    typedef std::function<int(const ic::ServerInfo& info, char* pData, int nDataSize)> callback;
     callback classifier;
 
     void setHandler(callback f)
@@ -41,8 +41,10 @@ public:
     }
 
 protected :
+//    virtual bool sendData(const ic::ServerInfo& info, const std::string& strJson) = 0;
     virtual void runSocket() = 0;
     virtual void closeSocket(int nSock) = 0;
 
+protected:
 
 };

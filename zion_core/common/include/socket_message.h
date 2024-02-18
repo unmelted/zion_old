@@ -18,10 +18,12 @@
 
 
 #pragma once
-
+#include "ic_define.h"
+#include "message_sender.h"
 #include "db_manager.h"
 
-template <typename T>
+using namespace rapidjson;
+
 class SocketMsgManager
 {
 
@@ -30,10 +32,9 @@ public:
     SocketMsgManager();
     ~SocketMsgManager();
 
-    void setSocketServer(std::shared_ptr<T> socket);
-    void setDBManager(std::shared_ptr<DBManager> dbManager);
-    void onRcvMessage(std::string target, std::string pData);
-    void onRcvSndMessage(std::string target, std::string msg);
+    void setDBManager(std::shared_ptr<DBManager>& dbManager);
+    void onRcvMessage(const ic::ServerInfo info, ic::MSG_T msg_t);
+    void onRcvSndMessage(const ic::ServerInfo& info, std::string msg);
     void insertEventTable(const Document& doc, int msg_type);
 
 protected :
@@ -41,18 +42,14 @@ protected :
     void sndMSGThread();
 
 private :
-
-    std::shared_ptr<T> socketServer_;
     std::unique_ptr<std::thread> rcvMSGThread_;
     std::unique_ptr<std::thread> sndMSGThread_;
-    MessageQueue<std::shared_ptr<ic::MSG_T>> queRcvMSG_;
-    MessageQueue<std::shared_ptr<std::pair<std::string, std::string>>> queSndMSG_;
-
+    MessageQueue<std::shared_ptr<std::pair<ic::ServerInfo, ic::MSG_T>>> queRcvMSG_;
+    MessageQueue<std::shared_ptr<std::pair<ic::ServerInfo, std::string>>> queSndMSG_;
 
     std::shared_ptr<DBManager> dbManager_;
+    std::unique_ptr<MessageSender> msgSender_;
 
     bool isRMSGThread_;
     bool isSMSGThread_;
 };
-
-#include "socket_message.tpp"

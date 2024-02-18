@@ -116,7 +116,7 @@ bool DBManager::closeDB()
 return true;
 }
 
-int DBManager::enqueueQuery(std::shared_ptr<ic::MSG_T> msg)
+int DBManager::enqueueQuery(const std::string& query)
 {
     if(!isQueryThread_)
     {
@@ -125,7 +125,8 @@ int DBManager::enqueueQuery(std::shared_ptr<ic::MSG_T> msg)
     }
 
     std::lock_guard<std::mutex> lock(queryMutex_);
-    queQuery_.Enqueue(std::move(msg));
+    auto p_query = make_shared<std::string>(query);
+    queQuery_.Enqueue(p_query);
     cv_query_.notify_one();
 
     return 0;
@@ -140,64 +141,47 @@ void DBManager::queryThread()
 
         if (queQuery_.IsQueue())
         {
-            auto msg = queQuery_.Dequeue();
-            if (msg == nullptr)
+            auto query = queQuery_.Dequeue();
+            if (query == nullptr)
                 continue;
 
-            runQuery(msg);
+            runQuery(query);
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(3));
     }
 }
 
-int DBManager::runQuery(std::shared_ptr<ic::MSG_T> query)
+int DBManager::runQuery(const std::shared_ptr<std::string>& query)
 {
     int result = -1;
+    std::string str_query;
     try
     {
         char* errMsg = nullptr;
-        result = sqlite3_exec(db_, query->txt.c_str(), 0, 0, &errMsg);
-        if (result != SQLITE_OK)
+        if (query)
         {
-            std::string errorStr = errMsg;
-            sqlite3_free(errMsg); // 메모리 누수 방지를 위해 errMsg 해제
-            throw std::runtime_error(errorStr);
+            str_query = *query;
+            result = sqlite3_exec(db_, str_query.c_str(), 0, 0, &errMsg);
+            if (result != SQLITE_OK)
+            {
+                LOG_ERROR("runQuery raise error : {} from query {}", errMsg, str_query);
+                std::string errorStr = errMsg;
+                sqlite3_free(errMsg); // 메모리 누수 방지를 위해 errMsg 해제
+                throw std::runtime_error(errorStr);
+            }
         }
         else
         {
-            if (query->type != (int)ic::MSG_TYPE::MSG_TYPE_LOG)
-            {
-                LOG_DEBUG("Success to execute query: {}", query->txt);
-            }
+            LOG_ERROR("delivered query is null.");
         }
+
     }
     catch (const std::runtime_error& e)
     {
-        if (query->type != (int)ic::MSG_TYPE::MSG_TYPE_LOG)
-        {
-            LOG_ERROR("Failed to execute query: {}", e.what());
-        }
+        LOG_ERROR("Failed to execute query: {}", e.what());
         return -1;
     }
 
     return 0;
-}
-
-
-void DBManager::commitTransaction()
-{
-    std::string query = "COMMIT;";
-    char* errMsg = nullptr;
-    int result = sqlite3_exec(db_, query.c_str(), 0, 0, &errMsg);
-    if (result != SQLITE_OK)
-    {
-        std::string errorStr = errMsg;
-        sqlite3_free(errMsg);
-        throw std::runtime_error(errorStr);
-    }
-    else
-    {
-        LOG_DEBUG("Success to execute query: {}", query);
-    }
 }

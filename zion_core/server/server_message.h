@@ -16,33 +16,24 @@
  *
  */
 
+
 #pragma once
 
-#include "ic_define.h"
+#include "socket_message.h"
+#include "task_manager.h"
+#include "db_manager.h"
+#include "ic_server.h"
+#include "socket_abstraction.h"
 
-using namespace rapidjson;
-
-template <typename T>
-class MessageResponder
+class SeverMsgManager : public SocketMsgManager
 {
 
 public:
-	MessageResponder();
-	~MessageResponder();
-	void setServer(std::shared_ptr<T> server);
 
-	bool isThreadStop();
-	void parseAndSendResponse(std::string strMessage);
+    SeverMsgManager();
+    ~SeverMsgManager();
 
-private:
-	void parseThread(void* param, std::string strMessage);
-	int getBasicReturnJson(Document& document, ic::Protocol& mtdProtocol);
-	std::string getDocumentToString(Document& document);
 
-private:
-    std::shared_ptr<T> server_;
-    bool isThreadStop_;
+private :
 
 };
-
-#include "message_responder.tpp"

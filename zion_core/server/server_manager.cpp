@@ -16,10 +16,10 @@
  *
  */
 
-#include "sever_manager.h"
+#include "server_manager.h"
 
 ServerManager::ServerManager()
-: ICManager<ICServer, SeverMsgManager>()
+: ICManager<ICServer>()
 {
     std::ostringstream ss;
     ss << R"(
@@ -41,19 +41,29 @@ ServerManager::ServerManager()
     Configurator::get().setDirectory();
     db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
 
-    // along the server type, ic_server starts with specific socket
-    // and have handler the function for validating the json format (dependency injection)
-    std::shared_ptr<ICServer> socketServer_;
-    socketServer_ = std::make_shared<ICServer>(configContent);
-	socketServer_->beginSocket(ic::SERVER_PORT[(int)ic::SERVER_TYPE::SERVER_ROBOT_CONTROL]);
-	socketServer_->setHandler(std::bind(&ServerManager::validateMsg, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
-    socket_list_.push_back(socketServer_);
-    msg_rspndr_ = std::make_unique<MessageResponder<ICServer>>();
-    msg_manager_ = std::make_unique<SeverMsgManager>();
-    msg_rspndr_->setServer(socketServer_);
-	msg_manager_->setSocketServer(socketServer_);
-    msg_manager_->setDBManager(db_manager_);
+    rapidjson::Document doc;
+    doc.Parse(configContent.c_str());
 
+    if (doc.HasMember("servers") && doc["servers"].IsArray())
+    {
+        for (const auto& server : doc["servers"].GetArray())
+        {
+            std::string ip = "127.0.0.1";
+            std::string name = server["name"].GetString();
+            int port = server["port"].GetInt();
+
+            ic::ServerInfo info(name, ip, port);
+            std::shared_ptr<ICServer> socketServer_;
+            socketServer_ = std::make_shared<ICServer>(info);
+
+            server_info_list_.push_back(info);
+            socket_list_.push_back(socketServer_);
+            LOG_DEBUG("Add server: {} {}", name, port);
+        }
+    }
+
+    msg_manager_ = std::make_unique<SeverMsgManager>();
+    msg_manager_->setDBManager(db_manager_);
 }
 
 ServerManager::~ServerManager()
@@ -61,18 +71,32 @@ ServerManager::~ServerManager()
 
 }
 
+int ServerManager::initialize()
+{
+    for( auto& socket : socket_list_)
+    {
+        LOG_DEBUG(" loop in initialize : socket {}", socket->getSocket());
+        socket->beginSocket();
+        socket->setHandler(std::bind(&ServerManager::classifier, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
+    }
+
+    return 0;
+}
+
 // this function check the command format
 // if received message fits the command format well,
 // deliver the message to message_parser or message_manager for further process
-int ServerManager::validateMsg(char cSeparator, char* pData, int nDataSize)
+int ServerManager::classifier(const ic::ClientInfo& info, char* pData, int nDataSize)
 {
+    ICManager<ICServer>::classifier(info, pData, nDataSize);
+
     std::string strMessage = pData;
 	Document document;
     document.Parse(strMessage.c_str()).HasParseError();
 
 	std::string command = document[PROTOCOL_SECTION2].GetString();
 
-    msg_manager_->insertEventTable(document, (int)ic::MSG_TYPE::MSG_TYPE_RCV);
+//    msg_manager_->insertEventTable(document, (int)ic::MSG_TYPE::MSG_TYPE_RCV);
 	LOG_INFO("validateMsg command : {}", command);
 
     if (command == "CONNECT")
@@ -82,18 +106,16 @@ int ServerManager::validateMsg(char cSeparator, char* pData, int nDataSize)
     else if(command =="START")
     {
 //        msg_manager_->onRcvMessage(strMessage);
-//        msg_rspndr_->parseAndSendResponse(strMessage);
-        msg_manager_->onRcvMessage(document["From"].GetString(), strMessage);
+//        msg_manager_->onRcvMessage(document["From"].GetString(), strMessage);
 	}
 	else if(command == "TEST")
     {
         // if the message has necessary to send response,
         // call the parseAndSendResponse()
-        // msg_rspndr_->parseAndSendResponse(strMessage);
+        // msg_sender->parseAndSendResponse(strMessage);
 
-		msg_rspndr_->parseAndSendResponse(strMessage);
         // call onRcvMessage with message for insert job in queue
-		msg_manager_->onRcvMessage(document["From"].GetString(), strMessage);
+//		msg_manager_->onRcvMessage(document["From"].GetString(), strMessage);
 	}
     else
     {

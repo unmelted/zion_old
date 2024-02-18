@@ -19,24 +19,23 @@
 #pragma once
 
 #include "ic_define.h"
+#include "task_manager.h"
 #include "db_manager.h"
-#include "message_responder.h"
 
 using namespace rapidjson;
 
-template <typename T, typename U>
+template <typename T>
 class ICManager
 {
 
 protected:
     virtual int initialize() = 0;
-    virtual int validateMsg(char cSeparator, char* pData, int nDataSize);
+    virtual int classifier(const ic::ClientInfo& info, char* pData, int nDataSize);
 
     std::vector<ic::ServerInfo> server_info_list_;
     std::vector<std::shared_ptr<T>> socket_list_;
-    std::unique_ptr<U> msg_manager_;
+    std::unique_ptr<TaskManager> task_manager_;
     std::shared_ptr<DBManager> db_manager_;
-    std::unique_ptr<MessageResponder<T>> msg_rspndr_;
 };
 
 #include "ic_manager.tpp"

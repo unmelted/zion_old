@@ -19,65 +19,56 @@
 #pragma once
 #include <list>
 #include "socket_abstraction.h"
+#include "server_message.h"
 
 using namespace rapidjson;
 
 class ICServer : public SocketHandlerAbs
 {
 private:
-    // this struct is for handling with client_name
-    // a member in unordered_map
-    struct ClientInfo
-    {
-        std::string clientIp;
-        int clientSocket;
-    };
-
     // this struct is for storing the data for thread
     // it will be created when the client is connected and
     // destroyed when the client is disconnected
     struct ClientSockThreadData
     {
-        std::string clientIp;
+        ic::ClientInfo info;
         ICServer* pthis;
-        int socket;
+        ClientSockThreadData(const ic::ClientInfo& cinfo, ICServer* server)
+                : info(cinfo), pthis(server)
+        {
+            std::cout << "Client info : " << cinfo.ip << " " << cinfo.port << std::endl;
+        }
     };
 
 public : 
-    ICServer(const std::string& configContent);
+    ICServer(ic::ServerInfo info);
     ~ICServer();
 
-    bool beginSocket(int nPort) override;
-    bool sendData(const std::string& name, const std::string& strJson) override;
-
-	std::list<std::string> getIPList();
-	std::string getLocalCompare(std::string strIP);
-
+    bool beginSocket() override;
+    int getSocket() override;
 
 private:
     void runSocket() override;
     void closeSocket(int nSock) override;
+    void closeServer();
 
+    void* socketThread(std::unique_ptr<ClientSockThreadData> threadData);
     int receive(int clnt_sock, char* pRecv, int nSize, int flags);
-    void* handle_client(std::unique_ptr<ClientSockThreadData> threadData);
-    bool addClient(const std::string& clientIp, int clientSocket, int packetSize);
+    bool addClient(const ic::ClientInfo& info, int packetSize);
     void removeClient(const std::string& clientName);
 
+    std::list<std::string> getIPList();
+    std::string getLocalCompare(std::string strIP);
 
 private:
-    std::unordered_map<std::string, int> serverPorList_;
-    std::mutex sockMutex_;
-    std::mutex sendMutex_;
-
+    bool isMainSocketThread_;
+    std::mutex infoMutex_;
     std::unique_ptr<std::thread> mainSocketThread_;
+    std::unordered_map<std::string, ic::ClientInfo> clientMap_;
+
+    ic::ServerInfo info_;
 
     std::vector<int> clientSocketsList_;
-    std::unordered_map<std::string, struct ClientInfo> clientMap_;
-
-    bool isMainSocketThread_;
-    int serverSockets_;
-    int serverPorts_;
-    std::vector<char> sendBuffer_;
 
 };
 

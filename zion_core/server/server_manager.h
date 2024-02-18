@@ -21,19 +21,23 @@
 #include <functional>
 #include "ic_manager.h"
 #include "ic_server.h"
-#include "sever_message.h"
+#include "server_message.h"
 
 using namespace rapidjson;
 
-class ServerManager : public ICManager<ICServer, SeverMsgManager>
+class ServerManager : public ICManager<ICServer>
 {
 public:
     ServerManager();
 	~ServerManager();
 
-private :
-    int validateMsg(char cSeparator, char* pData, int nDataSize) override;
+private:
+    int initialize() override;
+    int classifier(const ic::ClientInfo& info, char* pData, int nDataSize) override;
 
+private:
+    std::unique_ptr<SeverMsgManager> msg_manager_;
+//    std::unique_ptr<MessageResponder<ICServer>> msg_rspndr_;
 
 };
 

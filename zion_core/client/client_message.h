@@ -23,7 +23,7 @@
 #include "db_manager.h"
 #include "ic_client.h"
 
-class ClientMsgManager : public SocketMsgManager<ICClient>
+class ClientMsgManager : public SocketMsgManager
 {
 
 public:
@@ -31,7 +31,8 @@ public:
     ClientMsgManager();
     ~ClientMsgManager();
 
-
 private :
+    MessageQueue<std::shared_ptr<ic::MSG_T>> queRcvMSG_;
+    MessageQueue<std::shared_ptr<std::pair<std::string, std::string>>> queSndMSG_;
 
 };

@@ -19,43 +19,62 @@
 #include <set>
 #include <future>
 #include "ic_define.h"
-#include "ic_util.h"
-#include "message_responder.h"
+#include "message_sender.h"
 #include "error_manager.h"
 
-template <typename T>
-MessageResponder<T>::MessageResponder()
+MessageSender::MessageSender()
 {
 
 }
 
-template <typename T>
-MessageResponder<T>::~MessageResponder()
+MessageSender::~MessageSender()
 {
 
 }
 
-template <typename T>
-void MessageResponder<T>::parseAndSendResponse(std::string strMessage)
+void MessageSender::parseAndSend(const ic::ServerInfo& info, std::string strMessage)
 {
-	std::thread th(&MessageResponder::parseThread, this, this, strMessage);
-
-	th.join();
+	std::thread sender (&MessageSender::runThread, this, info, strMessage);
+    sender.detach();
 }
 
-template <typename T>
-bool MessageResponder<T>::isThreadStop()
+bool MessageSender::sendData(const ic::ServerInfo& info, const std::string& strJson)
 {
-	return isThreadStop_;
+    int nSize = static_cast<int>(strJson.size());
+    char cType = static_cast<char>(ic::PACKET_SEPARATOR::PACKETTYPE_JSON);
+    int nSendSize = sizeof(int) + 1 + nSize;
+
+    std::lock_guard<std::mutex> lock(bufferMutex_);
+
+    sendBuffer_.reserve(nSendSize);
+    sendBuffer_.insert(sendBuffer_.end(), reinterpret_cast<char*>(&nSize), reinterpret_cast<char*>(&nSize) + sizeof(int));
+    sendBuffer_.push_back(cType);
+    sendBuffer_.insert(sendBuffer_.end(), strJson.begin(), strJson.end());
+
+    int nSend = -1;
+    LOG_INFO("SendData clientName : {} clientIP : {} : {}", info.name, info.ip, info.port);
+    nSend = send(info.socket, sendBuffer_.data(), sendBuffer_.size(), 0);
+
+    sendBuffer_.clear();
+    std::vector<char>().swap(sendBuffer_);
+
+    if (nSend != nSendSize)
+    {
+        LOG_ERROR("Send Fail nSend != nSendSize {} {} ", nSend, nSendSize);
+        return false;
+    }
+    else
+    {
+        LOG_INFO("Send Success nSend == nSendSize {} {} ", nSend, nSendSize);
+        return true;
+    }
+
+    return true;
+
 }
 
-template <typename T>
-void MessageResponder<T>::parseThread(void* param, std::string strMessage)
+void MessageSender::runThread(const ic::ServerInfo& info, std::string strMessage)
 {
-	MessageResponder* pMain = (MessageResponder*)param;
-	if (pMain->isThreadStop())
-		return;
-
     LOG_INFO("Recv in parseThread: {}", strMessage);
 
 	Document document;
@@ -82,7 +101,7 @@ void MessageResponder<T>::parseThread(void* param, std::string strMessage)
 	{
 		sendDocument[PROTOCOL_ERRORMSG].SetString(getErrorCodeToString(nResultCode), allocator);
 		std::string sendString = getDocumentToString(sendDocument);
-		if (pMain->server_->sendData(protocol.From, sendString))
+		if (this->sendData(info, sendString))
 		{
             LOG_ERROR("sendData failed in parsThread: {}", sendString);
 		}
@@ -92,17 +111,10 @@ void MessageResponder<T>::parseThread(void* param, std::string strMessage)
 //	LOG_DEBUG("section {} {} {}", strSection1, strSection2, strSection3);
 
 	std::string strSendString = getDocumentToString(sendDocument);
-	pMain->server_->sendData(protocol.From, strSendString);
+	this->sendData(info, strSendString);
 }
 
-template <typename T>
-void MessageResponder<T>::setServer(std::shared_ptr<T> server)
-{
-	server_ = server;
-}
-
-template <typename T>
-std::string MessageResponder<T>::getDocumentToString(Document& document)
+std::string MessageSender::getDocumentToString(Document& document)
 {
 	StringBuffer strbuf;
 	strbuf.Clear();
@@ -113,8 +125,8 @@ std::string MessageResponder<T>::getDocumentToString(Document& document)
 	return ownShipRadarString;
 }
 
-template <typename T>
-int MessageResponder<T>::getBasicReturnJson(Document& document, ic::Protocol& protocol)
+
+int MessageSender::getBasicReturnJson(Document& document, ic::Protocol& protocol)
 {
 	if (document.HasMember(PROTOCOL_SECTION1))
 		protocol.Type = document[PROTOCOL_SECTION1].GetString();
