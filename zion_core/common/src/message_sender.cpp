@@ -38,41 +38,6 @@ void MessageSender::parseAndSend(const ic::ServerInfo& info, std::string strMess
     sender.detach();
 }
 
-bool MessageSender::sendData(const ic::ServerInfo& info, const std::string& strJson)
-{
-    int nSize = static_cast<int>(strJson.size());
-    char cType = static_cast<char>(ic::PACKET_SEPARATOR::PACKETTYPE_JSON);
-    int nSendSize = sizeof(int) + 1 + nSize;
-
-    std::lock_guard<std::mutex> lock(bufferMutex_);
-
-    sendBuffer_.reserve(nSendSize);
-    sendBuffer_.insert(sendBuffer_.end(), reinterpret_cast<char*>(&nSize), reinterpret_cast<char*>(&nSize) + sizeof(int));
-    sendBuffer_.push_back(cType);
-    sendBuffer_.insert(sendBuffer_.end(), strJson.begin(), strJson.end());
-
-    int nSend = -1;
-    LOG_INFO("SendData clientName : {} clientIP : {} : {}", info.name, info.ip, info.port);
-    nSend = send(info.socket, sendBuffer_.data(), sendBuffer_.size(), 0);
-
-    sendBuffer_.clear();
-    std::vector<char>().swap(sendBuffer_);
-
-    if (nSend != nSendSize)
-    {
-        LOG_ERROR("Send Fail nSend != nSendSize {} {} ", nSend, nSendSize);
-        return false;
-    }
-    else
-    {
-        LOG_INFO("Send Success nSend == nSendSize {} {} ", nSend, nSendSize);
-        return true;
-    }
-
-    return true;
-
-}
-
 void MessageSender::runThread(const ic::ServerInfo& info, std::string strMessage)
 {
     LOG_INFO("Recv in parseThread: {}", strMessage);
@@ -112,6 +77,41 @@ void MessageSender::runThread(const ic::ServerInfo& info, std::string strMessage
 
 	std::string strSendString = getDocumentToString(sendDocument);
 	this->sendData(info, strSendString);
+}
+
+bool MessageSender::sendData(const ic::ServerInfo& info, const std::string& strJson)
+{
+    int nSize = static_cast<int>(strJson.size());
+    char cType = static_cast<char>(ic::PACKET_SEPARATOR::PACKETTYPE_JSON);
+    int nSendSize = sizeof(int) + 1 + nSize;
+
+    std::lock_guard<std::mutex> lock(bufferMutex_);
+
+    sendBuffer_.reserve(nSendSize);
+    sendBuffer_.insert(sendBuffer_.end(), reinterpret_cast<char*>(&nSize), reinterpret_cast<char*>(&nSize) + sizeof(int));
+    sendBuffer_.push_back(cType);
+    sendBuffer_.insert(sendBuffer_.end(), strJson.begin(), strJson.end());
+
+    int nSend = -1;
+    LOG_INFO("SendData clientName : {} clientIP : {} : {}", info.name, info.ip, info.port);
+    nSend = send(info.socket, sendBuffer_.data(), sendBuffer_.size(), 0);
+
+    sendBuffer_.clear();
+    std::vector<char>().swap(sendBuffer_);
+
+    if (nSend != nSendSize)
+    {
+        LOG_ERROR("Send Fail nSend != nSendSize {} {} ", nSend, nSendSize);
+        return false;
+    }
+    else
+    {
+        LOG_INFO("Send Success nSend == nSendSize {} {} ", nSend, nSendSize);
+        return true;
+    }
+
+    return true;
+
 }
 
 std::string MessageSender::getDocumentToString(Document& document)

@@ -23,6 +23,7 @@
 #include <stdlib.h> // for exit()
 #include <sys/ioctl.h>
 #include <net/if.h>
+#include <list>
 #include "ic_define.h"
 
 class SocketHandlerAbs
@@ -41,9 +42,12 @@ public:
     }
 
 protected :
-//    virtual bool sendData(const ic::ServerInfo& info, const std::string& strJson) = 0;
+
     virtual void runSocket() = 0;
     virtual void closeSocket(int nSock) = 0;
+    int receive(int clnt_sock, char* pRecv, int nSize, int flags);
+    std::list<std::string> getIPList();
+    std::string getLocalCompare(std::string ip);
 
 protected:
     bool isThreadRunning_ = false;

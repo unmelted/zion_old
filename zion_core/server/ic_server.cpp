@@ -172,15 +172,15 @@ void* ICServer::socketThread(std::unique_ptr<ClientSockThreadData> threadData)
 {
     LOG_DEBUG("socketThread is started.");
 
-	ICServer* pSocketMgr = threadData->pthis;
+	ICServer* parentThread = threadData->pthis;
 
-	while (pSocketMgr->isThreadRunning_)
+	while (parentThread->isThreadRunning_)
 	{
 		int str_len = 0;
 		int nPacketSize = 0;
 		ic::ProtocolHeader header;
 
-		if ((str_len = pSocketMgr->receive(threadData->info.socket, (char*)&header, sizeof(header), 0)) == 0)
+		if ((str_len = parentThread->receive(threadData->info.socket, (char*)&header, sizeof(header), 0)) == 0)
 		{
             LOG_INFO("Client disconnected or error occurred: Socket {}", threadData->info.socket);
 			break;
@@ -200,27 +200,28 @@ void* ICServer::socketThread(std::unique_ptr<ClientSockThreadData> threadData)
 		if (nPacketSize >= 0)
 		{
 			pData.resize(nPacketSize + 1), 0;
-			if ((str_len = pSocketMgr->receive(threadData->info.socket, pData.data(), nPacketSize, 0)) == 0)
+			if ((str_len = parentThread->receive(threadData->info.socket, pData.data(), nPacketSize, 0)) == 0)
 			{
-				break;
+                LOG_ERROR("received Patcket size Error {} ", str_len);
+				continue;
 			}
 		}
 
         if( header.cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON)
         {
             LOG_ERROR("validateMsg cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON");
-            break;
+            continue;
         }
 
-        int nErrorCode = pSocketMgr->classifier(threadData->info, pData.data(), nPacketSize);
+        int nErrorCode = parentThread->classifier(threadData->info, pData.data(), nPacketSize);
         if (nErrorCode != (int)ErrorCommon::COMMON_ERR_NONE)
         {
             LOG_ERROR("Classifier Error {} ", nErrorCode);
         }
 	}
 
-    pSocketMgr->removeClient(threadData->info.ip);
-	pSocketMgr->closeSocket(threadData->info.socket);
+    parentThread->removeClient(threadData->info.ip);
+	parentThread->closeSocket(threadData->info.socket);
 
 	return NULL;
 }
@@ -290,90 +291,4 @@ void ICServer::removeClient(const std::string& client_ip)
         LOG_INFO("Current clientMap_ name : {} ", it->first);
         LOG_INFO("Current clientMap_ ip : {} ", it->second.ip);
     }
-}
-
-int ICServer::receive(int clnt_sock, char* pRecv, int nSize, int flags)
-{
-	int nReclen = 0, nTotalRecvSize = 0, nRemainSize = nSize;
-	int nRecvSize = 1024;
-	if (nRecvSize > nSize)
-		nRecvSize = nSize;
-
-	while (1)
-	{
-		if ((nReclen = recv(clnt_sock, pRecv, nRecvSize, MSG_NOSIGNAL)) == 0)
-			return 0;
-
-		if (nReclen <= 0)
-			break;
-
-		pRecv += nReclen;
-		nTotalRecvSize += nReclen;
-        nRemainSize -= nReclen;
-		if (nRemainSize <= 0)
-			break;
-
-		if (nRecvSize > nRemainSize)
-			nRecvSize = nRemainSize;
-	}
-
-	return nTotalRecvSize;
-}
-
-std::list<std::string> ICServer::getIPList()
-{
-	std::list<std::string> lstIPAddress;
-
-	int             sock, nRet, nFamily = PF_INET;
-	size_t          nNIC;
-	const size_t    nMaxNIC = 256;
-	struct ifconf   ifc;
-	struct ifreq    ifr[nMaxNIC];
-	struct sockaddr* pAddr(NULL);
-	sock = socket(nFamily, SOCK_STREAM, 0);
-	if (sock == -1)
-		return lstIPAddress;
-
-	ifc.ifc_len = sizeof(ifr);
-	ifc.ifc_ifcu.ifcu_req = ifr;
-
-	nRet = ioctl(sock, SIOCGIFCONF, &ifc);
-	if (nRet == -1)
-		return lstIPAddress;
-
-	close(sock);
-	nNIC = ifc.ifc_len / sizeof(struct ifreq);
-	for (size_t i = 0; i < nNIC; i++)
-	{
-		if (nFamily == ifc.ifc_ifcu.ifcu_req[i].ifr_ifru.ifru_addr.sa_family)
-		{
-			pAddr = (&ifc.ifc_ifcu.ifcu_req[i].ifr_ifru.ifru_addr);
-			sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(pAddr);
-			lstIPAddress.push_back(inet_ntoa(sin->sin_addr));
-		}
-	}
-
-	return lstIPAddress;
-}
-
-std::string ICServer::getLocalCompare(std::string ip)
-{
-	std::string str_ip;
-	std::list<std::string> _list = getIPList();
-	std::list<std::string>::iterator iter;
-	std::string strC = ip.substr(0, ip.rfind('.'));
-
-	for (iter = _list.begin(); iter != _list.end(); iter++)
-	{
-		std::string strData = *iter;
-		std::string strDiff = strData.substr(0, strData.rfind('.'));
-
-		if (strDiff == strC)
-		{
-			str_ip = strData;
-			break;
-		}
-	}
-
-	return str_ip;
 }

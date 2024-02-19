@@ -24,11 +24,11 @@ using namespace rapidjson;
 class ICClient : public SocketHandlerAbs
 {
 private :
-    struct ClientSockThreadData
+    struct ServerSockThreadData
     {
         ic::ServerInfo info;
         ICClient* pthis;
-        ClientSockThreadData(const ic::ServerInfo& cinfo, ICClient* server)
+        ServerSockThreadData(const ic::ServerInfo& cinfo, ICClient* server)
                 : info(cinfo), pthis(server)
         {
             std::cout << "Client info : " << cinfo.ip << " " << cinfo.port << std::endl;
@@ -45,11 +45,12 @@ public:
 private :
     void runSocket() override;
     void closeSocket(int nSock) override;
-
     void closeServer();
-    void receiveThread();
-    void reconnect();
+    void receiveThread(std::unique_ptr<ServerSockThreadData> threadData);
 
 private :
     std::unique_ptr<std::thread> rcvThread_;
+    bool isRcvThreadRunning = false;
+
+    std::function<void()> callback;
 };

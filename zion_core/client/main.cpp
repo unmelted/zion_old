@@ -37,6 +37,7 @@ int main()
     Logger logger({true, true, false, false});
     signal(SIGINT, signalHandler);
     cliManager = std::make_unique<ClientManager>();
+    cliManager->initialize();
 
     while (1)
     {

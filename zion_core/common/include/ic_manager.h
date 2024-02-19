@@ -27,9 +27,10 @@ using namespace rapidjson;
 template <typename T>
 class ICManager
 {
+public:
+    virtual int initialize() = 0;
 
 protected:
-    virtual int initialize() = 0;
     virtual int classifier(const ic::ClientInfo& info, char* pData, int nDataSize);
 
     std::vector<ic::ServerInfo> server_info_list_;

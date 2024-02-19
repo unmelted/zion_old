@@ -17,7 +17,6 @@
  */
 
 #pragma once
-#include <list>
 #include "socket_abstraction.h"
 
 using namespace rapidjson;
@@ -52,12 +51,9 @@ private:
     void closeServer();
 
     void* socketThread(std::unique_ptr<ClientSockThreadData> threadData);
-    int receive(int clnt_sock, char* pRecv, int nSize, int flags);
+//    int receive(int clnt_sock, char* pRecv, int nSize, int flags);
     bool addClient(const ic::ClientInfo& info, int packetSize);
     void removeClient(const std::string& clientName);
-
-    std::list<std::string> getIPList();
-    std::string getLocalCompare(std::string strIP);
 
 private:
     std::mutex infoMutex_;

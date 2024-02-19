@@ -24,7 +24,8 @@ SET(ics_common_src
         ${PRJ_PATH}/common/src/logger.cpp
         ${PRJ_PATH}/common/src/message_sender.cpp
         ${PRJ_PATH}/common/src/socket_message.cpp
-        ${PRJ_PATH}/common/src/task_manager.cpp)
+        ${PRJ_PATH}/common/src/task_manager.cpp
+        ${PRJ_PATH}/common/src/socket_abstraction.cpp)
 
 ADD_LIBRARY(ics_common ${ics_common_src})
 

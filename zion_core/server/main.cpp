@@ -38,6 +38,7 @@ int main()
     Logger logger({true, true, false, false});
     signal(SIGINT, signalHandler);
     svrManager = std::make_unique<ServerManager>();
+    svrManager->initialize();
 
     while (1)
     {

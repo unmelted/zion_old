@@ -30,9 +30,9 @@ class ClientManager : public ICManager<ICClient>
 public:
     ClientManager();
     ~ClientManager();
+    int initialize() override;
 
 private:
-    int initialize() override;
     int classifier(const ic::ClientInfo& info, char* pData, int nDataSize) override;
 
 private :

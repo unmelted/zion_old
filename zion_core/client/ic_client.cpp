@@ -49,7 +49,7 @@ void ICClient::closeServer()
 
 void ICClient::closeSocket(int nSock)
 {
-    LOG_INFO("CloseServer is called");
+//    LOG_INFO("CloseServer is called");
     shutdown(nSock, SHUT_RDWR);
     close(nSock);
 
@@ -73,6 +73,13 @@ void ICClient::runSocket()
 {
     while (isThreadRunning_)
     {
+        if(isRcvThreadRunning)
+        {
+            std::this_thread::sleep_for(std::chrono::seconds(10));
+            LOG_INFO("Socket waiting recv.");
+            continue;
+        }
+
         int sock = 0;
         if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
         {
@@ -95,50 +102,72 @@ void ICClient::runSocket()
 
         if (connect(info_.socket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1)
         {
-            LOG_ERROR("Failed to connect to the server: {}", info_.ip);
+            LOG_WARN("Can't to connect to the server: {}", info_.ip);
             closeSocket(info_.socket);
 
-            std::this_thread::sleep_for(std::chrono::seconds(3));
+            std::this_thread::sleep_for(std::chrono::seconds(5));
             continue;
         }
         else
         {
             LOG_INFO("Successfully connected to server. Starting receive thread.");
-            rcvThread_ = std::make_unique<std::thread>(&ICClient::receiveThread, this);
-            break;
+            isRcvThreadRunning = true;
+            std::unique_ptr<ServerSockThreadData> threadData = std::make_unique<ServerSockThreadData>(info_, this);
+            std::thread(&ICClient::receiveThread, this, std::move(threadData)).detach();
         }
-    }
-
-    if (mainThread_ && mainThread_->joinable())
-    {
-        mainThread_->join();
-        mainThread_.reset();
     }
 }
 
-void ICClient::receiveThread()
+void ICClient::receiveThread(std::unique_ptr<ServerSockThreadData> threadData)
 {
-    while (isThreadRunning_)
+    LOG_DEBUG("receiveThread is started.");
+
+    ICClient* parentThread = threadData->pthis;
+
+    while (isRcvThreadRunning)
     {
-        char buffer[1024];
-        memset(buffer, 0, sizeof(buffer));
-        ssize_t bytesRead = recv(info_.socket, buffer, sizeof(buffer), 0);
+        int str_len = 0;
+        int nPacketSize = 0;
+        ic::ProtocolHeader header;
 
-        if (bytesRead == -1)
+        if ((str_len = parentThread->receive(threadData->info.socket, (char*)&header, sizeof(header), 0)) == 0)
         {
-            LOG_ERROR("Failed to receive data from server");
-            isThreadRunning_ = false;
-            break;
-        }
-        else if (bytesRead == 0)
-        {
-            LOG_WARN("Connection closed by server {} : {} ", info_.ip, info_.port);
-            isThreadRunning_ = false;
+            LOG_INFO("Client disconnected or error occurred: Socket {}", threadData->info.socket);
             break;
         }
 
-//        std::string received(buffer, bytesRead);
-//        LOG_INFO("Data received from server: {}", received);
+        if (str_len < sizeof(ic::ProtocolHeader))
+            continue;
+
+        nPacketSize = header.nSize;
+        if (nPacketSize < 1 || nPacketSize > 5000000 || header.cSeparator >= (int)ic::PACKET_SEPARATOR::PACKETTYPE_SIZE)
+        {
+            LOG_ERROR("Invalid Header Packet {} Separator {}", nPacketSize, header.cSeparator);
+            continue;
+        }
+
+        std::vector<char> pData;
+        if (nPacketSize >= 0)
+        {
+            pData.resize(nPacketSize + 1), 0;
+            if ((str_len = parentThread->receive(threadData->info.socket, pData.data(), nPacketSize, 0)) == 0)
+            {
+                LOG_ERROR("received Patcket size Error {} ", str_len);
+                continue;
+            }
+        }
+
+        if( header.cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON)
+        {
+            LOG_ERROR("validateMsg cSeparator != (char)ic::PACKET_SEPARATOR::PACKETTYPE_JSON");
+            continue;
+        }
+
+        int nErrorCode = parentThread->classifier(threadData->info, pData.data(), nPacketSize);
+        if (nErrorCode != (int)ErrorCommon::COMMON_ERR_NONE)
+        {
+            LOG_ERROR("Classifier Error {} ", nErrorCode);
+        }
     }
 
     if(info_.socket != -1)
@@ -148,17 +177,5 @@ void ICClient::receiveThread()
         LOG_INFO("Socket closed: {} : {} ", info_.ip, info_.port);
     }
 
-    if (rcvThread_ && rcvThread_->joinable())
-    {
-        rcvThread_->join();
-        rcvThread_.reset();
-    }
-
-    reconnect();
-}
-
-void ICClient::reconnect()
-{
-    isThreadRunning_ = true;
-    mainThread_ =  std::make_unique<std::thread>(&ICClient::runSocket, this);
+    parentThread->isRcvThreadRunning = false;
 }

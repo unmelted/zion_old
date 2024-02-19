@@ -30,9 +30,9 @@ class ServerManager : public ICManager<ICServer>
 public:
     ServerManager();
 	~ServerManager();
+    int initialize() override;
 
 private:
-    int initialize() override;
     int classifier(const ic::ClientInfo& info, char* pData, int nDataSize) override;
 
 private:
