@@ -18,6 +18,14 @@
 
 #include "ic_manager.h"
 
+template <typename T>
+ICManager<T>::ICManager()
+{
+    Configurator::get().setDirectory();
+    db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
+    task_manager_ = std::make_unique<TaskManager>(3);
+}
+
 // this function check the command format
 // if received message fits the command format well,
 // deliver the message to message_parser or message_manager for further process

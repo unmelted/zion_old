@@ -86,7 +86,7 @@ void SocketMsgManager::rcvMSGThread()
             if (msg != nullptr)
             {
                 LOG_INFO("rcvMSGThread : socket {} port {} : command {}  ",
-                        msg->first.socket, msg->first.port, msg->second.command);
+                        msg->first.socket, msg->first.port, msg->second.Command);
 
 //                    taskmanager_.commandTask((int)ic::COMMAND_CLASS::COMMAND_START, msg->txt);
             }

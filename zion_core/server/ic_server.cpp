@@ -153,8 +153,8 @@ void ICServer::runSocket()
         }
 
  		std::unique_ptr<ClientSockThreadData> threadData = std::make_unique<ClientSockThreadData>(cinfo, this);
-
         std::thread(&ICServer::socketThread, this, std::move(threadData)).detach();
+
         LOG_INFO("runSocket function is end loop. port {} ", info_.port);
 
 	}

@@ -22,5 +22,36 @@
 
 class EventManager
 {
+public:
+    using EventHandler = std::function<int(int, void*)>;
 
+    static bool addEventHandler(int evid, EventHandler handler)
+    {
+        std::lock_guard<std::mutex> guard(getInstance().mutex_);
+        bool ret = (getInstance().ev_map_.find(evid) == getInstance().ev_map_.end());
+        getInstance().ev_map_[evid] = handler;
+        return ret;
+    }
+
+    static int setEvent(int evid, void* context)
+    {
+        auto& instance = getInstance();
+        std::lock_guard<std::mutex> guard(instance.mutex_);
+        auto it = instance.ev_map_.find(evid);
+        if (it != instance.ev_map_.end())
+        {
+            return it->second(evid, context);
+        }
+        return -1;
+    }
+
+private:
+    std::map<int, EventHandler> ev_map_;
+    std::mutex mutex_;
+
+    static EventManager& getInstance()
+    {
+        static EventManager instance;
+        return instance;
+    }
 };

@@ -19,6 +19,7 @@
 #pragma once
 
 #include "ic_define.h"
+#include "event_manager.h"
 #include "task_manager.h"
 #include "db_manager.h"
 
@@ -28,6 +29,7 @@ template <typename T>
 class ICManager
 {
 public:
+    ICManager();
     virtual int initialize() = 0;
 
 protected:

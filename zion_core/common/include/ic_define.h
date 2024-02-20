@@ -52,14 +52,17 @@
 #include "error_manager.h"
 
 
-#define TASKPOOL_SIZE 10
-#define CURRENTVERSION "0.0.1.T"
 
+#define CURRENTVERSION "0.0.1.T"
 
 using namespace std;
 
 namespace ic
 {
+
+const int TASKPOOL_SIZE = 5;
+const int CONNECT_WAIT_TIME = 5;
+//const int
 
 enum class ROBOT_TYPE
 {
@@ -121,6 +124,13 @@ struct ServerInfo {
 
 typedef ServerInfo ClientInfo;
 
+enum class EVENT_ID
+{
+    EVENT_ID_NONE,
+    EVENT_ID_WHO,
+    EVENT_ID_SIZE,
+};
+
 enum class COMMAND_CLASS
 {
     COMMAND_NONE = 0,
@@ -150,6 +160,7 @@ struct Protocol
 
 };
 
+typedef Protocol  MSG_T;
 
 #define PROTOCOL_SECTION1    "Type"
 #define PROTOCOL_SECTION2    "Command"
@@ -173,17 +184,6 @@ enum class MSG_TYPE
     MSG_TYPE_DB_UPDATE,
     MSG_TYPE_DB_DELETE,
 };
-
-struct MSG_T
-{
-    std::string command;
-    std::string subcommand;
-    std::string action;
-    std::string from;
-    std::string to;
-    std::string data;
-};
-
 
 // Packet Separator Type
 enum class PACKET_SEPARATOR

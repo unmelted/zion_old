@@ -105,7 +105,7 @@ void ICClient::runSocket()
             LOG_WARN("Can't to connect to the server: {}", info_.ip);
             closeSocket(info_.socket);
 
-            std::this_thread::sleep_for(std::chrono::seconds(5));
+            std::this_thread::sleep_for(std::chrono::seconds(ic::CONNECT_WAIT_TIME));
             continue;
         }
         else
@@ -123,8 +123,9 @@ void ICClient::receiveThread(std::unique_ptr<ServerSockThreadData> threadData)
     LOG_DEBUG("receiveThread is started.");
 
     ICClient* parentThread = threadData->pthis;
-
+    EventManager::setEvent(static_cast<int>(ic::EVENT_ID::EVENT_ID_WHO), nullptr);
     while (isRcvThreadRunning)
+
     {
         int str_len = 0;
         int nPacketSize = 0;

@@ -82,27 +82,30 @@ void TaskManager::enqueueJob(MessageQueue<int>* fu, shared_ptr<ic::MSG_T> task, 
 }
 
 // message_manager call this function for doing task after message parsing
-int TaskManager::commandTask(int mode, const ic::MSG_T& task)
+// or EventManager call this function by EventHandler
+// so, id could be different by the caller. COMMAND_ID or EVENT_ID
+int TaskManager::commandTask(int id, const ic::MSG_T& task)
 {
+    LOG_DEBUG("commandTask is called !! {} ", id);
 
     if (cur_worker_ == num_worker_)
         LOG_DEBUG("Job Queue is fool. working worker + job = : {}", cur_worker_);
     cur_worker_++;
 
-    if (mode == (int)ic::COMMAND_CLASS::COMMAND_VERSION)
+    if (id == (int)ic::COMMAND_CLASS::COMMAND_VERSION)
     {
-        LOG_INFO("TEST API COMMAND_VERSION {} ", task.command);
+        LOG_INFO("TEST API COMMAND_VERSION {} ", task.Command);
     }
-    else if (mode == (int)ic::COMMAND_CLASS::COMMAND_START)
+    else if (id == (int)ic::COMMAND_CLASS::COMMAND_START)
     {
         auto task_ptr = std::make_shared<ic::MSG_T>(task);
         enqueueJob(&future_, task_ptr, &TaskManager::taskStart, this, 19);
     }
-    else if (mode == (int)ic::COMMAND_CLASS::COMMAND_STOP)
+    else if (id == (int)ic::COMMAND_CLASS::COMMAND_STOP)
     {
 
     }
-    else if (mode == (int)ic::COMMAND_CLASS::COMMAND_VERSION)
+    else if (id == (int)ic::COMMAND_CLASS::COMMAND_VERSION)
     {
 
     }

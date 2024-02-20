@@ -39,7 +39,7 @@ public:
     TaskManager(size_t num_worker_);
     ~TaskManager();
 
-    int commandTask(int mode, const ic::MSG_T& task);
+    int commandTask(int id, const ic::MSG_T& task);
 
 private:
     void watchFuture();

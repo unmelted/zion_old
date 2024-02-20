@@ -36,9 +36,6 @@ ClientManager::ClientManager()
     std::string configContent = ss.str();
     std::cout << "configContent: " << configContent << std::endl;
 
-    Configurator::get().setDirectory();
-    db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
-
     rapidjson::Document doc;
     doc.Parse(configContent.c_str());
 
@@ -79,6 +76,10 @@ int ClientManager::initialize()
         socket->beginSocket();
         socket->setHandler(std::bind(&ClientManager::classifier, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
     }
+
+    ic::MSG_T msg;
+    EventManager::addEventHandler(static_cast<int>(ic::EVENT_ID::EVENT_ID_WHO),
+            std::bind(&TaskManager::commandTask, task_manager_.get(), std::placeholders::_1, msg));
 
     return 0;
 }
