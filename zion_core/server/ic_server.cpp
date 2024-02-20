@@ -252,13 +252,13 @@ bool ICServer::addClient(const ic::ClientInfo& info, int packetSize)
     std::string command = document[PROTOCOL_SECTION2].GetString();
     std::string subCommand = document[PROTOCOL_SECTION3].GetString();
 
-    if (command != "CONNECT")
+    if (command != "WHOAMI")
     {
         LOG_ERROR("CONNECT Command Error. {} ", document[PROTOCOL_SECTION2].GetString());
         return false;
     }
 
-    std::string clientName = document[PROTOCOL_FROM].GetString();
+    std::string clientName = document[PROTOCOL_DATA].GetString();
 
     infoMutex_.lock();
     clientMap_[clientName] = info;

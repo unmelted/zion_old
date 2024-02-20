@@ -30,11 +30,11 @@ public:
     MessageSender();
 	~MessageSender();
 
-	void parseAndSend(const ic::ServerInfo& info, std::string strMessage);
+	void parseAndSend(const ic::ServerInfo& info, const ic::MSG_T& msg);
 
 private:
     bool sendData(const ic::ServerInfo& info, const std::string& strJson);
-	void runThread(const ic::ServerInfo& info, std::string strMessage);
+	void runThread(const ic::ServerInfo& info, const ic::MSG_T& msg);
 	int getBasicReturnJson(Document& document, ic::Protocol& mtdProtocol);
 	std::string getDocumentToString(Document& document);
 

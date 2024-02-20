@@ -34,7 +34,7 @@ public:
 
     void setDBManager(std::shared_ptr<DBManager>& dbManager);
     void onRcvMessage(const ic::ServerInfo info, ic::MSG_T msg_t);
-    void onRcvSndMessage(const ic::ServerInfo& info, std::string msg);
+    void onRcvSndMessage(const ic::ServerInfo& info, const ic::MSG_T& msg);
     void insertEventTable(const Document& doc, int msg_type);
 
 protected :
@@ -45,7 +45,7 @@ private :
     std::unique_ptr<std::thread> rcvMSGThread_;
     std::unique_ptr<std::thread> sndMSGThread_;
     MessageQueue<std::shared_ptr<std::pair<ic::ServerInfo, ic::MSG_T>>> queRcvMSG_;
-    MessageQueue<std::shared_ptr<std::pair<ic::ServerInfo, std::string>>> queSndMSG_;
+    MessageQueue<std::shared_ptr<std::pair<ic::ServerInfo, ic::MSG_T>>> queSndMSG_;
 
     std::shared_ptr<DBManager> dbManager_;
     std::unique_ptr<MessageSender> msgSender_;

@@ -23,7 +23,7 @@
 class EventManager
 {
 public:
-    using EventHandler = std::function<int(int, void*)>;
+    using EventHandler = std::function<int(int, void*, void*)>;
 
     static bool addEventHandler(int evid, EventHandler handler)
     {
@@ -33,14 +33,14 @@ public:
         return ret;
     }
 
-    static int setEvent(int evid, void* context)
+    static int setEvent(int id, void* context1, void* context2)
     {
         auto& instance = getInstance();
         std::lock_guard<std::mutex> guard(instance.mutex_);
-        auto it = instance.ev_map_.find(evid);
+        auto it = instance.ev_map_.find(id);
         if (it != instance.ev_map_.end())
         {
-            return it->second(evid, context);
+            return it->second(id, context1, context2);
         }
         return -1;
     }

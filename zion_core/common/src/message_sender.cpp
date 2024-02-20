@@ -32,34 +32,35 @@ MessageSender::~MessageSender()
 
 }
 
-void MessageSender::parseAndSend(const ic::ServerInfo& info, std::string strMessage)
+void MessageSender::parseAndSend(const ic::ServerInfo& info, const ic::MSG_T& msg)
 {
-	std::thread sender (&MessageSender::runThread, this, info, strMessage);
+	std::thread sender (&MessageSender::runThread, this, info, msg);
     sender.detach();
 }
 
-void MessageSender::runThread(const ic::ServerInfo& info, std::string strMessage)
+void MessageSender::runThread(const ic::ServerInfo& info, const ic::MSG_T& msg)
 {
-    LOG_INFO("Recv in parseThread: {}", strMessage);
+    LOG_INFO("Recv in parseThread: {} {} ", msg.Command, msg.Data);
 
-	Document document;
-	document.Parse(strMessage.c_str());
-
-	string strError;
-	ic::Protocol protocol;
-	int nResultCode = getBasicReturnJson(document, protocol);
+//	Document document;
+//	document.Parse(msg.c_str());
+//
+//	string strError;
+//	ic::Protocol protocol;
+//	int nResultCode = getBasicReturnJson(document, protocol);
+    int nResultCode = SUCCESS;
 	Document sendDocument(kObjectType);
 	Document::AllocatorType& allocator = sendDocument.GetAllocator();
 
-	sendDocument.AddMember(PROTOCOL_SECTION1, protocol.Type, allocator);
-	sendDocument.AddMember(PROTOCOL_SECTION2, protocol.Command, allocator);
-	sendDocument.AddMember(PROTOCOL_SECTION3, protocol.SubCommand, allocator);
-	sendDocument.AddMember(PROTOCOL_ACTION, protocol.Action, allocator);
-	sendDocument.AddMember(PROTOCOL_TOKEN, protocol.Token, allocator);
-	sendDocument.AddMember(PROTOCOL_FROM, protocol.To, allocator);
-	sendDocument.AddMember(PROTOCOL_TO, protocol.From, allocator);
-	sendDocument.AddMember(PROTOCOL_DATA, protocol.Data, allocator);
-	sendDocument.AddMember(PROTOCOL_RESULTCODE, nResultCode, allocator);
+	sendDocument.AddMember(PROTOCOL_SECTION1, msg.Type, allocator);
+	sendDocument.AddMember(PROTOCOL_SECTION2, msg.Command, allocator);
+	sendDocument.AddMember(PROTOCOL_SECTION3, msg.SubCommand, allocator);
+	sendDocument.AddMember(PROTOCOL_ACTION, msg.Action, allocator);
+	sendDocument.AddMember(PROTOCOL_TOKEN, msg.Token, allocator);
+	sendDocument.AddMember(PROTOCOL_FROM, msg.To, allocator);
+	sendDocument.AddMember(PROTOCOL_TO, msg.From, allocator);
+	sendDocument.AddMember(PROTOCOL_DATA, msg.Data, allocator);
+	sendDocument.AddMember(PROTOCOL_RESULTCODE, "", allocator);
 	sendDocument.AddMember(PROTOCOL_ERRORMSG, "", allocator);
 
 	if (nResultCode != SUCCESS)

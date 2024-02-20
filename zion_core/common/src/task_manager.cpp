@@ -35,6 +35,7 @@ TaskManager::TaskManager(size_t num_worker_)
     }
 
     watcher_ = std::make_unique<std::thread>(&TaskManager::watchFuture, this);
+    msgSender_ = std::make_unique<MessageSender>();
 }
 
 TaskManager::~TaskManager()
@@ -57,7 +58,7 @@ TaskManager::~TaskManager()
 }
 
 template <class F, class... Args>
-void TaskManager::enqueueJob(MessageQueue<int>* fu, shared_ptr<ic::MSG_T> task, F &&f, Args &&...args)
+void TaskManager::enqueueJob(MessageQueue<int>* fu, shared_ptr<ic::MSG_T> task, const ic::ServerInfo& info, F &&f, Args &&...args)
 {
     if (stop_all_)
     {
@@ -70,7 +71,7 @@ void TaskManager::enqueueJob(MessageQueue<int>* fu, shared_ptr<ic::MSG_T> task, 
 
     std::lock_guard<std::mutex> lock(taskInfoMutex);
     std::string token = "abcd"; //teporary
-    taskInfo.push_back(TaskInfo(std::move(job_result_future), token, task));
+    taskInfo.push_back(TaskInfo(std::move(job_result_future), token, task, info));
 
     {
         std::lock_guard<std::mutex> lock(jobMutex_);
@@ -84,7 +85,7 @@ void TaskManager::enqueueJob(MessageQueue<int>* fu, shared_ptr<ic::MSG_T> task, 
 // message_manager call this function for doing task after message parsing
 // or EventManager call this function by EventHandler
 // so, id could be different by the caller. COMMAND_ID or EVENT_ID
-int TaskManager::commandTask(int id, const ic::MSG_T& task)
+int TaskManager::commandTask(int id, const ic::ServerInfo& info, const ic::MSG_T& task)
 {
     LOG_DEBUG("commandTask is called !! {} ", id);
 
@@ -92,14 +93,22 @@ int TaskManager::commandTask(int id, const ic::MSG_T& task)
         LOG_DEBUG("Job Queue is fool. working worker + job = : {}", cur_worker_);
     cur_worker_++;
 
-    if (id == (int)ic::COMMAND_CLASS::COMMAND_VERSION)
+    if (id == (int)ic::EVENT_ID::EVENT_ID_WHO)
+    {
+        ic::MSG_T e_msg;
+        e_msg.Command = "WHOAMI";
+        e_msg.Token = Configurator::get().generateToken();
+        e_msg.Data = "Slave_1";
+        msgSender_->parseAndSend(info, e_msg);
+    }
+    else if (id == (int)ic::COMMAND_CLASS::COMMAND_VERSION)
     {
         LOG_INFO("TEST API COMMAND_VERSION {} ", task.Command);
     }
     else if (id == (int)ic::COMMAND_CLASS::COMMAND_START)
     {
         auto task_ptr = std::make_shared<ic::MSG_T>(task);
-        enqueueJob(&future_, task_ptr, &TaskManager::taskStart, this, 19);
+        enqueueJob(&future_, task_ptr, info, &TaskManager::taskStart, this, 19);
     }
     else if (id == (int)ic::COMMAND_CLASS::COMMAND_STOP)
     {
@@ -125,7 +134,7 @@ void TaskManager::watchFuture()
             if (it->resultFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
                 int result = it->resultFuture.get();
-                makeSendMsg(it->taskMsg, result);
+                makeSendMsg(it->info, it->taskMsg, result);
                 it = taskInfo.erase(it); // 작업 처리 후 TaskInfo 제거
             }
             else
@@ -160,7 +169,7 @@ void TaskManager::workerThread()
     }
 }
 
-void TaskManager::makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result)
+void TaskManager::makeSendMsg(ic::ServerInfo& info, std::shared_ptr<ic::MSG_T> ptrMsg, int result)
 {
 
     if (result < (int)ErrorCommon::COMMON_ERR_NONE)

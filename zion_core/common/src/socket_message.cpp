@@ -55,10 +55,10 @@ void SocketMsgManager::setDBManager(std::shared_ptr<DBManager>& dbManager)
 // this function is called by task_manager for sending a message.
 // this function store the msg in queue for sending.
 
-void SocketMsgManager::onRcvSndMessage(const ic::ServerInfo& info, std::string msg)
+void SocketMsgManager::onRcvSndMessage(const ic::ServerInfo& info, const ic::MSG_T& msg)
 {
-    std::pair<ic::ServerInfo, std::string> pair_msg(info, msg);
-    std::shared_ptr<std::pair<ic::ServerInfo, std::string>> pMsg = std::make_shared<std::pair<ic::ServerInfo, std::string>>(pair_msg);
+    std::pair<ic::ServerInfo, ic::MSG_T> pair_msg(info, msg);
+    std::shared_ptr<std::pair<ic::ServerInfo, ic::MSG_T>> pMsg = std::make_shared<std::pair<ic::ServerInfo, ic::MSG_T>>(pair_msg);
     queSndMSG_.Enqueue(pMsg);
 }
 
@@ -104,12 +104,12 @@ void SocketMsgManager::sndMSGThread()
     {
         if (queSndMSG_.IsQueue())
         {
-            std::shared_ptr<std::pair<ic::ServerInfo, std::string>> dequeuedItem = queSndMSG_.Dequeue();
+            std::shared_ptr<std::pair<ic::ServerInfo, ic::MSG_T>> dequeuedItem = queSndMSG_.Dequeue();
             int socket = -1;
             ic::ServerInfo info = dequeuedItem->first;
-            std::string msg = dequeuedItem->second;
+            ic::MSG_T msg = dequeuedItem->second;
 
-            LOG_INFO(" SndMsg thread target {} msg  {} ", info.ip, msg);
+            LOG_INFO(" SndMsg thread target {} command  {} ", info.ip, msg.Command);
             msgSender_->parseAndSend(info, msg);
         }
 

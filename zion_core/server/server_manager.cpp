@@ -80,9 +80,13 @@ int ServerManager::initialize()
         socket->setHandler(std::bind(&ServerManager::classifier, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
     }
 
-    ic::MSG_T msg;
     EventManager::addEventHandler(static_cast<int>(ic::EVENT_ID::EVENT_ID_WHO),
-            std::bind(&TaskManager::commandTask, task_manager_.get(), std::placeholders::_1, msg));
+            [task_manager = task_manager_.get()](int id, void* context1, void* context2) -> int
+            {
+                auto info = static_cast<ic::ServerInfo*>(context1);
+                auto task = static_cast<ic::MSG_T*>(context2);
+                return task_manager->commandTask(id, *info, *task);
+            });
     return 0;
 }
 

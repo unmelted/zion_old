@@ -123,7 +123,8 @@ void ICClient::receiveThread(std::unique_ptr<ServerSockThreadData> threadData)
     LOG_DEBUG("receiveThread is started.");
 
     ICClient* parentThread = threadData->pthis;
-    EventManager::setEvent(static_cast<int>(ic::EVENT_ID::EVENT_ID_WHO), nullptr);
+    EventManager::setEvent(static_cast<int>(ic::EVENT_ID::EVENT_ID_WHO), (void *)&threadData->info, nullptr);
+
     while (isRcvThreadRunning)
 
     {
