@@ -34,31 +34,10 @@ class tcp_sink : public spdlog::sinks::base_sink <Mutex>
 
 public :
     tcp_sink()
+    : isConnected(false)
+    , socket_(-1)
     {
-        const std::string host = "127.0.0.1";
-        int port = ic::SERVER_PORT[(int)ic::SERVER_TYPE::SERVER_ROBOT_LOGMONITOR];
 
-        socket_ = socket(AF_INET, SOCK_STREAM, 0);
-        if (socket_ < 0)
-        {
-            throw std::runtime_error("Cannot open socket");
-        }
-
-        struct sockaddr_in serv_addr;
-        serv_addr.sin_family = AF_INET;
-        serv_addr.sin_port = htons(port);
-        if (inet_pton(AF_INET, host.c_str(), &serv_addr.sin_addr) <= 0)
-        {
-            close(socket_);
-            throw std::runtime_error("Invalid address/ Address not supported");
-        }
-
-
-        if (connect(socket_, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-        {
-            close(socket_);
-            throw std::runtime_error("Connection Failed");
-        }
     }
 
     ~tcp_sink()
@@ -66,15 +45,34 @@ public :
         close(socket_);
     }
 
+    void update_tcp_status(int socket)
+    {
+        std::cout << "update tcp status : " << socket << std::endl;
+        if(socket > 0)
+        {
+            socket_ = socket;
+            isConnected = true;
+        }
+        else
+        {
+            socket = -1;
+            isConnected = false;
+        }
+    }
+
+
 protected:
 
     void sink_it_(const spdlog::details::log_msg& msg) override
     {
-        spdlog::memory_buf_t formatted;
-        spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
-        std::string message = fmt::to_string(formatted);
-
-        send(socket_, message.c_str(), message.length(), 0);
+        if(tcp_sink::isConnected and socket_ > 0)
+        {
+            spdlog::memory_buf_t formatted;
+            spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
+            std::string message = fmt::to_string(formatted);
+            std::cout << "tcp_sink : " << message << std::endl;
+            send(socket_, message.c_str(), message.length(), 0);
+        }
     }
 
     void flush_() override
@@ -83,6 +81,7 @@ protected:
     }
 
 private:
-    int socket_ = -1;
+    int socket_;
+    bool isConnected;
 
 };

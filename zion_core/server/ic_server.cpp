@@ -131,7 +131,7 @@ void ICServer::runSocket()
             continue;
         }
 
-        LOG_INFO("Connected Client IP : {} Local IP Address : {}", client_ip, str_ip);
+        LOG_INFO("Connected Client IP : {} port {} ", client_ip, info_.port);
 
         int str_len = 0;
         ic::ProtocolHeader header;
@@ -142,9 +142,9 @@ void ICServer::runSocket()
             continue;
         }
 
-        LOG_DEBUG("After add client : IP {} Socket {}", client_ip, client_socket);
-        ic::ClientInfo cinfo("client_t", client_ip, info_.port);
-        cinfo.socket = client_socket;
+        LOG_DEBUG("After add client : IP {} Port {} Socket {}", client_ip, info_.port, client_socket);
+        std::string c_name = "Slave_" + std::to_string(client_socket);
+        ic::ClientInfo cinfo(c_name, client_ip, info_.port, client_socket);
 
         if (!addClient(cinfo, header.nSize))
         {
@@ -173,6 +173,12 @@ void* ICServer::socketThread(std::unique_ptr<ClientSockThreadData> threadData)
     LOG_DEBUG("socketThread is started.");
 
 	ICServer* parentThread = threadData->pthis;
+    ic::ClientInfo info = threadData->info;
+
+    if(info.port == ic::SERVER_PORT[static_cast<int>(ic::SERVER_TYPE::SERVER_ROBOT_LOGMONITOR)])
+    {
+        EventManager::setEvent(static_cast<int>(ic::EVENT_ID::EVENT_ID_TCP_LOG_START), (void *)&threadData->info, nullptr);
+    }
 
 	while (parentThread->isThreadRunning_)
 	{
@@ -220,7 +226,7 @@ void* ICServer::socketThread(std::unique_ptr<ClientSockThreadData> threadData)
         }
 	}
 
-    parentThread->removeClient(threadData->info.ip);
+    parentThread->removeClient(threadData->info.socket);
 	parentThread->closeSocket(threadData->info.socket);
 
 	return NULL;
@@ -268,12 +274,12 @@ bool ICServer::addClient(const ic::ClientInfo& info, int packetSize)
     return true;
 }
 
-void ICServer::removeClient(const std::string& client_ip)
+void ICServer::removeClient(const int socket)
 {
     infoMutex_.lock();
     for (auto it = clientMap_.begin(); it != clientMap_.end();)
     {
-        if (it->second.ip == client_ip)
+        if (it->second.socket == socket)
         {
             it = clientMap_.erase(it);
             break;
@@ -285,7 +291,7 @@ void ICServer::removeClient(const std::string& client_ip)
     }
     infoMutex_.unlock();
 
-    LOG_INFO("RemoveClient success: {} ", client_ip);
+    LOG_INFO("RemoveClient success: {}", socket);
     for (auto it = clientMap_.begin(); it != clientMap_.end();)
     {
         LOG_INFO("Current clientMap_ name : {} ", it->first);

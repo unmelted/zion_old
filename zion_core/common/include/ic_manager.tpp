@@ -23,7 +23,7 @@ ICManager<T>::ICManager()
 {
     Configurator::get().setDirectory();
     db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
-    task_manager_ = std::make_unique<TaskManager>(3);
+    task_manager_ = std::make_unique<TaskManager>(ic::TASKPOOL_SIZE);
 }
 
 // this function check the command format
@@ -56,7 +56,7 @@ int ICManager<T>::classifier(const ic::ServerInfo& info, char* pData, int nDataS
         || !document.HasMember("Action")
         || !document.HasMember("Token"))
     {
-        LOG_ERROR("Json component missing. can't execute.");
+        LOG_ERROR("Json component missing. Cannotexecute.");
         return 0;
     }
 

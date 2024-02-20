@@ -20,10 +20,10 @@
 #include <string>
 #include "logger.h"
 #include "db_sink.h"
-#include "tcp_sink.h"
 
 std::shared_ptr<spdlog::logger> Logger::logger_;
 std::array<bool, static_cast<int>(Logger::sink_enum::num_sink_type)> Logger::sink_type_list_;
+std::shared_ptr<tcp_sink<std::mutex>> Logger::tcp_log_sink_;
 
 Logger::Logger(std::array<bool, 4> sink_type)
 {
@@ -47,6 +47,15 @@ void Logger::set_sink_type(std::array<bool, 4> sink_type)
     }
 }
 
+void Logger::update_tcp_status(int socket)
+{
+    std::cout << "update_tcp_status in Logger : " << socket << std::endl;
+    if(sink_type_list_[static_cast<int>(sink_enum::tcp_sink)] and socket > 0)
+    {
+        tcp_log_sink_->update_tcp_status(socket);
+    }
+}
+
 void Logger::init()
 {
     spdlog::flush_every(std::chrono::milliseconds(50));
@@ -56,8 +65,6 @@ void Logger::init()
 
     shared_ptr<spdlog::sinks::rotating_file_sink_mt> file_sink;
     shared_ptr<db_sink<std::mutex>> db_log_sink;
-    shared_ptr<tcp_sink<std::mutex>> tcp_log_sink;
-
     std::vector<std::shared_ptr<spdlog::sinks::sink>> sink_list;
 
     sink_list.push_back(console_sink);
@@ -87,9 +94,9 @@ void Logger::init()
 
     if(sink_type_list_[static_cast<int>(sink_enum::tcp_sink)])
     {
-        tcp_log_sink = std::make_shared<tcp_sink<std::mutex>>();
-        tcp_log_sink->set_level(spdlog::level::level_enum::info);
-        sink_list.push_back(tcp_log_sink);
+        tcp_log_sink_ = std::make_shared<tcp_sink<std::mutex>>();
+        tcp_log_sink_->set_level(spdlog::level::level_enum::info);
+        sink_list.push_back(tcp_log_sink_);
         std::cout << "tcp_sink is on. " << std::endl;
     }
 

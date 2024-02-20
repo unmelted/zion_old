@@ -32,6 +32,7 @@
 #include <sstream>
 #include <fmt/format.h>
 #include <sqlite3.h>
+#include "tcp_sink.h"
 
 #define LOG_TRACE(...) SPDLOG_LOGGER_TRACE(Logger::logger_, __VA_ARGS__)
 #define LOG_DEBUG(...) SPDLOG_LOGGER_DEBUG(Logger::logger_, __VA_ARGS__)
@@ -47,15 +48,7 @@
 
 class Logger
 {
-public:
-    Logger(std::array<bool, 4> sink_type);
-    ~Logger();
-
-    static void init();
-
 private :
-    static void set_sink_type(std::array<bool, 4> sink_type);
-
 private:
     enum class sink_enum
     {
@@ -66,9 +59,22 @@ private:
         num_sink_type,
     };
 
-    static std::array<bool, static_cast<int>(sink_enum::num_sink_type)> sink_type_list_;
+public:
+    Logger(std::array<bool, 4> sink_type);
+    ~Logger();
+
+    static void init();
+    static void update_tcp_status(int socket);
+
+private :
+    static void set_sink_type(std::array<bool, 4> sink_type);
 
 public:
     static std::shared_ptr<spdlog::logger> logger_;
+
+private:
+    static std::array<bool, static_cast<int>(sink_enum::num_sink_type)> sink_type_list_;
+    static std::shared_ptr<tcp_sink<std::mutex>> tcp_log_sink_;
+
 };
 

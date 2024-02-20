@@ -62,7 +62,7 @@ void TaskManager::enqueueJob(MessageQueue<int>* fu, shared_ptr<ic::MSG_T> task, 
 {
     if (stop_all_)
     {
-        throw std::runtime_error("Can't add job in ThreadPool");
+        throw std::runtime_error("Cannotadd job in ThreadPool");
     }
 
     using return_type = typename std::invoke_result<F, Args...>::type;
@@ -89,19 +89,21 @@ int TaskManager::commandTask(int id, const ic::ServerInfo& info, const ic::MSG_T
 {
     LOG_DEBUG("commandTask is called !! {} ", id);
 
-    if (cur_worker_ == num_worker_)
-        LOG_DEBUG("Job Queue is fool. working worker + job = : {}", cur_worker_);
-    cur_worker_++;
-
     if (id == (int)ic::EVENT_ID::EVENT_ID_WHO)
     {
         ic::MSG_T e_msg;
         e_msg.Command = "WHOAMI";
         e_msg.Token = Configurator::get().generateToken();
-        e_msg.Data = "Slave_1";
+        e_msg.Data = info.name;
         msgSender_->parseAndSend(info, e_msg);
+        return (int)ErrorCommon::COMMON_ERR_NONE;
     }
-    else if (id == (int)ic::COMMAND_CLASS::COMMAND_VERSION)
+
+    if (cur_worker_ == num_worker_)
+        LOG_DEBUG("Job Queue is fool. working worker + job = : {}", cur_worker_);
+    cur_worker_++;
+
+    if (id == (int)ic::COMMAND_CLASS::COMMAND_VERSION)
     {
         LOG_INFO("TEST API COMMAND_VERSION {} ", task.Command);
     }

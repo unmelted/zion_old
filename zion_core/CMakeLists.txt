@@ -19,7 +19,6 @@ SET(RJSON_INC_DIR ${PRJ_PATH}/_3rdparty_/rapidjson/include)
 SET(ics_common_src
         ${PRJ_PATH}/common/src/db_manager.cpp
         ${PRJ_PATH}/common/src/error_manager.cpp
-        ${PRJ_PATH}/common/src/event_manager.cpp
         ${PRJ_PATH}/common/src/ic_util.cpp
         ${PRJ_PATH}/common/src/logger.cpp
         ${PRJ_PATH}/common/src/message_sender.cpp

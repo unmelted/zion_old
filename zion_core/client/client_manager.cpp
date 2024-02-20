@@ -26,9 +26,14 @@ ClientManager::ClientManager()
     {
         "servers": [
         {
-            "name": "Server1",
+            "name": "Slave1_CTRL",
             "ip": "127.0.0.1",
             "port": )" << ic::SERVER_PORT[static_cast<int>(ic::SERVER_TYPE::SERVER_ROBOT_CONTROL)] << R"(
+        },
+        {
+            "name": "Slave1_LOG",
+            "ip": "127.0.0.1",
+            "port": )" << ic::SERVER_PORT[static_cast<int>(ic::SERVER_TYPE::SERVER_ROBOT_LOGMONITOR)] << R"(
         }]
     }
     )";
@@ -75,6 +80,7 @@ int ClientManager::initialize()
         LOG_DEBUG(" loop in initialize : socket {}", socket->getSocket());
         socket->beginSocket();
         socket->setHandler(std::bind(&ClientManager::classifier, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     EventManager::addEventHandler(static_cast<int>(ic::EVENT_ID::EVENT_ID_WHO),

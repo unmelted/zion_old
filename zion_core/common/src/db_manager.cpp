@@ -110,7 +110,7 @@ bool DBManager::closeDB()
     int nRet = sqlite3_close(db_);
     if (nRet != SQLITE_OK)
     {
-        LOG_ERROR("Can't close database: {}", sqlite3_errmsg(db_));
+        LOG_ERROR("Cannotclose database: {}", sqlite3_errmsg(db_));
         return false;
     }
 return true;
@@ -148,7 +148,7 @@ void DBManager::queryThread()
             runQuery(query);
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(3));
+        std::this_thread::sleep_for(std::chrono::milliseconds(ic::QUEUE_EMPTY_CHECK));
     }
 }
 
@@ -165,7 +165,7 @@ int DBManager::runQuery(const std::shared_ptr<std::string>& query)
             result = sqlite3_exec(db_, str_query.c_str(), 0, 0, &errMsg);
             if (result != SQLITE_OK)
             {
-                LOG_ERROR("runQuery raise error : {} from query {}", errMsg, str_query);
+                std::cout << "Failed to execute query: " << str_query << std::endl;
                 std::string errorStr = errMsg;
                 sqlite3_free(errMsg); // 메모리 누수 방지를 위해 errMsg 해제
                 throw std::runtime_error(errorStr);

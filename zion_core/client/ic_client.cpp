@@ -102,7 +102,7 @@ void ICClient::runSocket()
 
         if (connect(info_.socket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1)
         {
-            LOG_WARN("Can't to connect to the server: {}", info_.ip);
+            LOG_WARN("Cannotto connect to the server: {}", info_.ip);
             closeSocket(info_.socket);
 
             std::this_thread::sleep_for(std::chrono::seconds(ic::CONNECT_WAIT_TIME));
@@ -124,6 +124,10 @@ void ICClient::receiveThread(std::unique_ptr<ServerSockThreadData> threadData)
 
     ICClient* parentThread = threadData->pthis;
     EventManager::setEvent(static_cast<int>(ic::EVENT_ID::EVENT_ID_WHO), (void *)&threadData->info, nullptr);
+//    if(threadData->info.port == ic::SERVER_PORT[static_cast<int>(ic::SERVER_TYPE::SERVER_ROBOT_LOGMONITOR)])
+//    {
+//        Logger::update_tcp_status(threadData->info.socket);
+//    }
 
     while (isRcvThreadRunning)
 

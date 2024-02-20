@@ -61,7 +61,8 @@ namespace ic
 {
 
 const int TASKPOOL_SIZE = 5;
-const int CONNECT_WAIT_TIME = 5;
+const int CONNECT_WAIT_TIME = 5; //seconds
+const int QUEUE_EMPTY_CHECK = 50; //milliseconds
 //const int
 
 enum class ROBOT_TYPE
@@ -119,6 +120,8 @@ struct ServerInfo {
 
     ServerInfo(const std::string& name, const std::string& ip, int port)
             : name(name), ip(ip), port(port), socket(-1), isAvailable(false), waitWhenDisconnect(false) {}
+    ServerInfo(const std::string& name, const std::string& ip, int port, int sock)
+            : name(name), ip(ip), port(port), isAvailable(false), waitWhenDisconnect(false), socket(sock) {}
 
 };
 
@@ -128,6 +131,7 @@ enum class EVENT_ID
 {
     EVENT_ID_NONE,
     EVENT_ID_WHO,
+    EVENT_ID_TCP_LOG_START,
     EVENT_ID_SIZE,
 };
 

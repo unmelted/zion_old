@@ -34,7 +34,7 @@ int main()
 {
     // array<bool, 4> represent the sink of log
     // refer the enum Logger::sink_enum
-    Logger logger({true, true, false, false});
+    Logger logger({true, true, false, true});
     signal(SIGINT, signalHandler);
     cliManager = std::make_unique<ClientManager>();
     cliManager->initialize();
