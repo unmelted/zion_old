@@ -12,31 +12,22 @@
  * Dissemination of this information or reproduction of this material is
  * strictly forbidden unless prior written permission is obtained from LIVSMED.
  *
- * Created by EunKyung Ma(ekma@livsmed.com) on 2024/02/14.
+ * Created by EunKyung Ma(ekma@livsmed.com) on 2024/02/20.
  *
  */
 
 #pragma once
-
 #include "ic_define.h"
-#include "ic_manager.h"
-#include "ic_client.h"
-#include "client_task.h"
-#include "client_message.h"
+#include "task_manager.h"
 
 using namespace rapidjson;
 
-class ClientManager : public ICManager<ICClient, ClientTaskManager>
+class ServerTaskManager : public TaskManager
 {
 public:
-    ClientManager();
-    ~ClientManager();
-    int initialize() override;
+    ServerTaskManager();
+    ~ServerTaskManager();
+    int eventTask(int id, const ic::ServerInfo& info, const ic::MSG_T& task);
 
-private:
-    int classifier(const ic::ClientInfo& info, char* pData, int nDataSize) override;
 
-private :
-    std::unique_ptr<ClientMsgManager> msg_manager_;
 };
-

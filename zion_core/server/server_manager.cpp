@@ -19,7 +19,7 @@
 #include "server_manager.h"
 
 ServerManager::ServerManager()
-: ICManager<ICServer>()
+: ICManager<ICServer, ServerTaskManager>()
 {
     std::ostringstream ss;
     ss << R"(
@@ -38,8 +38,7 @@ ServerManager::ServerManager()
     std::string configContent = ss.str();
     std::cout << "configContent: " << configContent << std::endl;
 
-    Configurator::get().setDirectory();
-    db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
+    task_manager_ = std::make_unique<ServerTaskManager>();
 
     rapidjson::Document doc;
     doc.Parse(configContent.c_str());
@@ -85,7 +84,7 @@ int ServerManager::initialize()
             {
                 auto info = static_cast<ic::ServerInfo*>(context1);
                 auto task = static_cast<ic::MSG_T*>(context2);
-                return task_manager->commandTask(id, *info, *task);
+                return task_manager->eventTask(id, *info, *task);
             });
     return 0;
 }
@@ -95,7 +94,7 @@ int ServerManager::initialize()
 // deliver the message to message_parser or message_manager for further process
 int ServerManager::classifier(const ic::ClientInfo& info, char* pData, int nDataSize)
 {
-    ICManager<ICServer>::classifier(info, pData, nDataSize);
+    ICManager<ICServer, ServerTaskManager>::classifier(info, pData, nDataSize);
 
     std::string strMessage = pData;
 	Document document;

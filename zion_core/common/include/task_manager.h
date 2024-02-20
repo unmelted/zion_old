@@ -45,13 +45,14 @@ public:
     TaskManager(size_t num_worker_);
     ~TaskManager();
 
-//    int commandTask(int id, const ic::MSG_T& task);
     int commandTask(int id, const ic::ServerInfo& info, const ic::MSG_T& task);
+
+protected:
+    std::unique_ptr<MessageSender> msgSender_;
 
 private:
     void watchFuture();
     void workerThread();
-//    void makeSendMsg(std::shared_ptr<ic::MSG_T> ptrMsg, int result);
     void makeSendMsg(ic::ServerInfo& info, std::shared_ptr<ic::MSG_T> ptrMsg, int result);
     std::string getDocumentToString(Document &document);
 
@@ -69,7 +70,6 @@ private:
 
     MessageQueue<int> future_;
     MessageQueue<std::shared_ptr<ic::MSG_T>> queTaskMSG_;
-    std::unique_ptr<MessageSender> msgSender_;
 
     std::vector<TaskInfo> taskInfo;
     std::mutex taskInfoMutex;

@@ -87,17 +87,6 @@ void TaskManager::enqueueJob(MessageQueue<int>* fu, shared_ptr<ic::MSG_T> task, 
 // so, id could be different by the caller. COMMAND_ID or EVENT_ID
 int TaskManager::commandTask(int id, const ic::ServerInfo& info, const ic::MSG_T& task)
 {
-    LOG_DEBUG("commandTask is called !! {} ", id);
-
-    if (id == (int)ic::EVENT_ID::EVENT_ID_WHO)
-    {
-        ic::MSG_T e_msg;
-        e_msg.Command = "WHOAMI";
-        e_msg.Token = Configurator::get().generateToken();
-        e_msg.Data = info.name;
-        msgSender_->parseAndSend(info, e_msg);
-        return (int)ErrorCommon::COMMON_ERR_NONE;
-    }
 
     if (cur_worker_ == num_worker_)
         LOG_DEBUG("Job Queue is fool. working worker + job = : {}", cur_worker_);

@@ -18,19 +18,18 @@
 
 #include "ic_manager.h"
 
-template <typename T>
-ICManager<T>::ICManager()
+template <typename T, typename U>
+ICManager<T, U>::ICManager()
 {
     Configurator::get().setDirectory();
     db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
-    task_manager_ = std::make_unique<TaskManager>(ic::TASKPOOL_SIZE);
 }
 
 // this function check the command format
 // if received message fits the command format well,
 // deliver the message to message_parser or message_manager for further process
-template <typename T>
-int ICManager<T>::classifier(const ic::ServerInfo& info, char* pData, int nDataSize)
+template <typename T, typename U>
+int ICManager<T, U>::classifier(const ic::ServerInfo& info, char* pData, int nDataSize)
 {
     std::string strMessage = pData;
     Document document;

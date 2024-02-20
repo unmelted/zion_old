@@ -19,7 +19,7 @@
 #include "client_manager.h"
 
 ClientManager::ClientManager()
-: ICManager<ICClient>()
+: ICManager<ICClient, ClientTaskManager>()
 {
     std::ostringstream ss;
     ss << R"(
@@ -40,6 +40,8 @@ ClientManager::ClientManager()
 
     std::string configContent = ss.str();
     std::cout << "configContent: " << configContent << std::endl;
+
+    task_manager_ = std::make_unique<ClientTaskManager>();
 
     rapidjson::Document doc;
     doc.Parse(configContent.c_str());
@@ -88,7 +90,8 @@ int ClientManager::initialize()
             {
                 auto info = static_cast<ic::ServerInfo*>(context1);
                 auto task = static_cast<ic::MSG_T*>(context2);
-                return task_manager->commandTask(id, *info, *task);
+                return task_manager->eventTask(id, *info, *task);
+
             });
     return 0;
 }

@@ -4,6 +4,8 @@ FILE(GLOB SERVER_SRC
         *.cpp)
 
 INCLUDE_DIRECTORIES(${PRJ_PATH}/common/include)
-ADD_EXECUTABLE(ic_server ${SERVER_SRC})
+ADD_EXECUTABLE(ic_server ${SERVER_SRC}
+        server_task.h
+        server_task.cpp)
 TARGET_LINK_LIBRARIES(ic_server ics_common spdlog::spdlog fmt sqlite3)
 

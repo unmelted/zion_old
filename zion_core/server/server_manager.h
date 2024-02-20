@@ -21,11 +21,12 @@
 #include <functional>
 #include "ic_manager.h"
 #include "ic_server.h"
+#include "server_task.h"
 #include "server_message.h"
 
 using namespace rapidjson;
 
-class ServerManager : public ICManager<ICServer>
+class ServerManager : public ICManager<ICServer, ServerTaskManager>
 {
 public:
     ServerManager();

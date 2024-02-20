@@ -35,8 +35,8 @@ void Configurator::setDirectory() {
 
     try
     {
-        std::filesystem::copy(db_src1, db_dst, std::filesystem::copy_options::update_existing);
-        std::filesystem::copy(db_src2, db_dst, std::filesystem::copy_options::update_existing);
+//        std::filesystem::copy(db_src1, db_dst, std::filesystem::copy_options::update_existing);
+//        std::filesystem::copy(db_src2, db_dst, std::filesystem::copy_options::update_existing);
         std::filesystem::copy(db_src3, db_dst, std::filesystem::copy_options::update_existing);
     }
     catch (std::filesystem::filesystem_error& e)
