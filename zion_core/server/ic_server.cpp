@@ -248,7 +248,7 @@ bool ICServer::addClient(const ic::ClientInfo& info, int packetSize)
         return false;
     }
 
-    if (doManage(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY), info, pData.data(), packetSize) != 1)
+    if (doManage(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY), info, pData.data(), packetSize) != SUCCESS)
     {
         LOG_ERROR("Classifier Error");
         return false;

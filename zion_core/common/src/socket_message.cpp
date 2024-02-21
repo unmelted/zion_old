@@ -118,9 +118,16 @@ void SocketMsgManager::sndMSGThread()
 
 }
 
-
-void SocketMsgManager::insertEventTable(const Document& doc, int msg_type)
+void SocketMsgManager::insertLogMonitorTable(const Document& doc)
 {
-    std::string query = QueryMaker::makeEventInsertQuery(doc);
+    std::string table = "log_monitor";
+    std::string query = QueryMaker::makeLogMonitorInsertQuery(table, doc);
+    dbManager_->enqueueQuery(query);
+}
+
+void SocketMsgManager::insertEventTable(const Document& doc)
+{
+    std::string table = "event_history";
+    std::string query = QueryMaker::makeEventInsertQuery(table, doc);
     dbManager_->enqueueQuery(query);
 }

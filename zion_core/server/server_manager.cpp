@@ -102,12 +102,17 @@ int ServerManager::doManage(int mode, const ic::ClientInfo& info, char* pData, i
 
 	std::string command = document[PROTOCOL_SECTION2].GetString();
 
-//    msg_manager_->insertEventTable(document, (int)ic::MSG_TYPE::MSG_TYPE_RCV);
 	LOG_INFO("validateMsg command : {}", command);
 
     if (command == "TCP_LOG")
     {
-        LOG_DEBUG("TCP_LOG received :  {} ", document["Data"].GetString());
+        Document doc_t(kObjectType);
+        Document::AllocatorType& allocator = doc_t.GetAllocator();
+        doc_t.AddMember("From", document["From"], allocator);
+        doc_t.AddMember("Data", document["Data"], allocator);
+
+        msg_manager_->insertLogMonitorTable(doc_t);
+        return SUCCESS;
     }
     else if(command =="START")
     {
@@ -128,5 +133,5 @@ int ServerManager::doManage(int mode, const ic::ClientInfo& info, char* pData, i
 
     }
 
-	return 1;
+	return SUCCESS;
 }

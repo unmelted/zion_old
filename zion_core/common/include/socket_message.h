@@ -35,7 +35,8 @@ public:
     void setDBManager(std::shared_ptr<DBManager>& dbManager);
     void onRcvMessage(const ic::ServerInfo info, ic::MSG_T msg_t);
     void onRcvSndMessage(const ic::ServerInfo& info, const ic::MSG_T& msg);
-    void insertEventTable(const Document& doc, int msg_type);
+    void insertLogMonitorTable(const Document& doc);
+    void insertEventTable(const Document& doc);
 
 protected :
     void rcvMSGThread();

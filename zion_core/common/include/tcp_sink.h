@@ -50,8 +50,6 @@ public :
         allocator = &sendDocument.GetAllocator();
         sendDocument.AddMember("Type", "LOG", *allocator);
         sendDocument.AddMember("Command", "TCP_LOG", *allocator);
-        sendDocument.AddMember("From", Value(socket_).Move(), *allocator);
-        sendDocument.AddMember("To", "IC_LOGMONITOR", *allocator);
     }
 
     ~tcp_sink()
@@ -66,6 +64,8 @@ public :
         {
             socket_ = socket;
             isConnected = true;
+            std::string socket_str = std::to_string(socket_);
+            sendDocument.AddMember("From", Value(socket_str.c_str(), *allocator), *allocator);
         }
         else
         {
@@ -112,6 +112,7 @@ protected:
 //            send(socket_, message.c_str(), message.length(), 0);
         sendBuffer_.clear();
         std::vector<char>().swap(sendBuffer_);
+        sendDocument.RemoveMember("Data");
 
     }
 

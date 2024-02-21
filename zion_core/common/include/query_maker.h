@@ -36,12 +36,18 @@ static std::array<std::string, (int)ic::DB_EVENT_HISTORY_COLUMN::DB_EVENT_HISTOR
     "type" ,"command", "subcommand", "action", "token", "from_where", "to_where", "data",
 };
 
+static std::array<std::string, (int)ic::DB_LOG_MONITOR_COLUMN::DB_LOG_MONITOR_COLUMN_SIZE> DB_LOG_MONITOR_COLUMN_NAME =
+{
+        "from_where", "data",
+};
+
+
 class QueryMaker
 {
 public:
-    static std::string makeEventInsertQuery(const Document& doc)
+    static std::string makeLogMonitorInsertQuery(std::string& table, const Document& doc)
     {
-        std::string query_col = "INSERT INTO event_history (";
+        std::string query_col = "INSERT INTO " + table +  " (";
         std::string query_val = " VALUES (";
         int index = 0;
 
@@ -49,7 +55,42 @@ public:
         {
             for (Value::ConstMemberIterator itr = doc.MemberBegin(); itr != doc.MemberEnd(); ++itr)
             {
-                if(index < (int)ic::DB_EVENT_HISTORY_COLUMN::DB_EVENT_HISTORY_COLUMN_SIZE)
+                if(index < static_cast<int>(ic::DB_LOG_MONITOR_COLUMN::DB_LOG_MONITOR_COLUMN_SIZE))
+                {
+                    query_col += DB_LOG_MONITOR_COLUMN_NAME[index] + ", ";
+                    if (DB_LOG_MONITOR_COLUMN_NAME[index] == "data")
+                    {
+                        StringBuffer buffer;
+                        Writer<StringBuffer> writer(buffer);
+                        itr->value.Accept(writer);
+                        query_val += std::string("'") + buffer.GetString() + "', ";
+                    }
+                    else
+                    {
+                        std::string value = itr->value.GetString();
+                        query_val += "'" + value + "', ";
+                    }
+
+                    index++;
+                }
+            }
+        }
+
+        std::string query = query_col.substr(0, query_col.size() - 2) + ")" + query_val.substr(0, query_val.size() - 2) + ");";
+        return query;
+    }
+
+    static std::string makeEventInsertQuery(std::string& table, const Document& doc)
+    {
+        std::string query_col = "INSERT INTO " + table +  " (";
+        std::string query_val = " VALUES (";
+        int index = 0;
+
+        if(doc.IsObject())
+        {
+            for (Value::ConstMemberIterator itr = doc.MemberBegin(); itr != doc.MemberEnd(); ++itr)
+            {
+                if(index < static_cast<int>(ic::DB_EVENT_HISTORY_COLUMN::DB_EVENT_HISTORY_COLUMN_SIZE))
                 {
                     query_col += DB_EVENT_HISTORY_COLUMN_NAME[index] + ", ";
                     if (DB_EVENT_HISTORY_COLUMN_NAME[index] == "data")
@@ -86,8 +127,6 @@ public:
         }
 
         std::string query = query_col.substr(0, query_col.size() - 2) + ")" + query_val.substr(0, query_val.size() - 2) + ");";
-
-//        LOG_INFO("make insert query : {}", query);
 
         return query;
     }

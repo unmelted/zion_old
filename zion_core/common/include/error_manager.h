@@ -20,7 +20,7 @@
 
 #include <string>
 
-#define SUCCESS			1
+#define SUCCESS			0
 #define MAX_ERR_COUNT	100
 
 enum class ErrorCodeIndex{

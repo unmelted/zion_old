@@ -233,6 +233,14 @@ enum class DB_EVENT_HISTORY_COLUMN
     DB_EVENT_HISTORY_COLUMN_SIZE,
 };
 
+enum class DB_LOG_MONITOR_COLUMN
+{
+//    DB_EVENT_HISTORY_COLUMN_DATE, // date is default value in sqlite3
+    DB_LOG_MONITOR_COLUMN_FROM,
+    DB_LOG_MONITOR_COLUMN_DATA,
+    DB_LOG_MONITOR_COLUMN_SIZE,
+};
+
 #pragma pack(push, 1)
 struct ProtocolHeader
 {
