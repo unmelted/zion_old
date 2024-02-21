@@ -38,7 +38,7 @@ int ServerTaskManager::eventTask(int id, const ic::ServerInfo& info, const ic::M
     if (id == (int)ic::EVENT_ID::EVENT_ID_TCP_LOG_START)
     {
         ic::MSG_T e_msg;
-        e_msg.Command = "TCP_LOGGER_START";
+        e_msg.Command = "TCP_LOG_START";
         e_msg.Token = Configurator::get().generateToken();
         e_msg.Data = info.name;
         msgSender_->parseAndSend(info, e_msg);

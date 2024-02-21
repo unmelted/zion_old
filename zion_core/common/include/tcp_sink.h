@@ -26,18 +26,32 @@
 #include <arpa/inet.h>
 #include <memory>
 #include <string>
-#include "ic_define.h"
 
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/prettywriter.h"
+#include "ic_util.h"
+
+using namespace rapidjson;
 template<typename Mutex>
 class tcp_sink : public spdlog::sinks::base_sink <Mutex>
 {
 
 public :
+    Document sendDocument;
+    Document::AllocatorType* allocator;
+
     tcp_sink()
     : isConnected(false)
     , socket_(-1)
     {
-
+        sendDocument.SetObject();
+        allocator = &sendDocument.GetAllocator();
+        sendDocument.AddMember("Type", "LOG", *allocator);
+        sendDocument.AddMember("Command", "TCP_LOG", *allocator);
+        sendDocument.AddMember("From", Value(socket_).Move(), *allocator);
+        sendDocument.AddMember("To", "IC_LOGMONITOR", *allocator);
     }
 
     ~tcp_sink()
@@ -63,16 +77,42 @@ public :
 
 protected:
 
+    char cType = static_cast<char>(0);
+    std::vector<char> sendBuffer_;
+    std::mutex bufferMutex_;
+
+
     void sink_it_(const spdlog::details::log_msg& msg) override
     {
-        if(tcp_sink::isConnected and socket_ > 0)
+        if (!isConnected or socket_ < 0)
         {
-            spdlog::memory_buf_t formatted;
-            spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
-            std::string message = fmt::to_string(formatted);
-            std::cout << "tcp_sink : " << message << std::endl;
-            send(socket_, message.c_str(), message.length(), 0);
+            return;
         }
+
+        spdlog::memory_buf_t formatted;
+        spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
+        std::string message = fmt::to_string(formatted);
+
+        sendDocument.AddMember("Data", Value(message.c_str(), *allocator), *allocator);
+        std::string strSendString = getDocumentToString(sendDocument);
+
+        int nSize = static_cast<int>(strSendString.size());
+        int nSendSize = sizeof(int) + 1 + nSize;
+
+        std::lock_guard<std::mutex> lock(bufferMutex_);
+
+        sendBuffer_.reserve(nSendSize);
+        sendBuffer_.insert(sendBuffer_.end(), reinterpret_cast<char*>(&nSize), reinterpret_cast<char*>(&nSize) + sizeof(int));
+        sendBuffer_.push_back(cType);
+        sendBuffer_.insert(sendBuffer_.end(), strSendString.begin(), strSendString.end());
+
+        std::cout << "tcp_sink : " << message << std::endl;
+        int nSend = -1;
+        nSend = send(socket_, sendBuffer_.data(), sendBuffer_.size(), 0);
+//            send(socket_, message.c_str(), message.length(), 0);
+        sendBuffer_.clear();
+        std::vector<char>().swap(sendBuffer_);
+
     }
 
     void flush_() override

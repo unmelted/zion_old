@@ -20,13 +20,13 @@
 
 #include <utility>
 
-ICServer::ICServer(ic::ServerInfo info)
+ICServer::ICServer(std::shared_ptr<ic::ServerInfo> info)
 {
     isThreadRunning_ = false;
     mainThread_ = nullptr;
     info_= info;
 
-    LOG_DEBUG("ICServer Constructor Server info {} open port : {}", info_.name, info_.port);
+    LOG_DEBUG("ICServer Constructor Server info {} open port : {}", info_->name, info_->port);
 }
 
 ICServer::~ICServer()
@@ -50,7 +50,7 @@ void ICServer::closeServer()
         closeSocket(client.second.socket);
     }
 
-    closeSocket(info_.port);
+    closeSocket(info_->port);
 }
 
 void ICServer::closeSocket(int nSock)
@@ -61,7 +61,7 @@ void ICServer::closeSocket(int nSock)
 
 bool ICServer::beginSocket()
 {
-    LOG_INFO("beginSocket : port {} ", info_.port);
+    LOG_INFO("beginSocket : port {} ", info_->port);
 	isThreadRunning_ = true;
 	mainThread_ =  std::make_unique<std::thread>(&ICServer::runSocket, this);
 
@@ -70,7 +70,7 @@ bool ICServer::beginSocket()
 
 int ICServer::getSocket()
 {
-    return info_.socket;
+    return info_->socket;
 }
 
 void ICServer::runSocket()
@@ -78,8 +78,8 @@ void ICServer::runSocket()
     struct sockaddr_in serv_adr, clnt_adr;
 	int clnt_adr_sz;
 
-	info_.socket = (int)socket(PF_INET, SOCK_STREAM, 0);
-    if (info_.socket == -1)
+	info_->socket = (int)socket(PF_INET, SOCK_STREAM, 0);
+    if (info_->socket == -1)
     {
         LOG_CRITICAL("Socket Creation Error");
         return;
@@ -88,32 +88,32 @@ void ICServer::runSocket()
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(info_.port);
+	serv_adr.sin_port = htons(info_->port);
 
     int optval = 1;
-    if (setsockopt(info_.socket, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, sizeof(optval)) == -1)
+    if (setsockopt(info_->socket, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, sizeof(optval)) == -1)
     {
         LOG_CRITICAL("Socket Opt. SO_REUSEADDR Error");
         return;
     }
 
-	if (::bind(info_.socket, (struct sockaddr*)&serv_adr, sizeof(serv_adr)) == -1)
+	if (::bind(info_->socket, (struct sockaddr*)&serv_adr, sizeof(serv_adr)) == -1)
 	{
         LOG_CRITICAL("Socket Bind Error");
 		return;
 	}
-	if (listen(info_.socket, 5) == -1)
+	if (listen(info_->socket, 5) == -1)
 	{
         LOG_CRITICAL("Socket Listen Error");
 		return;
 	}
 
-    LOG_DEBUG("runSocket function will start loop : {} ", info_.port);
+    LOG_DEBUG("runSocket function will start loop : {} ", info_->port);
 
 	while (isThreadRunning_)
 	{
 		clnt_adr_sz = sizeof(clnt_adr);
-		int client_socket = (int)(accept(info_.socket, (struct sockaddr*)&clnt_adr, (socklen_t*)&clnt_adr_sz));
+		int client_socket = (int)(accept(info_->socket, (struct sockaddr*)&clnt_adr, (socklen_t*)&clnt_adr_sz));
 
 		if (client_socket <= 0)
 			continue;
@@ -131,7 +131,7 @@ void ICServer::runSocket()
             continue;
         }
 
-        LOG_INFO("Connected Client IP : {} port {} ", client_ip, info_.port);
+        LOG_INFO("Connected Client IP : {} port {} ", client_ip, info_->port);
 
         int str_len = 0;
         ic::ProtocolHeader header;
@@ -142,9 +142,9 @@ void ICServer::runSocket()
             continue;
         }
 
-        LOG_DEBUG("After add client : IP {} Port {} Socket {}", client_ip, info_.port, client_socket);
+        LOG_DEBUG("After add client : IP {} Port {} Socket {}", client_ip, info_->port, client_socket);
         std::string c_name = "Slave_" + std::to_string(client_socket);
-        ic::ClientInfo cinfo(c_name, client_ip, info_.port, client_socket);
+        ic::ClientInfo cinfo(c_name, client_ip, info_->port, client_socket);
 
         if (!addClient(cinfo, header.nSize))
         {
@@ -155,7 +155,7 @@ void ICServer::runSocket()
  		std::unique_ptr<ClientSockThreadData> threadData = std::make_unique<ClientSockThreadData>(cinfo, this);
         std::thread(&ICServer::socketThread, this, std::move(threadData)).detach();
 
-        LOG_INFO("runSocket function is end loop. port {} ", info_.port);
+        LOG_INFO("runSocket function is end loop. port {} ", info_->port);
 
 	}
 
@@ -177,7 +177,8 @@ void* ICServer::socketThread(std::unique_ptr<ClientSockThreadData> threadData)
 
     if(info.port == ic::SERVER_PORT[static_cast<int>(ic::SERVER_TYPE::SERVER_ROBOT_LOGMONITOR)])
     {
-        EventManager::setEvent(static_cast<int>(ic::EVENT_ID::EVENT_ID_TCP_LOG_START), (void *)&threadData->info, nullptr);
+        LOG_DEBUG("callEvent EVENT_ID_TCP_LOG_START");
+        EventManager::callEvent(static_cast<int>(ic::EVENT_ID::EVENT_ID_TCP_LOG_START), (void *)&threadData->info, nullptr);
     }
 
 	while (parentThread->isThreadRunning_)
@@ -219,7 +220,9 @@ void* ICServer::socketThread(std::unique_ptr<ClientSockThreadData> threadData)
             continue;
         }
 
-        int nErrorCode = parentThread->classifier(threadData->info, pData.data(), nPacketSize);
+        int nErrorCode = parentThread->doManage(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY),
+                threadData->info, pData.data(), nPacketSize);
+
         if (nErrorCode != (int)ErrorCommon::COMMON_ERR_NONE)
         {
             LOG_ERROR("Classifier Error {} ", nErrorCode);
@@ -245,7 +248,7 @@ bool ICServer::addClient(const ic::ClientInfo& info, int packetSize)
         return false;
     }
 
-    if (classifier(info, pData.data(), packetSize) != 1)
+    if (doManage(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY), info, pData.data(), packetSize) != 1)
     {
         LOG_ERROR("Classifier Error");
         return false;

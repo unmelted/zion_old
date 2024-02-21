@@ -34,12 +34,12 @@ public:
     virtual bool beginSocket() = 0;
     virtual int getSocket() = 0;
 
-    typedef std::function<int(const ic::ServerInfo& info, char* pData, int nDataSize)> callback;
-    callback classifier;
+    typedef std::function<int(int mode, const ic::ServerInfo& info, char* pData, int nDataSize)> callback;
+    callback doManage;
 
     void setHandler(callback f)
     {
-        classifier = std::move(f);
+        doManage = std::move(f);
     }
 
 protected :
@@ -53,6 +53,6 @@ protected :
 protected:
     bool isThreadRunning_ = false;
     std::unique_ptr<std::thread> mainThread_;
-    ic::ServerInfo info_;
+    std::shared_ptr<ic::ServerInfo> info_;
 
 };

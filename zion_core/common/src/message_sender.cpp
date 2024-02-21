@@ -115,16 +115,16 @@ bool MessageSender::sendData(const ic::ServerInfo& info, const std::string& strJ
 
 }
 
-std::string MessageSender::getDocumentToString(Document& document)
-{
-	StringBuffer strbuf;
-	strbuf.Clear();
-	PrettyWriter<StringBuffer> writer(strbuf);
-	document.Accept(writer);
-	std::string ownShipRadarString = strbuf.GetString();
-
-	return ownShipRadarString;
-}
+//std::string MessageSender::getDocumentToString(Document& document)
+//{
+//	StringBuffer strbuf;
+//	strbuf.Clear();
+//	PrettyWriter<StringBuffer> writer(strbuf);
+//	document.Accept(writer);
+//	std::string ownShipRadarString = strbuf.GetString();
+//
+//	return ownShipRadarString;
+//}
 
 
 int MessageSender::getBasicReturnJson(Document& document, ic::Protocol& protocol)

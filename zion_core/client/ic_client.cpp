@@ -18,13 +18,13 @@
 
 #include "ic_client.h"
 
-ICClient::ICClient(const ic::ServerInfo& info)
+ICClient::ICClient(std::shared_ptr<ic::ServerInfo> info)
 {
     isThreadRunning_ = false;
     mainThread_ = nullptr;
     info_= info;
 
-    LOG_DEBUG("ICClient Constructor Server info: {} {} {}", info.name, info.ip, info.port);
+    LOG_DEBUG("ICClient Constructor Server info: {} {} {}", info->name, info->ip, info->port);
 }
 
 ICClient::~ICClient()
@@ -44,7 +44,7 @@ ICClient::~ICClient()
 
 void ICClient::closeServer()
 {
-    closeSocket(info_.socket);
+    closeSocket(info_->socket);
 }
 
 void ICClient::closeSocket(int nSock)
@@ -57,7 +57,7 @@ void ICClient::closeSocket(int nSock)
 
 bool ICClient::beginSocket()
 {
-    LOG_INFO("beginSocket : port {} ", info_.port);
+    LOG_INFO("beginSocket : port {} ", info_->port);
     isThreadRunning_ = true;
     mainThread_ =  std::make_unique<std::thread>(&ICClient::runSocket, this);
 
@@ -66,7 +66,7 @@ bool ICClient::beginSocket()
 
 int ICClient::getSocket()
 {
-    return info_.socket;
+    return info_->socket;
 }
 
 void ICClient::runSocket()
@@ -87,23 +87,23 @@ void ICClient::runSocket()
             continue;
         }
 
-        info_.socket = sock;
+        info_->socket = sock;
         struct sockaddr_in serverAddr;
         memset(&serverAddr, 0, sizeof(serverAddr));
         serverAddr.sin_family = AF_INET;
-        serverAddr.sin_port = htons(info_.port);
+        serverAddr.sin_port = htons(info_->port);
 
-        if (inet_pton(AF_INET, info_.ip.c_str(), &serverAddr.sin_addr) <= 0)
+        if (inet_pton(AF_INET, info_->ip.c_str(), &serverAddr.sin_addr) <= 0)
         {
-            LOG_ERROR("Invalid address/ Address not supported: {}", info_.ip);
-            closeSocket(info_.socket);
+            LOG_ERROR("Invalid address/ Address not supported: {}", info_->ip);
+            closeSocket(info_->socket);
             continue;
         }
 
-        if (connect(info_.socket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1)
+        if (connect(info_->socket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1)
         {
-            LOG_WARN("Cannotto connect to the server: {}", info_.ip);
-            closeSocket(info_.socket);
+            LOG_WARN("Cannot connect to the server: {}", info_->ip);
+            closeSocket(info_->socket);
 
             std::this_thread::sleep_for(std::chrono::seconds(ic::CONNECT_WAIT_TIME));
             continue;
@@ -112,7 +112,7 @@ void ICClient::runSocket()
         {
             LOG_INFO("Successfully connected to server. Starting receive thread.");
             isRcvThreadRunning = true;
-            std::unique_ptr<ServerSockThreadData> threadData = std::make_unique<ServerSockThreadData>(info_, this);
+            std::unique_ptr<ServerSockThreadData> threadData = std::make_unique<ServerSockThreadData>(*info_, this);
             std::thread(&ICClient::receiveThread, this, std::move(threadData)).detach();
         }
     }
@@ -120,14 +120,12 @@ void ICClient::runSocket()
 
 void ICClient::receiveThread(std::unique_ptr<ServerSockThreadData> threadData)
 {
-    LOG_DEBUG("receiveThread is started.");
+    LOG_DEBUG("receiveThread is started. port {}  socket {}", threadData->info.port, threadData->info.socket);
 
     ICClient* parentThread = threadData->pthis;
-    EventManager::setEvent(static_cast<int>(ic::EVENT_ID::EVENT_ID_WHO), (void *)&threadData->info, nullptr);
-//    if(threadData->info.port == ic::SERVER_PORT[static_cast<int>(ic::SERVER_TYPE::SERVER_ROBOT_LOGMONITOR)])
-//    {
-//        Logger::update_tcp_status(threadData->info.socket);
-//    }
+    EventManager::callEvent(static_cast<int>(ic::EVENT_ID::EVENT_ID_WHO), (void *)&threadData->info, nullptr);
+    parentThread->doManage(static_cast<int>(ic::MANAGE::MESSAGE_MANAGER_UPDATE),
+            threadData->info, nullptr, 0);
 
     while (isRcvThreadRunning)
 
@@ -169,18 +167,19 @@ void ICClient::receiveThread(std::unique_ptr<ServerSockThreadData> threadData)
             continue;
         }
 
-        int nErrorCode = parentThread->classifier(threadData->info, pData.data(), nPacketSize);
+        int nErrorCode = parentThread->doManage(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY),
+                threadData->info, pData.data(), nPacketSize);
         if (nErrorCode != (int)ErrorCommon::COMMON_ERR_NONE)
         {
             LOG_ERROR("Classifier Error {} ", nErrorCode);
         }
     }
 
-    if(info_.socket != -1)
+    if(info_->socket != -1)
     {
-        closeSocket(info_.socket);
-        info_.socket = -1;
-        LOG_INFO("Socket closed: {} : {} ", info_.ip, info_.port);
+        closeSocket(info_->socket);
+        info_->socket = -1;
+        LOG_INFO("Socket closed: {} : {} ", info_->ip, info_->port);
     }
 
     parentThread->isRcvThreadRunning = false;

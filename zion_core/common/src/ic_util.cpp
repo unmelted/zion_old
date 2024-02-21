@@ -19,6 +19,8 @@
 
 #include "ic_util.h"
 
+using namespace rapidjson;
+
 Configurator&  Configurator::get() {
     static Configurator _instance;
     return _instance;

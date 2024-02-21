@@ -36,7 +36,7 @@ private:
     bool sendData(const ic::ServerInfo& info, const std::string& strJson);
 	void runThread(const ic::ServerInfo& info, const ic::MSG_T& msg);
 	int getBasicReturnJson(Document& document, ic::Protocol& mtdProtocol);
-	std::string getDocumentToString(Document& document);
+//	std::string getDocumentToString(Document& document);
 
 private:
     std::mutex bufferMutex_;

@@ -36,7 +36,7 @@ private :
     };
 
 public:
-    ICClient(const ic::ServerInfo& info);
+    ICClient(std::shared_ptr<ic::ServerInfo> info);
     ~ICClient();
 
     bool beginSocket() override;
@@ -52,5 +52,5 @@ private :
     std::unique_ptr<std::thread> rcvThread_;
     bool isRcvThreadRunning = false;
 
-    std::function<void()> callback;
+//    std::function<void()> callback; // ?
 };

@@ -39,7 +39,7 @@ private:
     };
 
 public : 
-    ICServer(ic::ServerInfo info);
+    ICServer(std::shared_ptr<ic::ServerInfo> info);
     ~ICServer();
 
     bool beginSocket() override;

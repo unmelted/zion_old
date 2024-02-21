@@ -26,7 +26,11 @@
 #include <iostream>
 #include "rapidjson/document.h"
 #include "rapidjson/istreamwrapper.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/prettywriter.h"
 
+using namespace rapidjson;
 class Configurator {
 
 public:
@@ -57,6 +61,18 @@ public:
 private :
     int token_serial_ = 0;
 };
+
+static std::string getDocumentToString(Document& document)
+{
+    StringBuffer strbuf;
+    strbuf.Clear();
+    PrettyWriter<StringBuffer> writer(strbuf);
+    document.Accept(writer);
+    std::string ownShipRadarString = strbuf.GetString();
+
+    return ownShipRadarString;
+}
+
 
 static rapidjson::Document parsingJsonFile(const std::string& filename)
 {

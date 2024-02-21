@@ -199,16 +199,16 @@ void TaskManager::makeSendMsg(ic::ServerInfo& info, std::shared_ptr<ic::MSG_T> p
 //    msgmanager_->onRcvSndMessage(ptrMsg->socket, strSendString);
 }
 
-std::string TaskManager::getDocumentToString(Document &document)
-{
-    StringBuffer strbuf;
-    strbuf.Clear();
-    PrettyWriter<StringBuffer> writer(strbuf);
-    document.Accept(writer);
-    std::string ownShipRadarString = strbuf.GetString();
-
-    return ownShipRadarString;
-}
+//std::string TaskManager::getDocumentToString(Document &document)
+//{
+//    StringBuffer strbuf;
+//    strbuf.Clear();
+//    PrettyWriter<StringBuffer> writer(strbuf);
+//    document.Accept(writer);
+//    std::string ownShipRadarString = strbuf.GetString();
+//
+//    return ownShipRadarString;
+//}
 
 int TaskManager::taskStart(int argument)
 {

@@ -46,6 +46,7 @@ public:
     ~TaskManager();
 
     int commandTask(int id, const ic::ServerInfo& info, const ic::MSG_T& task);
+    virtual int eventTask(int id, const ic::ServerInfo& info, const ic::MSG_T& task) = 0;
 
 protected:
     std::unique_ptr<MessageSender> msgSender_;
@@ -54,7 +55,7 @@ private:
     void watchFuture();
     void workerThread();
     void makeSendMsg(ic::ServerInfo& info, std::shared_ptr<ic::MSG_T> ptrMsg, int result);
-    std::string getDocumentToString(Document &document);
+//    std::string getDocumentToString(Document &document);
 
     template <class F, class... Args>
     void enqueueJob(MessageQueue<int>* fu, shared_ptr<ic::MSG_T> task, const ic::ServerInfo& info, F &&f, Args &&...args);

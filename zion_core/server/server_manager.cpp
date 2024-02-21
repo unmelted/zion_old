@@ -38,7 +38,7 @@ ServerManager::ServerManager()
     std::string configContent = ss.str();
     std::cout << "configContent: " << configContent << std::endl;
 
-    task_manager_ = std::make_unique<ServerTaskManager>();
+//    task_manager_ = std::make_unique<ServerTaskManager>();
 
     rapidjson::Document doc;
     doc.Parse(configContent.c_str());
@@ -51,7 +51,7 @@ ServerManager::ServerManager()
             std::string name = server["name"].GetString();
             int port = server["port"].GetInt();
 
-            ic::ServerInfo info(name, ip, port);
+            auto info = std::make_shared<ic::ServerInfo>(name, ip, port);
             std::shared_ptr<ICServer> socketServer_;
             socketServer_ = std::make_shared<ICServer>(info);
 
@@ -76,25 +76,25 @@ int ServerManager::initialize()
     {
         LOG_DEBUG(" loop in initialize : socket {}", socket->getSocket());
         socket->beginSocket();
-        socket->setHandler(std::bind(&ServerManager::classifier, this, std::placeholders::_1, placeholders::_2, placeholders::_3));
+        socket->setHandler(std::bind(&ServerManager::doManage, this, std::placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4));
     }
 
-    EventManager::addEventHandler(static_cast<int>(ic::EVENT_ID::EVENT_ID_WHO),
-            [task_manager = task_manager_.get()](int id, void* context1, void* context2) -> int
-            {
-                auto info = static_cast<ic::ServerInfo*>(context1);
-                auto task = static_cast<ic::MSG_T*>(context2);
-                return task_manager->eventTask(id, *info, *task);
-            });
+//    EventManager::addEventHandler(
+//            [task_manager = task_manager_.get()](int id, void* context1, void* context2) -> int
+//            {
+//                auto info = static_cast<ic::ServerInfo*>(context1);
+//                auto task = static_cast<ic::MSG_T*>(context2);
+//                return task_manager->eventTask(id, *info, *task);
+//            });
     return 0;
 }
 
 // this function check the command format
 // if received message fits the command format well,
 // deliver the message to message_parser or message_manager for further process
-int ServerManager::classifier(const ic::ClientInfo& info, char* pData, int nDataSize)
+int ServerManager::doManage(int mode, const ic::ClientInfo& info, char* pData, int nDataSize)
 {
-    ICManager<ICServer, ServerTaskManager>::classifier(info, pData, nDataSize);
+    ICManager<ICServer, ServerTaskManager>::doManage(mode, info, pData, nDataSize);
 
     std::string strMessage = pData;
 	Document document;
@@ -105,9 +105,9 @@ int ServerManager::classifier(const ic::ClientInfo& info, char* pData, int nData
 //    msg_manager_->insertEventTable(document, (int)ic::MSG_TYPE::MSG_TYPE_RCV);
 	LOG_INFO("validateMsg command : {}", command);
 
-    if (command == "CONNECT")
+    if (command == "TCP_LOG")
     {
-        // pas this command
+        LOG_DEBUG("TCP_LOG received :  {} ", document["Data"].GetString());
     }
     else if(command =="START")
     {

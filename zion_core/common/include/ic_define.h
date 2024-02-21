@@ -178,6 +178,12 @@ typedef Protocol  MSG_T;
 #define PROTOCOL_RESULTCODE  "ResultCode"
 #define PROTOCOL_ERRORMSG    "ErrorMsg"
 
+enum class MANAGE
+{
+    MESSAGE_CLASSIFY = 0,
+    MESSAGE_MANAGER_UPDATE,
+};
+
 enum class MSG_TYPE
 {
     MSG_TYPE_NONE,

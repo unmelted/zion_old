@@ -33,9 +33,9 @@ public:
     virtual int initialize() = 0;
 
 protected:
-    virtual int classifier(const ic::ClientInfo& info, char* pData, int nDataSize);
+    virtual int doManage(int mode, const ic::ClientInfo& info, char* pData, int nDataSize);
 
-    std::vector<ic::ServerInfo> server_info_list_;
+    std::vector<std::shared_ptr<ic::ServerInfo>> server_info_list_;
     std::vector<std::shared_ptr<T>> socket_list_;
     std::unique_ptr<U> task_manager_;
     std::shared_ptr<DBManager> db_manager_;
