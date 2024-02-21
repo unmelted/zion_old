@@ -119,19 +119,10 @@ int ServerManager::doManage(int mode, const ic::ClientInfo& info, char* pData, i
 //        msg_manager_->onRcvMessage(strMessage);
 //        msg_manager_->onRcvMessage(document["From"].GetString(), strMessage);
 	}
-	else if(command == "TEST")
-    {
-        // if the message has necessary to send response,
-        // call the parseAndSendResponse()
-        // msg_sender->parseAndSendResponse(strMessage);
-
-        // call onRcvMessage with message for insert job in queue
-//		msg_manager_->onRcvMessage(document["From"].GetString(), strMessage);
-	}
     else
     {
 
     }
-
+    msg_manager_->insertEventTable(document);
 	return SUCCESS;
 }

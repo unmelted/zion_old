@@ -88,9 +88,6 @@ int ClientManager::initialize()
     return 0;
 }
 
-// this function check the command format
-// if received message fits the command format well,
-// deliver the message to message_parser or message_manager for further process
 int ClientManager::doManage(int mode, const ic::ServerInfo& info, char* pData, int nDataSize)
 {
     if (mode == static_cast<int>(ic::MANAGE::MESSAGE_MANAGER_UPDATE))
@@ -106,7 +103,6 @@ int ClientManager::doManage(int mode, const ic::ServerInfo& info, char* pData, i
 
     std::string command = document[PROTOCOL_SECTION2].GetString();
 
-//    msg_manager_->insertEventTable(document, (int)ic::MSG_TYPE::MSG_TYPE_RCV);
     LOG_INFO("validateMsg command : {}", command);
 
     if (command == "TCP_LOG_START")
@@ -114,5 +110,6 @@ int ClientManager::doManage(int mode, const ic::ServerInfo& info, char* pData, i
         Logger::update_tcp_status(server_info_list_[1]->socket);
     }
 
-    return 1;
+    msg_manager_->insertEventTable(document);
+    return SUCCESS;
 }

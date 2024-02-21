@@ -55,11 +55,9 @@ private:
     void watchFuture();
     void workerThread();
     void makeSendMsg(ic::ServerInfo& info, std::shared_ptr<ic::MSG_T> ptrMsg, int result);
-//    std::string getDocumentToString(Document &document);
 
     template <class F, class... Args>
     void enqueueJob(MessageQueue<int>* fu, shared_ptr<ic::MSG_T> task, const ic::ServerInfo& info, F &&f, Args &&...args);
-    int taskStart(int argument);
 
 private:
     std::vector<std::unique_ptr<std::thread>> worker_;

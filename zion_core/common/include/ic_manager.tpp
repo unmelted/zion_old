@@ -36,7 +36,6 @@ ICManager<T, U>::ICManager()
 
 // this function check the command format
 // if received message fits the command format well,
-// deliver the message to message_parser or message_manager for further process
 template <typename T, typename U>
 int ICManager<T, U>::doManage(int mode, const ic::ServerInfo& info, char* pData, int nDataSize)
 {
@@ -73,7 +72,7 @@ int ICManager<T, U>::doManage(int mode, const ic::ServerInfo& info, char* pData,
         || !document.HasMember("Action")
         || !document.HasMember("Token"))
     {
-        LOG_ERROR("Json component missing. Cannotexecute.");
+        LOG_ERROR("Json component missing. Cannot execute.");
         return 0;
     }
 

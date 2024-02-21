@@ -96,11 +96,6 @@ int TaskManager::commandTask(int id, const ic::ServerInfo& info, const ic::MSG_T
     {
         LOG_INFO("TEST API COMMAND_VERSION {} ", task.Command);
     }
-    else if (id == (int)ic::COMMAND_CLASS::COMMAND_START)
-    {
-        auto task_ptr = std::make_shared<ic::MSG_T>(task);
-        enqueueJob(&future_, task_ptr, info, &TaskManager::taskStart, this, 19);
-    }
     else if (id == (int)ic::COMMAND_CLASS::COMMAND_STOP)
     {
 
@@ -197,23 +192,4 @@ void TaskManager::makeSendMsg(ic::ServerInfo& info, std::shared_ptr<ic::MSG_T> p
     std::string strSendString = getDocumentToString(sndDoc);
 //    msgmanager_->insertEventTable(sndDoc, (int)ic::MSG_TYPE::MSG_TYPE_SND);
 //    msgmanager_->onRcvSndMessage(ptrMsg->socket, strSendString);
-}
-
-//std::string TaskManager::getDocumentToString(Document &document)
-//{
-//    StringBuffer strbuf;
-//    strbuf.Clear();
-//    PrettyWriter<StringBuffer> writer(strbuf);
-//    document.Accept(writer);
-//    std::string ownShipRadarString = strbuf.GetString();
-//
-//    return ownShipRadarString;
-//}
-
-int TaskManager::taskStart(int argument)
-{
-    LOG_INFO("taskStart {} ", argument);
-    std::this_thread::sleep_for(std::chrono::seconds(5));
-
-    return (int)ErrorCommon::COMMON_ERR_TYPE_NAME_STRING;
 }

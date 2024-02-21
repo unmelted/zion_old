@@ -47,6 +47,7 @@
 #include "rapidjson/prettywriter.h"
 
 #include "logger.h"
+#include "error_manager.h"
 #include "message_queue.h"
 #include "ic_util.h"
 #include "error_manager.h"
