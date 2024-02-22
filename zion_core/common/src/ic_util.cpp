@@ -16,17 +16,16 @@
  *
  */
 
-
 #include "ic_util.h"
 
-using namespace rapidjson;
-
-Configurator&  Configurator::get() {
+Configurator&  Configurator::get()
+{
     static Configurator _instance;
     return _instance;
 }
 
-void Configurator::setDirectory() {
+void Configurator::setDirectory()
+{
     std::cout << "setDirectory create directory : " << LOG << std::endl;
     std::filesystem::create_directories(LOG);
     std::filesystem::create_directories(DB);
@@ -90,9 +89,10 @@ int Configurator::endTimer(TIMER *times)
 
 float Configurator::lapTimer(TIMER *times)
 {
-    if(times->last_check == 0) return -1;
+    if (times->last_check == 0)
+        return -1;
     clock_t ctime = clock();
-    float ms = ((float)ctime - (float)times->last_time)/1000.0;
+    float ms = ((float)ctime - (float)times->last_time) / 1000.0;
     times->last_time = ctime;
     times->last_check = true;
     return ms;

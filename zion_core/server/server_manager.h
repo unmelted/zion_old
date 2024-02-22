@@ -38,7 +38,7 @@ private:
 
 private:
     std::unique_ptr<SeverMsgManager> msg_manager_;
-//    std::unique_ptr<MessageResponder<ICServer>> msg_rspndr_;
+    std::shared_ptr<DBManager> db_manager_monitor;
 
 };
 

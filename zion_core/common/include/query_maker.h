@@ -26,19 +26,19 @@
 
 using namespace rapidjson;
 
-static std::array<std::string, (int)ic::DB_LOG_COLUMN::DB_LOG_COLUMN_SIZE> DB_LOG_COLUMN_NAME =
+static std::array<std::string, static_cast<int>(ic::DB_LOG_COLUMN::DB_LOG_COLUMN_SIZE)> DB_LOG_COLUMN_NAME =
 {
     "date", "pid", "tid" ,"level", "file", "msg",
 };
 
-static std::array<std::string, (int)ic::DB_EVENT_HISTORY_COLUMN::DB_EVENT_HISTORY_COLUMN_SIZE> DB_EVENT_HISTORY_COLUMN_NAME =
+static std::array<std::string, static_cast<int>(ic::DB_EVENT_HISTORY_COLUMN::DB_EVENT_HISTORY_COLUMN_SIZE)> DB_EVENT_HISTORY_COLUMN_NAME =
 {
     "type" ,"command", "subcommand", "action", "token", "from_where", "to_where", "data",
 };
 
-static std::array<std::string, (int)ic::DB_LOG_MONITOR_COLUMN::DB_LOG_MONITOR_COLUMN_SIZE> DB_LOG_MONITOR_COLUMN_NAME =
+static std::array<std::string, static_cast<int>(ic::DB_LOG_MONITOR_COLUMN::DB_LOG_MONITOR_COLUMN_SIZE)> DB_LOG_MONITOR_COLUMN_NAME =
 {
-        "from_where", "data",
+    "from_where", "data",
 };
 
 

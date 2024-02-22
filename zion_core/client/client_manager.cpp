@@ -90,18 +90,16 @@ int ClientManager::initialize()
 
 int ClientManager::doManage(int mode, const ic::ServerInfo& info, char* pData, int nDataSize)
 {
-    if (mode == static_cast<int>(ic::MANAGE::MESSAGE_MANAGER_UPDATE))
+    if(ICManager::doManage(mode, info, pData, nDataSize) != SUCCESS)
     {
-        return 0;
+        return -1;
     }
-
-    ICManager::doManage(mode, info, pData, nDataSize);
 
     std::string strMessage = pData;
     Document document;
     document.Parse(strMessage.c_str()).HasParseError();
 
-    std::string command = document[PROTOCOL_SECTION2].GetString();
+    std::string command = document[PROTOCOL_COMMAND].GetString();
 
     LOG_INFO("validateMsg command : {}", command);
 

@@ -72,7 +72,7 @@ void Logger::init()
     if(sink_type_list_[static_cast<int>(sink_enum::file_sink)])
     {
         std::string fileName("log/ic_");
-        std::string date = Configurator::get().getCurrentDateTime("date");
+        std::string date = Configurator::get().getCurrentDateTime("datetime");
         fileName += date + ".txt";
         std::cout << "file sink is on. : " << fileName << std::endl;
 

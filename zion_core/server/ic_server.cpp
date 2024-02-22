@@ -146,7 +146,7 @@ void ICServer::runSocket()
         std::string c_name = "Slave_" + std::to_string(client_socket);
         ic::ClientInfo cinfo(c_name, client_ip, info_->port, client_socket);
 
-        if (!addClient(cinfo, header.nSize))
+        if (!addClient(cinfo, header.nSize) != SUCCESS)
         {
             LOG_ERROR("addClient failed : IP {} Socket {}", client_ip, client_socket);
             continue;
@@ -235,8 +235,7 @@ void* ICServer::socketThread(std::unique_ptr<ClientSockThreadData> threadData)
 	return NULL;
 }
 
-// addClient() and removeClinet() function handles just clientMap_
-// clientSocketsLists_ is handled in runSocket() function
+
 bool ICServer::addClient(const ic::ClientInfo& info, int packetSize)
 {
     int str_len = 0;
@@ -248,22 +247,22 @@ bool ICServer::addClient(const ic::ClientInfo& info, int packetSize)
         return false;
     }
 
-    if (doManage(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY), info, pData.data(), packetSize) != SUCCESS)
-    {
-        LOG_ERROR("Classifier Error");
-        return false;
-    }
+    doManage(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY), info, pData.data(), packetSize);
+//    {
+//        LOG_ERROR("Classifier Error");
+//        return false;
+//    }
 
     std:string message = pData.data();
     Document document;
     document.Parse(message.c_str());
 
-    std::string command = document[PROTOCOL_SECTION2].GetString();
-    std::string subCommand = document[PROTOCOL_SECTION3].GetString();
+    std::string command = document[PROTOCOL_COMMAND].GetString();
+    std::string subCommand = document[PROTOCOL_SUBCOMMAND].GetString();
 
     if (command != "WHOAMI")
     {
-        LOG_ERROR("CONNECT Command Error. {} ", document[PROTOCOL_SECTION2].GetString());
+        LOG_ERROR("CONNECT Command Error. {} ", document[PROTOCOL_COMMAND].GetString());
         return false;
     }
 

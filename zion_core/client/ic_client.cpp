@@ -124,8 +124,6 @@ void ICClient::receiveThread(std::unique_ptr<ServerSockThreadData> threadData)
 
     ICClient* parentThread = threadData->pthis;
     EventManager::callEvent(static_cast<int>(ic::EVENT_ID::EVENT_ID_WHO), (void *)&threadData->info, nullptr);
-    parentThread->doManage(static_cast<int>(ic::MANAGE::MESSAGE_MANAGER_UPDATE),
-            threadData->info, nullptr, 0);
 
     while (isRcvThreadRunning)
 
@@ -144,7 +142,9 @@ void ICClient::receiveThread(std::unique_ptr<ServerSockThreadData> threadData)
             continue;
 
         nPacketSize = header.nSize;
-        if (nPacketSize < 1 || nPacketSize > 5000000 || header.cSeparator >= (int)ic::PACKET_SEPARATOR::PACKETTYPE_SIZE)
+        if (nPacketSize < 1 ||
+            nPacketSize > 5000000 ||
+            header.cSeparator >= static_cast<int>(ic::PACKET_SEPARATOR::PACKETTYPE_SIZE))
         {
             LOG_ERROR("Invalid Header Packet {} Separator {}", nPacketSize, header.cSeparator);
             continue;
@@ -169,7 +169,7 @@ void ICClient::receiveThread(std::unique_ptr<ServerSockThreadData> threadData)
 
         int nErrorCode = parentThread->doManage(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY),
                 threadData->info, pData.data(), nPacketSize);
-        if (nErrorCode != (int)ErrorCommon::COMMON_ERR_NONE)
+        if (nErrorCode != static_cast<int>(ErrorCommon::COMMON_ERR_NONE))
         {
             LOG_ERROR("Classifier Error {} ", nErrorCode);
         }

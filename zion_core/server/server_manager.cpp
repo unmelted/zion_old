@@ -37,8 +37,7 @@ ServerManager::ServerManager()
     )";
     std::string configContent = ss.str();
     std::cout << "configContent: " << configContent << std::endl;
-
-//    task_manager_ = std::make_unique<ServerTaskManager>();
+    db_manager_monitor = std::make_shared<DBManager>(static_cast<int>(ic::DB_TYPE::DB_TYPE_LOG_MONITOR));
 
     rapidjson::Document doc;
     doc.Parse(configContent.c_str());
@@ -63,6 +62,7 @@ ServerManager::ServerManager()
 
     msg_manager_ = std::make_unique<SeverMsgManager>();
     msg_manager_->setDBManager(db_manager_);
+    msg_manager_->setDBManagerForMonitor(db_manager_monitor);
 }
 
 ServerManager::~ServerManager()
@@ -79,13 +79,6 @@ int ServerManager::initialize()
         socket->setHandler(std::bind(&ServerManager::doManage, this, std::placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4));
     }
 
-//    EventManager::addEventHandler(
-//            [task_manager = task_manager_.get()](int id, void* context1, void* context2) -> int
-//            {
-//                auto info = static_cast<ic::ServerInfo*>(context1);
-//                auto task = static_cast<ic::MSG_T*>(context2);
-//                return task_manager->eventTask(id, *info, *task);
-//            });
     return 0;
 }
 
@@ -94,15 +87,18 @@ int ServerManager::initialize()
 // deliver the message to message_parser or message_manager for further process
 int ServerManager::doManage(int mode, const ic::ClientInfo& info, char* pData, int nDataSize)
 {
-    ICManager<ICServer, ServerTaskManager>::doManage(mode, info, pData, nDataSize);
+    if(ICManager::doManage(mode, info, pData, nDataSize) != SUCCESS)
+    {
+        return -1;
+    }
 
     std::string strMessage = pData;
 	Document document;
     document.Parse(strMessage.c_str()).HasParseError();
 
-	std::string command = document[PROTOCOL_SECTION2].GetString();
+	std::string command = document[PROTOCOL_COMMAND].GetString();
 
-	LOG_INFO("validateMsg command : {}", command);
+//	LOG_INFO("validateMsg command : {}", command);
 
     if (command == "TCP_LOG")
     {

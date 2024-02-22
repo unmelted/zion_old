@@ -31,7 +31,7 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/prettywriter.h"
-#include "ic_util.h"
+#include "ic_convertor.h"
 
 using namespace rapidjson;
 template<typename Mutex>
@@ -74,13 +74,11 @@ public :
         }
     }
 
-
 protected:
 
     char cType = static_cast<char>(0);
     std::vector<char> sendBuffer_;
     std::mutex bufferMutex_;
-
 
     void sink_it_(const spdlog::details::log_msg& msg) override
     {
@@ -94,7 +92,7 @@ protected:
         std::string message = fmt::to_string(formatted);
 
         sendDocument.AddMember("Data", Value(message.c_str(), *allocator), *allocator);
-        std::string strSendString = getDocumentToString(sendDocument);
+        std::string strSendString = convertDocumentForSend(sendDocument);
 
         int nSize = static_cast<int>(strSendString.size());
         int nSendSize = sizeof(int) + 1 + nSize;
@@ -106,7 +104,7 @@ protected:
         sendBuffer_.push_back(cType);
         sendBuffer_.insert(sendBuffer_.end(), strSendString.begin(), strSendString.end());
 
-        std::cout << "tcp_sink : " << message << std::endl;
+//        std::cout << "tcp_sink : " << message << std::endl;
         int nSend = -1;
         nSend = send(socket_, sendBuffer_.data(), sendBuffer_.size(), 0);
 //            send(socket_, message.c_str(), message.length(), 0);

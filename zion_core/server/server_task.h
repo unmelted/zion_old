@@ -27,7 +27,7 @@ class ServerTaskManager : public TaskManager
 public:
     ServerTaskManager();
     ~ServerTaskManager();
-    int eventTask(int id, const ic::ServerInfo& info, const ic::MSG_T& task);
+    int eventTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task);
 
 
 };

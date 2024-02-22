@@ -18,8 +18,6 @@
 
 #include "task_manager.h"
 
-using namespace rapidjson;
-
 TaskManager::TaskManager(size_t num_worker_)
 : num_worker_(num_worker_)
 , stop_all_(false)
@@ -58,7 +56,7 @@ TaskManager::~TaskManager()
 }
 
 template <class F, class... Args>
-void TaskManager::enqueueJob(MessageQueue<int>* fu, shared_ptr<ic::MSG_T> task, const ic::ServerInfo& info, F &&f, Args &&...args)
+void TaskManager::enqueueJob(MessageQueue<int>* fu, shared_ptr<ic::IC_MSG> task, const ic::ServerInfo& info, F &&f, Args &&...args)
 {
     if (stop_all_)
     {
@@ -85,7 +83,7 @@ void TaskManager::enqueueJob(MessageQueue<int>* fu, shared_ptr<ic::MSG_T> task, 
 // message_manager call this function for doing task after message parsing
 // or EventManager call this function by EventHandler
 // so, id could be different by the caller. COMMAND_ID or EVENT_ID
-int TaskManager::commandTask(int id, const ic::ServerInfo& info, const ic::MSG_T& task)
+int TaskManager::commandTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task)
 {
 
     if (cur_worker_ == num_worker_)
@@ -120,7 +118,11 @@ void TaskManager::watchFuture()
             if (it->resultFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
                 int result = it->resultFuture.get();
-                makeSendMsg(it->info, it->taskMsg, result);
+                // originally, intend to send message after task.
+                // but message_sender have responsiblity to send message,
+                // until now, there is no process with sending message after task.
+                // someday i have to implement with correct context
+//                makeSendMsg(it->info, it->taskMsg, result);
                 it = taskInfo.erase(it); // 작업 처리 후 TaskInfo 제거
             }
             else
@@ -153,43 +155,44 @@ void TaskManager::workerThread()
         lock.unlock();
         job();
     }
-}
+//}
+//
+//void TaskManager::makeSendMsg(ic::ServerInfo& info, std::shared_ptr<ic::IC_MSG> ptrMsg, int result)
+//{
+//
+//    if (result < (int)ErrorCommon::COMMON_ERR_NONE)
+//    {
+//        LOG_WARN(" Captured future return is ERR {} ", result);
+//        return;
+//    }
+//
+//    Document sndDoc(kObjectType);
+//    Document::AllocatorType &allocator = sndDoc.GetAllocator();
+//
+//    if (result == (int)ErrorCommon::COMMON_ERR_TYPE_NAME_STRING)
+//    {
+//        Document recvDoc;
+////        recvDoc.Parse(ptrMsg->txt);
+//        std::string outfile;
+//        if (recvDoc.HasMember("output"))
+//            outfile = recvDoc["output"].GetString();
+//
+//        std::string str_token = Configurator::get().generateToken();
+//        LOG_INFO(" Generated token {} ", str_token.c_str());
+//
+//        sndDoc.AddMember(PROTOCOL_TYPE, "REQUEST", allocator);
+//        sndDoc.AddMember(PROTOCOL_COMMAND, "NOTIFY", allocator);
+//        sndDoc.AddMember(PROTOCOL_SUBCOMMAND, "PROCESS_DONE", allocator);
+//        sndDoc.AddMember(PROTOCOL_ACTION, "action", allocator);
+//        sndDoc.AddMember(PROTOCOL_TOKEN, str_token, allocator); // token..
+//        sndDoc.AddMember(PROTOCOL_FROM, "ICS", allocator);
+//        sndDoc.AddMember(PROTOCOL_TO, "SR1", allocator);
+//        sndDoc.AddMember(PROTOCOL_DATA, "set", allocator);
+//        sndDoc.AddMember("output", outfile, allocator);
+//    }
+//
+//    std::string strSendString = convertDocumentForSend(sndDoc);
+////    msgmanager_->insertEventTable(sndDoc, (int)ic::MSG_TYPE::MSG_TYPE_SND);
+////    msgmanager_->onRcvSndMessage(ptrMsg->socket, strSendString);
 
-void TaskManager::makeSendMsg(ic::ServerInfo& info, std::shared_ptr<ic::MSG_T> ptrMsg, int result)
-{
-
-    if (result < (int)ErrorCommon::COMMON_ERR_NONE)
-    {
-        LOG_WARN(" Captured future return is ERR {} ", result);
-        return;
-    }
-
-    Document sndDoc(kObjectType);
-    Document::AllocatorType &allocator = sndDoc.GetAllocator();
-
-    if (result == (int)ErrorCommon::COMMON_ERR_TYPE_NAME_STRING)
-    {
-        Document recvDoc;
-//        recvDoc.Parse(ptrMsg->txt);
-        std::string outfile; 
-        if (recvDoc.HasMember("output")) 
-            outfile = recvDoc["output"].GetString();
-        
-        std::string str_token = Configurator::get().generateToken();
-        LOG_INFO(" Generated token {} ", str_token.c_str());
-
-        sndDoc.AddMember(PROTOCOL_SECTION1, "REQUEST", allocator);
-        sndDoc.AddMember(PROTOCOL_SECTION2, "NOTIFY", allocator);
-        sndDoc.AddMember(PROTOCOL_SECTION3, "PROCESS_DONE", allocator);
-        sndDoc.AddMember(PROTOCOL_ACTION, "action", allocator);
-        sndDoc.AddMember(PROTOCOL_TOKEN, str_token, allocator); // token..
-        sndDoc.AddMember(PROTOCOL_FROM, "ICS", allocator);
-        sndDoc.AddMember(PROTOCOL_TO, "SR1", allocator);
-        sndDoc.AddMember(PROTOCOL_DATA, "set", allocator);
-        sndDoc.AddMember("output", outfile, allocator);
-    }
-
-    std::string strSendString = getDocumentToString(sndDoc);
-//    msgmanager_->insertEventTable(sndDoc, (int)ic::MSG_TYPE::MSG_TYPE_SND);
-//    msgmanager_->onRcvSndMessage(ptrMsg->socket, strSendString);
 }

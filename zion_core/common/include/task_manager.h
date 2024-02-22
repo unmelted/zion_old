@@ -30,11 +30,11 @@ private:
     {
         std::future<int> resultFuture;
         std::string token;
-        std::shared_ptr<ic::MSG_T> taskMsg;
+        std::shared_ptr<ic::IC_MSG> taskMsg;
         ic::ServerInfo info;
 
         TaskInfo() : token(""), taskMsg(nullptr), info() {}
-        TaskInfo(std::future<int> future, std::string tk, std::shared_ptr<ic::MSG_T> msg, ic::ServerInfo info_)
+        TaskInfo(std::future<int> future, std::string tk, std::shared_ptr<ic::IC_MSG> msg, ic::ServerInfo info_)
                 : resultFuture(std::move(future))
                 , token(std::move(tk))
                 , taskMsg(std::move(msg))
@@ -45,8 +45,8 @@ public:
     TaskManager(size_t num_worker_);
     ~TaskManager();
 
-    int commandTask(int id, const ic::ServerInfo& info, const ic::MSG_T& task);
-    virtual int eventTask(int id, const ic::ServerInfo& info, const ic::MSG_T& task) = 0;
+    int commandTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task);
+    virtual int eventTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task) = 0;
 
 protected:
     std::unique_ptr<MessageSender> msgSender_;
@@ -54,10 +54,9 @@ protected:
 private:
     void watchFuture();
     void workerThread();
-    void makeSendMsg(ic::ServerInfo& info, std::shared_ptr<ic::MSG_T> ptrMsg, int result);
 
     template <class F, class... Args>
-    void enqueueJob(MessageQueue<int>* fu, shared_ptr<ic::MSG_T> task, const ic::ServerInfo& info, F &&f, Args &&...args);
+    void enqueueJob(MessageQueue<int>* fu, shared_ptr<ic::IC_MSG> task, const ic::ServerInfo& info, F &&f, Args &&...args);
 
 private:
     std::vector<std::unique_ptr<std::thread>> worker_;
@@ -68,7 +67,7 @@ private:
     std::mutex jobMutex_;
 
     MessageQueue<int> future_;
-    MessageQueue<std::shared_ptr<ic::MSG_T>> queTaskMSG_;
+    MessageQueue<std::shared_ptr<ic::IC_MSG>> queTaskMSG_;
 
     std::vector<TaskInfo> taskInfo;
     std::mutex taskInfoMutex;

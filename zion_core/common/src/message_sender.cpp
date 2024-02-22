@@ -32,13 +32,13 @@ MessageSender::~MessageSender()
 
 }
 
-void MessageSender::parseAndSend(const ic::ServerInfo& info, const ic::MSG_T& msg)
+void MessageSender::parseAndSend(const ic::ServerInfo& info, const ic::IC_MSG& msg)
 {
 	std::thread sender (&MessageSender::runThread, this, info, msg);
     sender.detach();
 }
 
-void MessageSender::runThread(const ic::ServerInfo& info, const ic::MSG_T& msg)
+void MessageSender::runThread(const ic::ServerInfo& info, const ic::IC_MSG& msg)
 {
     LOG_INFO("Recv in parseThread: {} {} ", msg.Command, msg.Data);
 
@@ -50,33 +50,34 @@ void MessageSender::runThread(const ic::ServerInfo& info, const ic::MSG_T& msg)
 //	int nResultCode = getBasicReturnJson(document, protocol);
     int nResultCode = SUCCESS;
 	Document sendDocument(kObjectType);
-	Document::AllocatorType& allocator = sendDocument.GetAllocator();
+    convertMSGToDocument(msg, sendDocument);
+//	Document::AllocatorType& allocator = sendDocument.GetAllocator();
+//
+//	sendDocument.AddMember(PROTOCOL_TYPE, msg.Type, allocator);
+//	sendDocument.AddMember(PROTOCOL_COMMAND, msg.Command, allocator);
+//	sendDocument.AddMember(PROTOCOL_SUBCOMMAND, msg.SubCommand, allocator);
+//	sendDocument.AddMember(PROTOCOL_ACTION, msg.Action, allocator);
+//	sendDocument.AddMember(PROTOCOL_TOKEN, msg.Token, allocator);
+//	sendDocument.AddMember(PROTOCOL_FROM, msg.To, allocator);
+//	sendDocument.AddMember(PROTOCOL_TO, msg.From, allocator);
+//	sendDocument.AddMember(PROTOCOL_DATA, msg.Data, allocator);
+//	sendDocument.AddMember(PROTOCOL_RESULTCODE, "", allocator);
+//	sendDocument.AddMember(PROTOCOL_ERRORMSG, "", allocator);
 
-	sendDocument.AddMember(PROTOCOL_SECTION1, msg.Type, allocator);
-	sendDocument.AddMember(PROTOCOL_SECTION2, msg.Command, allocator);
-	sendDocument.AddMember(PROTOCOL_SECTION3, msg.SubCommand, allocator);
-	sendDocument.AddMember(PROTOCOL_ACTION, msg.Action, allocator);
-	sendDocument.AddMember(PROTOCOL_TOKEN, msg.Token, allocator);
-	sendDocument.AddMember(PROTOCOL_FROM, msg.To, allocator);
-	sendDocument.AddMember(PROTOCOL_TO, msg.From, allocator);
-	sendDocument.AddMember(PROTOCOL_DATA, msg.Data, allocator);
-	sendDocument.AddMember(PROTOCOL_RESULTCODE, "", allocator);
-	sendDocument.AddMember(PROTOCOL_ERRORMSG, "", allocator);
-
-	if (nResultCode != SUCCESS)
-	{
-		sendDocument[PROTOCOL_ERRORMSG].SetString(getErrorCodeToString(nResultCode), allocator);
-		std::string sendString = getDocumentToString(sendDocument);
-		if (this->sendData(info, sendString))
-		{
-            LOG_ERROR("sendData failed in parsThread: {}", sendString);
-		}
-		return;
-	}
+//	if (nResultCode != SUCCESS) // this parts will be considered when the result of task have be sent.
+//	{
+//		sendDocument[PROTOCOL_ERRORMSG].SetString(getErrorCodeToString(nResultCode), allocator);
+//		std::string sendString = convertDocumentForSend(sendDocument);
+//		if (this->sendData(info, sendString))
+//		{
+//            LOG_ERROR("sendData failed in parsThread: {}", sendString);
+//		}
+//		return;
+//	}
 
 //	LOG_DEBUG("section {} {} {}", strSection1, strSection2, strSection3);
 
-	std::string strSendString = getDocumentToString(sendDocument);
+	std::string strSendString = convertDocumentForSend(sendDocument);
 	this->sendData(info, strSendString);
 }
 
@@ -113,49 +114,4 @@ bool MessageSender::sendData(const ic::ServerInfo& info, const std::string& strJ
 
     return true;
 
-}
-
-int MessageSender::getBasicReturnJson(Document& document, ic::Protocol& protocol)
-{
-	if (document.HasMember(PROTOCOL_SECTION1))
-		protocol.Type = document[PROTOCOL_SECTION1].GetString();
-	else
-		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SEC1;
-
-	if (document.HasMember(PROTOCOL_SECTION2))
-		protocol.Command = document[PROTOCOL_SECTION2].GetString();
-	else
-		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SEC2;
-
-	if (document.HasMember(PROTOCOL_SECTION3))
-		protocol.SubCommand = document[PROTOCOL_SECTION3].GetString();
-	else
-		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SEC3;
-
-	if (document.HasMember(PROTOCOL_ACTION))
-		protocol.Action = document[PROTOCOL_ACTION].GetString();
-	else
-		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_ACTION;
-
-	if (document.HasMember(PROTOCOL_TOKEN))
-		protocol.Token = document[PROTOCOL_TOKEN].GetString();
-	else
-		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_TOKEN;
-
-	if (document.HasMember(PROTOCOL_FROM))
-		protocol.From = document[PROTOCOL_FROM].GetString();
-	else
-		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_FROM;
-
-	if (document.HasMember(PROTOCOL_TO))
-		protocol.To = document[PROTOCOL_TO].GetString();
-	else
-		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_TO;
-
-	if (document.HasMember(PROTOCOL_DATA))
-		protocol.Data = document[PROTOCOL_DATA].GetString();
-	else
-		return (int)ErrorCommon::COMMON_ERR_NOT_FOUND_ACTION;
-
-	return SUCCESS;
 }

@@ -47,11 +47,10 @@
 #include "rapidjson/prettywriter.h"
 
 #include "logger.h"
-#include "error_manager.h"
 #include "message_queue.h"
 #include "ic_util.h"
 #include "error_manager.h"
-
+#include "ic_convertor.h"
 
 
 #define CURRENTVERSION "0.0.1.T"
@@ -82,15 +81,17 @@ enum class DB_TYPE
 {
     DB_TYPE_LIVSMED,
     DB_TYPE_LOG,
+    DB_TYPE_LOG_MONITOR,
     DB_TYPE_SIZE,
 };
 
 const string DB_DIRECTORY = "db/";
 const string DB_CONFIG = DB_DIRECTORY + "db_config.json";
-const std::array<std::string, (int)DB_TYPE::DB_TYPE_SIZE> DB_NAME =
+const std::array<std::string, static_cast<int>(DB_TYPE::DB_TYPE_SIZE)> DB_NAME =
 {
     DB_DIRECTORY + "livsmed.db",
     DB_DIRECTORY + "livsmed_log.db",
+    DB_DIRECTORY + "livsmed_log_monitor.db",
 };
 
 enum class SERVER_TYPE
@@ -152,37 +153,11 @@ enum class COMMAND_CLASS
     COMMAND_SIZE,
 };
 
-struct Protocol
-{
-    std::string Type;
-    std::string Command;
-    std::string SubCommand;
-    std::string Action;
-    std::string Token;
-    std::string From;
-    std::string To;
-    std::string Data;
-
-};
-
-typedef Protocol  MSG_T;
-
-#define PROTOCOL_SECTION1    "Type"
-#define PROTOCOL_SECTION2    "Command"
-#define PROTOCOL_SECTION3    "SubCommand"
-#define PROTOCOL_ACTION      "Action"
-#define PROTOCOL_TOKEN       "Token"
-#define PROTOCOL_FROM        "From"
-#define PROTOCOL_TO          "To"
-#define PROTOCOL_DATA        "Data"
-
-#define PROTOCOL_RESULTCODE  "ResultCode"
-#define PROTOCOL_ERRORMSG    "ErrorMsg"
+typedef Protocol IC_MSG;
 
 enum class MANAGE
 {
     MESSAGE_CLASSIFY = 0,
-    MESSAGE_MANAGER_UPDATE,
 };
 
 enum class MSG_TYPE

@@ -29,3 +29,15 @@ SeverMsgManager::~SeverMsgManager()
 {
 
 }
+
+void SeverMsgManager::setDBManagerForMonitor(std::shared_ptr<DBManager>& dbManager)
+{
+    db_manager_monitor = dbManager;
+}
+
+void SeverMsgManager::insertLogMonitorTable(const Document& doc)
+{
+    std::string table = db_manager_monitor->getTableNameOfTcpLog();
+    std::string query = QueryMaker::makeLogMonitorInsertQuery(table, doc);
+    db_manager_monitor->enqueueQuery(query);
+}

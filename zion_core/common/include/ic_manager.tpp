@@ -22,14 +22,14 @@ template <typename T, typename U>
 ICManager<T, U>::ICManager()
 {
     Configurator::get().setDirectory();
-    db_manager_ = std::make_shared<DBManager>((int)ic::DB_TYPE::DB_TYPE_LIVSMED);
+    db_manager_ = std::make_shared<DBManager>(static_cast<int>(ic::DB_TYPE::DB_TYPE_LIVSMED));
     task_manager_ = std::make_unique<U>();
     EventManager::initialize();
     EventManager::addEventHandler(
             [task_manager = task_manager_.get()](int id, void* context1, void* context2) -> int
             {
                 auto info = static_cast<ic::ServerInfo*>(context1);
-                auto task = static_cast<ic::MSG_T*>(context2);
+                auto task = static_cast<ic::IC_MSG*>(context2);
                 return task_manager->eventTask(id, *info, *task);
             });
 }
@@ -62,7 +62,7 @@ int ICManager<T, U>::doManage(int mode, const ic::ServerInfo& info, char* pData,
         std::string command = document["Type"].GetString();
         if(command == "LOG")
         {
-            return 1;
+            return SUCCESS;
         }
     }
 
@@ -76,5 +76,5 @@ int ICManager<T, U>::doManage(int mode, const ic::ServerInfo& info, char* pData,
         return 0;
     }
 
-    return 1;
+    return SUCCESS;
 }

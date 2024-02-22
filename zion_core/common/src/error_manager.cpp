@@ -21,36 +21,36 @@
 void GetCommonErrorString(const int nErrorCode, std::string& strError)
 {
 	switch (nErrorCode) {
-    case (int)ErrorCommon::COMMON_ERR_NONE:					strError = ""; break;
-	case (int)ErrorCommon::COMMON_ERR_PARSE_FAIL:				strError = "Message Parsing Fail"; break;
-	case (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SEC1:			strError = "Not Found: Section 1"; break;
-	case (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SEC2:			strError = "Not Found: Section 2"; break;
-	case (int)ErrorCommon::COMMON_ERR_NOT_FOUND_SEC3:			strError = "Not Found: Section 3"; break;
-    case (int)ErrorCommon::COMMON_ERR_NOT_FOUND_ACTION:	    strError = "Not Found: Sendstate"; break;
-	case (int)ErrorCommon::COMMON_ERR_NOT_FOUND_TOKEN:		strError = "Not Found: Token"; break;
-	case (int)ErrorCommon::COMMON_ERR_NOT_FOUND_FROM:			strError = "Not Found: From"; break;
-	case (int)ErrorCommon::COMMON_ERR_NOT_FOUND_TO:			strError = "Not Found: To"; break;
-	case (int)ErrorCommon::COMMON_ERR_NOT_FOUND_DATA:		strError = "Not Found: Action"; break;
-	case (int)ErrorCommon::COMMON_ERR_UNKNOWN_SEC1:			strError = "Unknown: Section 1"; break;
-	case (int)ErrorCommon::COMMON_ERR_UNKNOWN_SEC2:			strError = "Unknown: Section 2"; break;
-	case (int)ErrorCommon::COMMON_ERR_UNKNOWN_SEC3:			strError = "Unknown: Section 3"; break;
-	case (int)ErrorCommon::COMMON_ERR_UNKNOWN_ACTION:		strError = "Unknown: Sendstate"; break;
-	case (int)ErrorCommon::COMMON_ERR_UNKNOWN_TOKEN:			strError = "Unknown: Token"; break;
-	case (int)ErrorCommon::COMMON_ERR_UNKNOWN_FROM:			strError = "Unknown: From"; break;
-	case (int)ErrorCommon::COMMON_ERR_UNKNOWN_TO:				strError = "Unknown: To"; break;
-	case (int)ErrorCommon::COMMON_ERR_UNKNOWN_DATA:			strError = "Unknown: Action"; break;
-	case (int)ErrorCommon::COMMON_ERR_UNKNOWN_TYPE:			strError = "Unknown: Type"; break;
-	case (int)ErrorCommon::COMMON_ERR_TYPE_NAME_STRING:		strError = "Value Name is not String"; break;
-	default:								strError = "Undefined Error"; break;
+    case static_cast<int>(ErrorCommon::COMMON_ERR_NONE):				strError = ""; break;
+    case static_cast<int>(ErrorCommon::COMMON_ERR_PARSE_FAIL):			strError = "Message Parsing Fail"; break;
+	case static_cast<int>(ErrorCommon::COMMON_ERR_NOT_FOUND_SEC1):		strError = "Not Found: Section 1"; break;
+	case static_cast<int>(ErrorCommon::COMMON_ERR_NOT_FOUND_SEC2):		strError = "Not Found: Section 2"; break;
+	case static_cast<int>(ErrorCommon::COMMON_ERR_NOT_FOUND_SEC3):		strError = "Not Found: Section 3"; break;
+    case static_cast<int>(ErrorCommon::COMMON_ERR_NOT_FOUND_ACTION):	strError = "Not Found: Sendstate"; break;
+	case static_cast<int>(ErrorCommon::COMMON_ERR_NOT_FOUND_TOKEN):		strError = "Not Found: Token"; break;
+	case static_cast<int>(ErrorCommon::COMMON_ERR_NOT_FOUND_FROM):		strError = "Not Found: From"; break;
+	case static_cast<int>(ErrorCommon::COMMON_ERR_NOT_FOUND_TO):		strError = "Not Found: To"; break;
+	case static_cast<int>(ErrorCommon::COMMON_ERR_NOT_FOUND_DATA):		strError = "Not Found: Action"; break;
+	case static_cast<int>(ErrorCommon::COMMON_ERR_UNKNOWN_SEC1):		strError = "Unknown: Section 1"; break;
+	case static_cast<int>(ErrorCommon::COMMON_ERR_UNKNOWN_SEC2):		strError = "Unknown: Section 2"; break;
+	case static_cast<int>(ErrorCommon::COMMON_ERR_UNKNOWN_SEC3):		strError = "Unknown: Section 3"; break;
+	case static_cast<int>(ErrorCommon::COMMON_ERR_UNKNOWN_ACTION):		strError = "Unknown: Sendstate"; break;
+	case static_cast<int>(ErrorCommon::COMMON_ERR_UNKNOWN_TOKEN):		strError = "Unknown: Token"; break;
+	case static_cast<int>(ErrorCommon::COMMON_ERR_UNKNOWN_FROM):		strError = "Unknown: From"; break;
+	case static_cast<int>(ErrorCommon::COMMON_ERR_UNKNOWN_TO):			strError = "Unknown: To"; break;
+	case static_cast<int>(ErrorCommon::COMMON_ERR_UNKNOWN_DATA):		strError = "Unknown: Action"; break;
+	case static_cast<int>(ErrorCommon::COMMON_ERR_UNKNOWN_TYPE):		strError = "Unknown: Type"; break;
+	case static_cast<int>(ErrorCommon::COMMON_ERR_TYPE_NAME_STRING):	strError = "Value Name is not String"; break;
+    default:								strError = "Undefined Error"; break;
 	}
 }
 
 void GetICErrorString(const int nErrorCode, std::string& strError)
 {
 	switch (nErrorCode) {
-        case (int)ErrorIC::IC_ERR_DAEMON_NOT_CONNECTED:		strError = "Daemon is not Connected"; break;
-        case (int)ErrorIC::IC_ERR_APP_NOT_CONNECTED:			strError = "Application is not Connected"; break;
-        case (int)ErrorIC::IC_ERR_NOT_FOUND_DAEMONLIST:		strError = "Not Found: DaemonList"; break;
+    case static_cast<int>(ErrorIC::IC_ERR_DAEMON_NOT_CONNECTED):	strError = "Daemon is not Connected"; break;
+    case static_cast<int>(ErrorIC::IC_ERR_APP_NOT_CONNECTED):		strError = "Application is not Connected"; break;
+    case static_cast<int>(ErrorIC::IC_ERR_NOT_FOUND_DAEMONLIST):	strError = "Not Found: DaemonList"; break;
 	default:								strError = "Undefined Error"; break;
 	}
 }
@@ -58,10 +58,20 @@ void GetICErrorString(const int nErrorCode, std::string& strError)
 std::string getErrorCodeToString(const int nErrorCode)
 {
 	std::string strError = "";
-	if (nErrorCode != (int)ErrorCommon::COMMON_ERR_NONE) {
-		if (nErrorCode > (int)ErrorCommon::COMMON_ERR_NONE && nErrorCode < (int)ErrorCommon::COMMON_ERR_END) { GetCommonErrorString(nErrorCode, strError); }
-		else if (nErrorCode > (int)ErrorIC::IC_ERR_START && nErrorCode < (int)ErrorIC::IC_ERR_END) { GetICErrorString(nErrorCode, strError); }
-		else strError = "Undefined Error";
+	if (nErrorCode != static_cast<int>(ErrorCommon::COMMON_ERR_NONE))
+    {
+		if (nErrorCode > static_cast<int>(ErrorCommon::COMMON_ERR_NONE) &&
+            nErrorCode < static_cast<int>(ErrorCommon::COMMON_ERR_END))
+        {
+            GetCommonErrorString(nErrorCode, strError);
+        }
+		else if (nErrorCode > static_cast<int>(ErrorIC::IC_ERR_START) &&
+                 nErrorCode < static_cast<int>(ErrorIC::IC_ERR_END))
+         {
+            GetICErrorString(nErrorCode, strError);
+         }
+		else
+            strError = "Undefined Error";
 	}
 
 	return strError;

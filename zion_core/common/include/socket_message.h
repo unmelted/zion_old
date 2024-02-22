@@ -26,16 +26,14 @@ using namespace rapidjson;
 
 class SocketMsgManager
 {
-
 public:
 
     SocketMsgManager();
     ~SocketMsgManager();
 
     void setDBManager(std::shared_ptr<DBManager>& dbManager);
-    void onRcvMessage(const ic::ServerInfo info, ic::MSG_T msg_t);
-    void onRcvSndMessage(const ic::ServerInfo& info, const ic::MSG_T& msg);
-    void insertLogMonitorTable(const Document& doc);
+    void onRcvMessage(const ic::ServerInfo info, ic::IC_MSG msg_t);
+    void onRcvSndMessage(const ic::ServerInfo& info, const ic::IC_MSG& msg);
     void insertEventTable(const Document& doc);
 
 protected :
@@ -45,8 +43,8 @@ protected :
 private :
     std::unique_ptr<std::thread> rcvMSGThread_;
     std::unique_ptr<std::thread> sndMSGThread_;
-    MessageQueue<std::shared_ptr<std::pair<ic::ServerInfo, ic::MSG_T>>> queRcvMSG_;
-    MessageQueue<std::shared_ptr<std::pair<ic::ServerInfo, ic::MSG_T>>> queSndMSG_;
+    MessageQueue<std::shared_ptr<std::pair<ic::ServerInfo, ic::IC_MSG>>> queRcvMSG_;
+    MessageQueue<std::shared_ptr<std::pair<ic::ServerInfo, ic::IC_MSG>>> queSndMSG_;
 
     std::shared_ptr<DBManager> dbManager_;
     std::unique_ptr<MessageSender> msgSender_;

@@ -30,12 +30,11 @@ public:
     MessageSender();
 	~MessageSender();
 
-	void parseAndSend(const ic::ServerInfo& info, const ic::MSG_T& msg);
+	void parseAndSend(const ic::ServerInfo& info, const ic::IC_MSG& msg);
 
 private:
     bool sendData(const ic::ServerInfo& info, const std::string& strJson);
-	void runThread(const ic::ServerInfo& info, const ic::MSG_T& msg);
-	int getBasicReturnJson(Document& document, ic::Protocol& mtdProtocol);
+	void runThread(const ic::ServerInfo& info, const ic::IC_MSG& msg);
 
 private:
     std::mutex bufferMutex_;

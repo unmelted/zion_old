@@ -55,10 +55,10 @@ void SocketMsgManager::setDBManager(std::shared_ptr<DBManager>& dbManager)
 // this function is called by task_manager for sending a message.
 // this function store the msg in queue for sending.
 
-void SocketMsgManager::onRcvSndMessage(const ic::ServerInfo& info, const ic::MSG_T& msg)
+void SocketMsgManager::onRcvSndMessage(const ic::ServerInfo& info, const ic::IC_MSG& msg)
 {
-    std::pair<ic::ServerInfo, ic::MSG_T> pair_msg(info, msg);
-    std::shared_ptr<std::pair<ic::ServerInfo, ic::MSG_T>> pMsg = std::make_shared<std::pair<ic::ServerInfo, ic::MSG_T>>(pair_msg);
+    std::pair<ic::ServerInfo, ic::IC_MSG> pair_msg(info, msg);
+    std::shared_ptr<std::pair<ic::ServerInfo, ic::IC_MSG>> pMsg = std::make_shared<std::pair<ic::ServerInfo, ic::IC_MSG>>(pair_msg);
     queSndMSG_.Enqueue(pMsg);
 }
 
@@ -66,9 +66,9 @@ void SocketMsgManager::onRcvSndMessage(const ic::ServerInfo& info, const ic::MSG
 // ic_manager call with data which include information for job (task)
 // store the data in RcvMSG
 
-void SocketMsgManager::onRcvMessage(const ic::ServerInfo info, const ic::MSG_T msg_t)
+void SocketMsgManager::onRcvMessage(const ic::ServerInfo info, const ic::IC_MSG msg_t)
 {
-    auto pMsg = std::make_shared<std::pair<ic::ServerInfo, ic::MSG_T>>(info, msg_t);
+    auto pMsg = std::make_shared<std::pair<ic::ServerInfo, ic::IC_MSG>>(info, msg_t);
     queRcvMSG_.Enqueue(pMsg);
 }
 
@@ -77,7 +77,7 @@ void SocketMsgManager::onRcvMessage(const ic::ServerInfo info, const ic::MSG_T m
 
 void SocketMsgManager::rcvMSGThread()
 {
-    std::shared_ptr<std::pair<ic::ServerInfo, ic::MSG_T>> msg = nullptr;
+    std::shared_ptr<std::pair<ic::ServerInfo, ic::IC_MSG>> msg = nullptr;
     while (isRMSGThread_)
     {
         if (queRcvMSG_.IsQueue())
@@ -104,10 +104,10 @@ void SocketMsgManager::sndMSGThread()
     {
         if (queSndMSG_.IsQueue())
         {
-            std::shared_ptr<std::pair<ic::ServerInfo, ic::MSG_T>> dequeuedItem = queSndMSG_.Dequeue();
+            std::shared_ptr<std::pair<ic::ServerInfo, ic::IC_MSG>> dequeuedItem = queSndMSG_.Dequeue();
             int socket = -1;
             ic::ServerInfo info = dequeuedItem->first;
-            ic::MSG_T msg = dequeuedItem->second;
+            ic::IC_MSG msg = dequeuedItem->second;
 
             LOG_INFO(" SndMsg thread target {} command  {} ", info.ip, msg.Command);
             msgSender_->parseAndSend(info, msg);
@@ -116,13 +116,6 @@ void SocketMsgManager::sndMSGThread()
         std::this_thread::sleep_for(std::chrono::milliseconds(ic::QUEUE_EMPTY_CHECK));
     }
 
-}
-
-void SocketMsgManager::insertLogMonitorTable(const Document& doc)
-{
-    std::string table = "log_monitor";
-    std::string query = QueryMaker::makeLogMonitorInsertQuery(table, doc);
-    dbManager_->enqueueQuery(query);
 }
 
 void SocketMsgManager::insertEventTable(const Document& doc)

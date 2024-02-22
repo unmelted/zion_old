@@ -23,15 +23,17 @@
 class DBManager
 {
 public:
+    DBManager();
     DBManager(int db_name_idx);
     ~DBManager();
 
     sqlite3* getDB();
+    std::string& getTableNameOfTcpLog();
     int enqueueQuery(const std::string& query);
 
 private:
     bool openDB(std::string db_path);
-    int createTable();
+    int createTable(int db_name_idx);
     bool closeDB();
     void queryThread();
     int runQuery(const shared_ptr<std::string>& query);
@@ -41,6 +43,7 @@ private:
     MessageQueue<std::shared_ptr<std::string>> queQuery_;
     std::condition_variable cv_query_;
     std::mutex queryMutex_;
+    std::string table_name_of_tcplog_;
 
     bool isOpen_ = false;
     bool isQueryThread_ = false;

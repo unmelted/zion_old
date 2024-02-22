@@ -27,12 +27,13 @@
 
 class SeverMsgManager : public SocketMsgManager
 {
-
 public:
-
     SeverMsgManager();
     ~SeverMsgManager();
+    void setDBManagerForMonitor(std::shared_ptr<DBManager>& dbManager);
+    void insertLogMonitorTable(const Document& doc);
 
-private :
+private:
+    std::shared_ptr<DBManager> db_manager_monitor;
 
 };

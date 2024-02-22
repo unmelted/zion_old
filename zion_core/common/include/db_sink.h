@@ -57,7 +57,7 @@ public :
 
     int initialize()
     {
-        dbLogManager_ = std::make_unique<DBManager>((int)ic::DB_TYPE::DB_TYPE_LOG);
+        dbLogManager_ = std::make_unique<DBManager>(static_cast<int>(ic::DB_TYPE::DB_TYPE_LOG));
 
         try
         {

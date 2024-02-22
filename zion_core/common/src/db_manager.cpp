@@ -19,6 +19,32 @@
 #include <utility>
 #include "db_manager.h"
 
+DBManager::DBManager()
+{
+    const std::string& db_path1 = ic::DB_NAME[static_cast<int>(ic::DB_TYPE::DB_TYPE_LIVSMED)];
+    std::cout <<"try to open DB: " << db_path1 << std::endl;
+
+    if (!openDB(db_path1))
+    {
+        std::cout <<"Failed to open DB: " << db_path1 << std::endl;
+        return;
+    }
+
+    const std::string& db_path2 = ic::DB_NAME[static_cast<int>(ic::DB_TYPE::DB_TYPE_LOG_MONITOR)];
+    std::cout <<"try to open DB: " << db_path2 << std::endl;
+
+    if (!openDB(db_path2))
+    {
+        std::cout <<"Failed to open DB: " << db_path2 << std::endl;
+        return;
+    }
+
+    // until this process, can't use logger because logger is not initialized yet.
+
+    isQueryThread_ = true;
+    queryThread_ = std::make_unique<std::thread>(&DBManager::queryThread, this);
+}
+
 DBManager::DBManager(int db_name_idx)
 {
     const std::string& db_path = ic::DB_NAME[db_name_idx];
@@ -29,13 +55,12 @@ DBManager::DBManager(int db_name_idx)
         std::cout <<"Failed to open DB: " << db_path << std::endl;
         return;
     }
+    if (db_name_idx != static_cast<int>(ic::DB_TYPE::DB_TYPE_LOG))
+    {
+        createTable(db_name_idx);
+    }
 
     // until this process, can't use logger because logger is not initialized yet.
-
-    if (db_name_idx == (int)ic::DB_TYPE::DB_TYPE_LIVSMED )
-    {
-        createTable();
-    }
 
     isQueryThread_ = true;
     queryThread_ = std::make_unique<std::thread>(&DBManager::queryThread, this);
@@ -71,38 +96,60 @@ bool DBManager::openDB(std::string db_path)
     return true;
 }
 
-int DBManager::createTable()
+int DBManager::createTable(int db_name_idx)
 {
-    rapidjson::Document doc = parsingJsonFile(ic::DB_CONFIG);
-
-    if (doc.HasMember("create_table"))
+    if(db_name_idx == static_cast<int>(ic::DB_TYPE::DB_TYPE_LIVSMED))
     {
-        const rapidjson::Value& tables = doc["create_table"];
-        for (auto it = tables.MemberBegin(); it != tables.MemberEnd(); ++it)
+        rapidjson::Document doc = parseJsonFile(ic::DB_CONFIG);
+
+        if (doc.HasMember("create_table1"))
         {
-            try
+            const rapidjson::Value& tables = doc["create_table1"];
+            for (auto it = tables.MemberBegin(); it != tables.MemberEnd(); ++it)
             {
-                std::string query = it->value.GetString();
-//                LOG_INFO("Create Table Query: {}", query);
-                char* errMsg = nullptr;
-                int result = sqlite3_exec(db_, query.c_str(), 0, 0, &errMsg);
-                if (result != SQLITE_OK)
+                try
                 {
-                    std::string errorStr = errMsg;
-                    sqlite3_free(errMsg);
-                    throw std::runtime_error(errorStr);
+                    std::string query = it->value.GetString();
+                    char* errMsg = nullptr;
+                    int result = sqlite3_exec(db_, query.c_str(), NULL, NULL, &errMsg);
+                    if (result != SQLITE_OK)
+                    {
+                        std::string errorStr = errMsg;
+                        sqlite3_free(errMsg);
+                        throw std::runtime_error(errorStr);
+                    }
                 }
-            }
-            catch (const std::runtime_error& e)
-            {
-                LOG_ERROR("Failed to execute query: {}", e.what());
-                return -1;
+                catch (const std::runtime_error& e)
+                {
+                    LOG_ERROR("Failed to execute query: {}", e.what());
+                    return -1;
+                }
             }
         }
     }
-
+    else if (db_name_idx == static_cast<int>(ic::DB_TYPE::DB_TYPE_LOG_MONITOR))
+    {
+        try
+        {
+            char* errMsg = nullptr;
+            table_name_of_tcplog_ = "Log_monitor" + Configurator::get().getCurrentDateTime("datetime");
+            std::string createQuery = "CREATE TABLE IF NOT EXISTS " + table_name_of_tcplog_ + "(date DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now')), from_where TEXT, data TEXT)";
+            int result = sqlite3_exec(db_, createQuery.c_str(), NULL, NULL, &errMsg);
+            std::cout << "Create table query : " << createQuery << " Result : " << result << std::endl;
+        }
+        catch (const std::exception& e)
+        {
+            std::cout << "create table query error : " << e.what() << std::endl;
+            return -1;
+        }
+    }
     LOG_DEBUG("Create Table Done.");
-    return 0;
+    return SUCCESS;
+}
+
+std::string& DBManager::getTableNameOfTcpLog()
+{
+    return table_name_of_tcplog_;
 }
 
 bool DBManager::closeDB()
