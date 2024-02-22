@@ -76,7 +76,7 @@ int ServerManager::initialize()
     {
         LOG_DEBUG(" loop in initialize : socket {}", socket->getSocket());
         socket->beginSocket();
-        socket->setHandler(std::bind(&ServerManager::doManage, this, std::placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4));
+        socket->setHandler(std::bind(&ServerManager::processor, this, std::placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4));
     }
 
     return 0;
@@ -85,9 +85,9 @@ int ServerManager::initialize()
 // this function check the command format
 // if received message fits the command format well,
 // deliver the message to message_parser or message_manager for further process
-int ServerManager::doManage(int mode, const ic::ClientInfo& info, char* pData, int nDataSize)
+int ServerManager::processor(int mode, const ic::ClientInfo& info, char* pData, int nDataSize)
 {
-    if(ICManager::doManage(mode, info, pData, nDataSize) != SUCCESS)
+    if(ICManager::processor(mode, info, pData, nDataSize) != SUCCESS)
     {
         return -1;
     }

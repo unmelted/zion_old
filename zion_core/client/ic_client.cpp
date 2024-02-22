@@ -167,7 +167,7 @@ void ICClient::receiveThread(std::unique_ptr<ServerSockThreadData> threadData)
             continue;
         }
 
-        int nErrorCode = parentThread->doManage(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY),
+        int nErrorCode = parentThread->processor(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY),
                 threadData->info, pData.data(), nPacketSize);
         if (nErrorCode != static_cast<int>(ErrorCommon::COMMON_ERR_NONE))
         {

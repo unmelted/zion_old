@@ -33,7 +33,7 @@ public:
     virtual int initialize() = 0;
 
 protected:
-    virtual int doManage(int mode, const ic::ClientInfo& info, char* pData, int nDataSize);
+    virtual int processor(int mode, const ic::ClientInfo& info, char* pData, int nDataSize);
 
     std::vector<std::shared_ptr<ic::ServerInfo>> server_info_list_;
     std::vector<std::shared_ptr<T>> socket_list_;

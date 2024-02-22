@@ -28,6 +28,6 @@ public:
     ServerTaskManager();
     ~ServerTaskManager();
     int eventTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task);
-
+    int errorTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task);
 
 };

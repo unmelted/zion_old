@@ -37,7 +37,7 @@ ICManager<T, U>::ICManager()
 // this function check the command format
 // if received message fits the command format well,
 template <typename T, typename U>
-int ICManager<T, U>::doManage(int mode, const ic::ServerInfo& info, char* pData, int nDataSize)
+int ICManager<T, U>::processor(int mode, const ic::ServerInfo& info, char* pData, int nDataSize)
 {
     std::string strMessage = pData;
     Document document;

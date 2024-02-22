@@ -48,7 +48,7 @@ void GetCommonErrorString(const int nErrorCode, std::string& strError)
 void GetICErrorString(const int nErrorCode, std::string& strError)
 {
 	switch (nErrorCode) {
-    case static_cast<int>(ErrorIC::IC_ERR_DAEMON_NOT_CONNECTED):	strError = "Daemon is not Connected"; break;
+    case static_cast<int>(ErrorIC::IC_ERR_SLAVE_NOT_CONNECTED):	strError = "Slave is not Connected"; break;
     case static_cast<int>(ErrorIC::IC_ERR_APP_NOT_CONNECTED):		strError = "Application is not Connected"; break;
     case static_cast<int>(ErrorIC::IC_ERR_NOT_FOUND_DAEMONLIST):	strError = "Not Found: DaemonList"; break;
 	default:								strError = "Undefined Error"; break;

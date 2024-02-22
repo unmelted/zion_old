@@ -81,16 +81,16 @@ int ClientManager::initialize()
     {
         LOG_DEBUG(" loop in initialize : socket {}", socket->getSocket());
         socket->beginSocket();
-        socket->setHandler(std::bind(&ClientManager::doManage, this, std::placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4));
+        socket->setHandler(std::bind(&ClientManager::processor, this, std::placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4));
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     return 0;
 }
 
-int ClientManager::doManage(int mode, const ic::ServerInfo& info, char* pData, int nDataSize)
+int ClientManager::processor(int mode, const ic::ServerInfo& info, char* pData, int nDataSize)
 {
-    if(ICManager::doManage(mode, info, pData, nDataSize) != SUCCESS)
+    if(ICManager::processor(mode, info, pData, nDataSize) != SUCCESS)
     {
         return -1;
     }

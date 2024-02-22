@@ -34,11 +34,10 @@ public:
     int initialize() override;
 
 private:
-    int doManage(int mode, const ic::ClientInfo& info, char* pData, int nDataSize) override;
+    int processor(int mode, const ic::ClientInfo& info, char* pData, int nDataSize) override;
 
 private:
     std::unique_ptr<SeverMsgManager> msg_manager_;
     std::shared_ptr<DBManager> db_manager_monitor;
 
 };
-

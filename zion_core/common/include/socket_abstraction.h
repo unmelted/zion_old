@@ -35,11 +35,11 @@ public:
     virtual int getSocket() = 0;
 
     typedef std::function<int(int mode, const ic::ServerInfo& info, char* pData, int nDataSize)> callback;
-    callback doManage;
+    callback processor;
 
     void setHandler(callback f)
     {
-        doManage = std::move(f);
+        processor = std::move(f);
     }
 
 protected :

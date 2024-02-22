@@ -220,7 +220,7 @@ void* ICServer::socketThread(std::unique_ptr<ClientSockThreadData> threadData)
             continue;
         }
 
-        int nErrorCode = parentThread->doManage(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY),
+        int nErrorCode = parentThread->processor(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY),
                 threadData->info, pData.data(), nPacketSize);
 
         if (nErrorCode != (int)ErrorCommon::COMMON_ERR_NONE)
@@ -247,7 +247,7 @@ bool ICServer::addClient(const ic::ClientInfo& info, int packetSize)
         return false;
     }
 
-    doManage(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY), info, pData.data(), packetSize);
+    processor(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY), info, pData.data(), packetSize);
 //    {
 //        LOG_ERROR("Classifier Error");
 //        return false;

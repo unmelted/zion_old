@@ -68,7 +68,7 @@ enum class ErrorIC {
 	IC_ERR_START = (int)ErrorCodeIndex::ERR_INDEX_IC,
 	///////////////////////////////////
 
-	IC_ERR_DAEMON_NOT_CONNECTED,
+	IC_ERR_SLAVE_NOT_CONNECTED,
 	IC_ERR_APP_NOT_CONNECTED,
 
 	IC_ERR_NOT_FOUND_DAEMONLIST,

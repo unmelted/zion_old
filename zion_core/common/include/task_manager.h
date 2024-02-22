@@ -47,6 +47,7 @@ public:
 
     int commandTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task);
     virtual int eventTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task) = 0;
+    virtual int errorTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task) = 0;
 
 protected:
     std::unique_ptr<MessageSender> msgSender_;
