@@ -47,3 +47,20 @@ int ClientTaskManager::eventTask(int id, const ic::ServerInfo& info, const ic::I
 
     return static_cast<int>(ErrorCommon::COMMON_ERR_NONE);
 }
+
+int ClientTaskManager::errorTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task)
+{
+    LOG_DEBUG("eventTask is called !! {} ", id);
+
+    if (id == static_cast<int>(ic::EVENT_ID::EVENT_ID_WHO))
+    {
+        ic::IC_MSG e_msg;
+        e_msg.Command = "WHOAMI";
+        e_msg.Token = Configurator::get().generateToken();
+        e_msg.Data = info.name;
+        msgSender_->parseAndSend(info, e_msg);
+        return static_cast<int>(ErrorCommon::COMMON_ERR_NONE);
+    }
+
+    return static_cast<int>(ErrorCommon::COMMON_ERR_NONE);
+}

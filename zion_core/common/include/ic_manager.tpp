@@ -32,6 +32,13 @@ ICManager<T, U>::ICManager()
                 auto task = static_cast<ic::IC_MSG*>(context2);
                 return task_manager->eventTask(id, *info, *task);
             });
+    EventManager::addEventHandler(
+            [task_manager = task_manager_.get()](int id, void* context1, void* context2) -> int
+            {
+                auto info = static_cast<ic::ServerInfo*>(context1);
+                auto task = static_cast<ic::IC_MSG*>(context2);
+                return task_manager->errorTask(id, *info, *task);
+            });
 }
 
 // this function check the command format

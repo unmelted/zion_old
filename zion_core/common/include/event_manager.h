@@ -28,7 +28,7 @@ public:
     enum class EventHandlerID
     {
         HANDLER_EVENT_TASK = 0,
-        HANDLER_COMMAND_TASK,
+        HANDLER_ERROR_TASK,
     };
 
     static void initialize()
