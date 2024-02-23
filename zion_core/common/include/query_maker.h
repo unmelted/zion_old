@@ -50,9 +50,10 @@ static std::array<std::string, static_cast<int>(ic::DB_ERROR_COLUMN::DB_ERROR_CO
 class QueryMaker
 {
 public:
+    static std::pair<string, string> makeInsertProtocolQuery(const Document& doc, const vector<string>& columnNames);
     static std::string makeLogMonitorInsertQuery(std::string& table, const Document& doc);
     static std::string makeEventInsertQuery(std::string& table, const Document& doc);
     static std::string makeLogInsertQuery(const std::string& tableName,
                                           const std::vector<std::pair<std::string, std::string>>& columns);
-    static std::string makeErrorMsgQuery(const int err_id, const Document& doc);
+    static std::string makeErrorMsgQuery(const Document& doc);
 };

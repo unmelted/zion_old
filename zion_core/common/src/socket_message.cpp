@@ -135,7 +135,7 @@ int SocketMsgManager::errorMsg(int err_id, const char* file, int line)
     doc.AddMember("message", getErrorCodeToString(err_id), allocator);
     doc.AddMember("etc", "", allocator);
 
-    std::string query = QueryMaker::makeErrorMsgQuery(err_id, doc);
+    std::string query = QueryMaker::makeErrorMsgQuery(doc);
     dbManager_->enqueueQuery(query);
 
     return SUCCESS;

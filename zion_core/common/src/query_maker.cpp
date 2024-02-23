@@ -18,21 +18,20 @@
 
 #include "query_maker.h"
 
-
-std::string QueryMaker::makeLogMonitorInsertQuery(std::string& table, const Document& doc)
+std::pair<string, string> QueryMaker::makeInsertProtocolQuery(const Document& doc, const vector<string>& columns)
 {
-    std::string query_col = "INSERT INTO " + table +  " (";
-    std::string query_val = " VALUES (";
+    string query_col = "(";
+    string query_val = "VALUES (";
     int index = 0;
 
-    if(doc.IsObject())
+    if (doc.IsObject())
     {
         for (Value::ConstMemberIterator itr = doc.MemberBegin(); itr != doc.MemberEnd(); ++itr)
         {
-            if(index < static_cast<int>(ic::DB_LOG_MONITOR_COLUMN::DB_LOG_MONITOR_COLUMN_SIZE))
+            if(index < columns.size())
             {
-                query_col += DB_LOG_MONITOR_COLUMN_NAME[index] + ", ";
-                if (DB_LOG_MONITOR_COLUMN_NAME[index] == "data")
+                query_col += columns[index] + ", ";
+                if (columns[index] == "data")
                 {
                     if (itr->value.IsString())
                     {
@@ -58,50 +57,25 @@ std::string QueryMaker::makeLogMonitorInsertQuery(std::string& table, const Docu
         }
     }
 
-    std::string query = query_col.substr(0, query_col.size() - 2) + ")" + query_val.substr(0, query_val.size() - 2) + ");";
+    query_col = query_col.substr(0, query_col.size() - 2) + ")";
+    query_val = query_val.substr(0, query_val.size() - 2) + ")";
+    return {query_col, query_val};
+}
+
+
+std::string QueryMaker::makeLogMonitorInsertQuery(std::string& table, const Document& doc)
+{
+    std::vector<string> columns(DB_LOG_MONITOR_COLUMN_NAME.begin(), DB_LOG_MONITOR_COLUMN_NAME.end());
+    auto [query_col, query_val] = makeInsertProtocolQuery(doc, columns);
+    std::string query = "INSERT INTO " + table +  " " + query_col + " " + query_val + ";";
     return query;
 }
 
 std::string QueryMaker::makeEventInsertQuery(std::string& table, const Document& doc)
 {
-    std::string query_col = "INSERT INTO " + table +  " (";
-    std::string query_val = " VALUES (";
-    int index = 0;
-
-    if(doc.IsObject())
-    {
-        for (Value::ConstMemberIterator itr = doc.MemberBegin(); itr != doc.MemberEnd(); ++itr)
-        {
-            if(index < static_cast<int>(ic::DB_EVENT_HISTORY_COLUMN::DB_EVENT_HISTORY_COLUMN_SIZE))
-            {
-                query_col += DB_EVENT_HISTORY_COLUMN_NAME[index] + ", ";
-                if (DB_EVENT_HISTORY_COLUMN_NAME[index] == "data")
-                {
-                    if (itr->value.IsString())
-                    {
-                        std::string value = itr->value.GetString();
-                        query_val += "'" + value + "', ";
-                    }
-                    else
-                    {
-                        StringBuffer buffer;
-                        Writer<StringBuffer> writer(buffer);
-                        itr->value.Accept(writer);
-                        query_val += std::string("'") + buffer.GetString() + "', ";
-                    }
-                }
-                else
-                {
-                    std::string value = itr->value.GetString();
-                    query_val += "'" + value + "', ";
-                }
-
-                index++;
-            }
-        }
-    }
-
-    std::string query = query_col.substr(0, query_col.size() - 2) + ")" + query_val.substr(0, query_val.size() - 2) + ");";
+    std::vector<string> columns(DB_EVENT_HISTORY_COLUMN_NAME.begin(), DB_EVENT_HISTORY_COLUMN_NAME.end());
+    auto [query_col, query_val] = makeInsertProtocolQuery(doc, columns);
+    std::string query = "INSERT INTO " + table +  " " + query_col + " " + query_val + ";";
     return query;
 }
 
@@ -121,7 +95,7 @@ std::string QueryMaker::makeLogInsertQuery(const std::string& tableName, const s
     return query;
 }
 
-std::string QueryMaker::makeErrorMsgQuery(const int err_id, const Document& doc)
+std::string QueryMaker::makeErrorMsgQuery(const Document& doc)
 {
     std::string query_col = "INSERT INTO error (";
     std::string query_val = " VALUES (";
@@ -146,7 +120,7 @@ std::string QueryMaker::makeErrorMsgQuery(const int err_id, const Document& doc)
             }
             else
             {
-                query_val += "'', "; // 기본적으로 빈 문자열을 넣습니다.
+                query_val += "'', ";
             }
             index++;
         }
