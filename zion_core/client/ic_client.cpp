@@ -143,7 +143,7 @@ void ICClient::receiveThread(std::unique_ptr<ServerSockThreadData> threadData)
 
         nPacketSize = header.nSize;
         if (nPacketSize < 1 ||
-            nPacketSize > 5000000 ||
+            nPacketSize > ic::SOCKET_DATA_BUFFER_LIMIT ||
             header.cSeparator >= static_cast<int>(ic::PACKET_SEPARATOR::PACKETTYPE_SIZE))
         {
             LOG_ERROR("Invalid Header Packet {} Separator {}", nPacketSize, header.cSeparator);

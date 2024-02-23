@@ -63,6 +63,8 @@ namespace ic
 const int TASKPOOL_SIZE = 5;
 const int CONNECT_WAIT_TIME = 5; //seconds
 const int QUEUE_EMPTY_CHECK = 50; //milliseconds
+const int SOCKET_DATA_BUFFER_LIMIT = 5000000; //bytes
+
 //const int
 
 enum class ROBOT_TYPE
@@ -134,6 +136,7 @@ enum class EVENT_ID
     EVENT_ID_NONE,
     EVENT_ID_WHO,
     EVENT_ID_TCP_LOG_START,
+    EVENT_ID_REQUEST_INFO,
     EVENT_ID_SIZE,
 };
 

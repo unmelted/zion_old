@@ -181,6 +181,8 @@ void* ICServer::socketThread(std::unique_ptr<ClientSockThreadData> threadData)
         EventManager::callEvent(static_cast<int>(ic::EVENT_ID::EVENT_ID_TCP_LOG_START), (void *)&threadData->info, nullptr);
     }
 
+    EventManager::callEvent(static_cast<int>(ic::EVENT_ID::EVENT_ID_REQUEST_INFO), (void *)&threadData->info, nullptr);
+
 	while (parentThread->isThreadRunning_)
 	{
 		int str_len = 0;
@@ -197,7 +199,7 @@ void* ICServer::socketThread(std::unique_ptr<ClientSockThreadData> threadData)
 			continue;
 
 		nPacketSize = header.nSize;
-		if (nPacketSize < 1 || nPacketSize > 5000000 || header.cSeparator >= (int)ic::PACKET_SEPARATOR::PACKETTYPE_SIZE)
+		if (nPacketSize < 1 || nPacketSize > ic::SOCKET_DATA_BUFFER_LIMIT || header.cSeparator >= (int)ic::PACKET_SEPARATOR::PACKETTYPE_SIZE)
 		{
             LOG_ERROR("Invalid Header Packet {} Separator {}", nPacketSize, header.cSeparator);
 			continue;
