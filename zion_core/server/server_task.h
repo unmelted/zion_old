@@ -20,8 +20,6 @@
 #include "ic_define.h"
 #include "task_manager.h"
 
-using namespace rapidjson;
-
 class ServerTaskManager : public TaskManager
 {
 public:

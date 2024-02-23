@@ -42,10 +42,10 @@ int ClientTaskManager::eventTask(int id, const ic::ServerInfo& info, const ic::I
         e_msg.Token = Configurator::get().generateToken();
         e_msg.Data = info.name;
         msgSender_->parseAndSend(info, e_msg);
-        return static_cast<int>(ErrorCommon::COMMON_ERR_NONE);
+        return static_cast<int>(ERROR_COMM::COMMON_ERR_NONE);
     }
 
-    return static_cast<int>(ErrorCommon::COMMON_ERR_NONE);
+    return static_cast<int>(ERROR_COMM::COMMON_ERR_NONE);
 }
 
 int ClientTaskManager::errorTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task)
@@ -59,8 +59,8 @@ int ClientTaskManager::errorTask(int id, const ic::ServerInfo& info, const ic::I
         e_msg.Token = Configurator::get().generateToken();
         e_msg.Data = info.name;
         msgSender_->parseAndSend(info, e_msg);
-        return static_cast<int>(ErrorCommon::COMMON_ERR_NONE);
+        return static_cast<int>(ERROR_COMM::COMMON_ERR_NONE);
     }
 
-    return static_cast<int>(ErrorCommon::COMMON_ERR_NONE);
+    return static_cast<int>(ERROR_COMM::COMMON_ERR_NONE);
 }

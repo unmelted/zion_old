@@ -23,8 +23,6 @@
 #include "task_manager.h"
 #include "db_manager.h"
 
-using namespace rapidjson;
-
 template <typename T, typename U>
 class ICManager
 {

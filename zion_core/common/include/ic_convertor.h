@@ -24,7 +24,7 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/prettywriter.h"
-#include "error_manager.h"
+#include "error_define.h"
 
 #define PROTOCOL_TYPE    "Type"
 #define PROTOCOL_COMMAND    "Command"
@@ -50,7 +50,6 @@ struct Protocol
     std::string From;
     std::string To;
     std::string Data;
-
 };
 
 static std::string convertDocumentForSend(Document& document)
@@ -95,42 +94,42 @@ static int convertDocumentToMSG(Document& document, Protocol& msg)
     if (document.HasMember(PROTOCOL_TYPE))
         msg.Type = document[PROTOCOL_TYPE].GetString();
     else
-        return static_cast<int>(ErrorCommon::COMMON_ERR_NOT_FOUND_SEC1);
+        return static_cast<int>(ERROR_COMM::COMMON_ERR_NOT_FOUND_SEC1);
 
     if (document.HasMember(PROTOCOL_COMMAND))
         msg.Command = document[PROTOCOL_COMMAND].GetString();
     else
-        return static_cast<int>(ErrorCommon::COMMON_ERR_NOT_FOUND_SEC2);
+        return static_cast<int>(ERROR_COMM::COMMON_ERR_NOT_FOUND_SEC2);
 
     if (document.HasMember(PROTOCOL_SUBCOMMAND))
         msg.SubCommand = document[PROTOCOL_SUBCOMMAND].GetString();
     else
-        return static_cast<int>(ErrorCommon::COMMON_ERR_NOT_FOUND_SEC3);
+        return static_cast<int>(ERROR_COMM::COMMON_ERR_NOT_FOUND_SEC3);
 
     if (document.HasMember(PROTOCOL_ACTION))
         msg.Action = document[PROTOCOL_ACTION].GetString();
     else
-        return static_cast<int>(ErrorCommon::COMMON_ERR_NOT_FOUND_ACTION);
+        return static_cast<int>(ERROR_COMM::COMMON_ERR_NOT_FOUND_ACTION);
 
     if (document.HasMember(PROTOCOL_TOKEN))
         msg.Token = document[PROTOCOL_TOKEN].GetString();
     else
-        return static_cast<int>(ErrorCommon::COMMON_ERR_NOT_FOUND_TOKEN);
+        return static_cast<int>(ERROR_COMM::COMMON_ERR_NOT_FOUND_TOKEN);
 
     if (document.HasMember(PROTOCOL_FROM))
         msg.From = document[PROTOCOL_FROM].GetString();
     else
-        return static_cast<int>(ErrorCommon::COMMON_ERR_NOT_FOUND_FROM);
+        return static_cast<int>(ERROR_COMM::COMMON_ERR_NOT_FOUND_FROM);
 
     if (document.HasMember(PROTOCOL_TO))
         msg.To = document[PROTOCOL_TO].GetString();
     else
-        return static_cast<int>(ErrorCommon::COMMON_ERR_NOT_FOUND_TO);
+        return static_cast<int>(ERROR_COMM::COMMON_ERR_NOT_FOUND_TO);
 
     if (document.HasMember(PROTOCOL_DATA))
         msg.Data = document[PROTOCOL_DATA].GetString();
     else
-        return static_cast<int>(ErrorCommon::COMMON_ERR_NOT_FOUND_ACTION);
+        return static_cast<int>(ERROR_COMM::COMMON_ERR_NOT_FOUND_ACTION);
 
     return SUCCESS;
 }

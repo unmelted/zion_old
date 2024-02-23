@@ -24,11 +24,17 @@ class EventManager
 {
 public:
     using EventHandler = std::function<int(int, void*, void*)>;
+    using ErrorHandler = std::function<int(int, const char*, int)>;
 
     enum class EventHandlerID
     {
         HANDLER_EVENT_TASK = 0,
         HANDLER_ERROR_TASK,
+    };
+
+    enum class ErrHandlerID
+    {
+        HANDLER_MSG_STORE = 0,
     };
 
     static void initialize()
@@ -37,15 +43,25 @@ public:
                 static_cast<int>(EventHandlerID::HANDLER_EVENT_TASK);
         getInstance().ev_map_[static_cast<int>(ic::EVENT_ID::EVENT_ID_TCP_LOG_START)] =
                 static_cast<int>(EventHandlerID::HANDLER_EVENT_TASK);
+
+        getInstance().err_map_[static_cast<int>(ERROR_IC::IC_ERR_DISCONNECT_SLAVE)] =
+                static_cast<int>(ErrHandlerID::HANDLER_MSG_STORE);
+
+
     }
 
-    static bool addEventHandler(EventHandler handler)
+    static int addEventHandler(EventHandler handler)
     {
         std::lock_guard<std::mutex> guard(getInstance().mutex_);
-//        bool ret = (getInstance().ev_map_.find(id) == getInstance().ev_map_.end());
-//        getInstance().ev_map_[id] = handler;
         getInstance().ev_handlers_.push_back(handler);
-        return true;
+        return SUCCESS;
+    }
+
+    static int addErrorHandler(ErrorHandler handler)
+    {
+        std::lock_guard<std::mutex> guard(getInstance().mutex_);
+        getInstance().err_handlers_.push_back(handler);
+        return SUCCESS;
     }
 
     static int callEvent(int id, void* context1, void* context2)
@@ -55,15 +71,28 @@ public:
         auto it = instance.ev_map_.find(id);
         if (it != instance.ev_map_.end())
         {
-//            return it->second(id, context1, context2);
             return instance.ev_handlers_[it->second](id, context1, context2);
         }
-        return -1;
+        return FAIL;
+    }
+
+    static int callError(int id, const char* file, int line)
+    {
+        auto& instance = getInstance();
+        std::lock_guard<std::mutex> guard(instance.mutex_);
+        auto it = instance.err_map_.find(id);
+        if (it != instance.err_map_.end())
+        {
+            return instance.err_handlers_[it->second](id, file, line);
+        }
+        return FAIL;
     }
 
 private:
     std::vector<EventHandler> ev_handlers_;
+    std::vector<ErrorHandler> err_handlers_;
     std::map<int, int> ev_map_;
+    std::map<int, int> err_map_;
     std::mutex mutex_;
 
     static EventManager& getInstance()

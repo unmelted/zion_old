@@ -97,7 +97,6 @@ void SocketMsgManager::rcvMSGThread()
 }
 
 // if receive the data in queSndMSG, this data should be sent through ic_server.
-
 void SocketMsgManager::sndMSGThread()
 {
     while (isSMSGThread_)
@@ -123,4 +122,21 @@ void SocketMsgManager::insertEventTable(const Document& doc)
     std::string table = "event_history";
     std::string query = QueryMaker::makeEventInsertQuery(table, doc);
     dbManager_->enqueueQuery(query);
+}
+
+int SocketMsgManager::errorMsg(int err_id, const char* file, int line)
+{
+    Document doc;
+    doc.SetObject();
+    Document::AllocatorType& allocator = doc.GetAllocator();
+    doc.AddMember("id", err_id, allocator);
+    doc.AddMember("from_", Value(file, allocator).Move(), allocator);
+    doc.AddMember("where_", line, allocator);
+    doc.AddMember("message", getErrorCodeToString(err_id), allocator);
+    doc.AddMember("etc", "", allocator);
+
+    std::string query = QueryMaker::makeErrorMsgQuery(err_id, doc);
+    dbManager_->enqueueQuery(query);
+
+    return SUCCESS;
 }

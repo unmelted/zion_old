@@ -72,6 +72,12 @@ ServerManager::~ServerManager()
 
 int ServerManager::initialize()
 {
+    EventManager::addErrorHandler(
+            [ err_message = msg_manager_.get()](int id, const char* file, int line) -> int
+            {
+                return err_message->errorMsg(id, file, line);
+            });
+
     for( auto& socket : socket_list_)
     {
         LOG_DEBUG(" loop in initialize : socket {}", socket->getSocket());

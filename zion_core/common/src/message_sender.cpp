@@ -20,7 +20,7 @@
 #include <future>
 #include "ic_define.h"
 #include "message_sender.h"
-#include "error_manager.h"
+#include "error_define.h"
 
 MessageSender::MessageSender()
 {

@@ -21,8 +21,6 @@
 #include "ic_define.h"
 #include "message_sender.h"
 
-using namespace rapidjson;
-
 class TaskManager
 {
 private:

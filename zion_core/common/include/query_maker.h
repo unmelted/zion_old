@@ -41,150 +41,18 @@ static std::array<std::string, static_cast<int>(ic::DB_LOG_MONITOR_COLUMN::DB_LO
     "from_where", "data",
 };
 
+static std::array<std::string, static_cast<int>(ic::DB_ERROR_COLUMN::DB_ERROR_COLUMN_SIZE)> DB_ERROR_COLUMN_NAME =
+{
+    "id", "from_", "where_", "message", "etc",
+};
+
 
 class QueryMaker
 {
 public:
-    static std::string makeLogMonitorInsertQuery(std::string& table, const Document& doc)
-    {
-        std::string query_col = "INSERT INTO " + table +  " (";
-        std::string query_val = " VALUES (";
-        int index = 0;
-
-        if(doc.IsObject())
-        {
-            for (Value::ConstMemberIterator itr = doc.MemberBegin(); itr != doc.MemberEnd(); ++itr)
-            {
-                if(index < static_cast<int>(ic::DB_LOG_MONITOR_COLUMN::DB_LOG_MONITOR_COLUMN_SIZE))
-                {
-                    query_col += DB_LOG_MONITOR_COLUMN_NAME[index] + ", ";
-                    if (DB_LOG_MONITOR_COLUMN_NAME[index] == "data")
-                    {
-                        StringBuffer buffer;
-                        Writer<StringBuffer> writer(buffer);
-                        itr->value.Accept(writer);
-                        query_val += std::string("'") + buffer.GetString() + "', ";
-                    }
-                    else
-                    {
-                        std::string value = itr->value.GetString();
-                        query_val += "'" + value + "', ";
-                    }
-
-                    index++;
-                }
-            }
-        }
-
-        std::string query = query_col.substr(0, query_col.size() - 2) + ")" + query_val.substr(0, query_val.size() - 2) + ");";
-        return query;
-    }
-
-    static std::string makeEventInsertQuery(std::string& table, const Document& doc)
-    {
-        std::string query_col = "INSERT INTO " + table +  " (";
-        std::string query_val = " VALUES (";
-        int index = 0;
-
-        if(doc.IsObject())
-        {
-            for (Value::ConstMemberIterator itr = doc.MemberBegin(); itr != doc.MemberEnd(); ++itr)
-            {
-                if(index < static_cast<int>(ic::DB_EVENT_HISTORY_COLUMN::DB_EVENT_HISTORY_COLUMN_SIZE))
-                {
-                    query_col += DB_EVENT_HISTORY_COLUMN_NAME[index] + ", ";
-                    if (DB_EVENT_HISTORY_COLUMN_NAME[index] == "data")
-                    {
-                        StringBuffer buffer;
-                        Writer<StringBuffer> writer(buffer);
-                        itr->value.Accept(writer);
-                        query_val += std::string("'") + buffer.GetString() + "', ";
-                    }
-                    else
-                    {
-                        std::string value = itr->value.GetString();
-                        query_val += "'" + value + "', ";
-                    }
-
-                    index++;
-                }
-            }
-        }
-
-        std::string query = query_col.substr(0, query_col.size() - 2) + ")" + query_val.substr(0, query_val.size() - 2) + ");";
-        return query;
-    }
-
-    static std::string makeLogInsertQuery(const std::string& tableName, const std::vector<std::pair<std::string, std::string>>& columns)
-    {
-        std::string query_col = "INSERT INTO " + tableName + " (";
-        std::string query_val = " VALUES (";
-
-        for (const auto& column : columns)
-        {
-            query_col += column.first + ", ";
-            query_val += "'" + column.second + "', ";
-        }
-
-        std::string query = query_col.substr(0, query_col.size() - 2) + ")" + query_val.substr(0, query_val.size() - 2) + ");";
-
-        return query;
-    }
-
-private:
-
-    template<typename T>
-    static std::string toString(const T& value)
-    {
-        std::ostringstream oss;
-        oss << *value;
-        return oss.str();
-    }
-
-    template<typename... Args>
-    static void processArgs(std::stringstream& columns, std::stringstream& values, Args... args)
-    {
-        std::string argsArray[] = { toString(args)... }; // 가변 인자를 배열로 변환
-        for (size_t i = 0; i < sizeof...(args); i += 2)
-        {
-            columns << argsArray[i];
-            values << "'" << argsArray[i + 1] << "'";
-            if (i + 2 < sizeof...(args))
-            {
-                columns << ", ";
-                values << ", ";
-            }
-        }
-    }
-
-
-    template<typename... Args>
-    static void processUpdateArgs(std::string& setClause, Args... args)
-    {
-        std::string argsArray[] = { std::to_string(args)...};
-        size_t argsCount = sizeof...(args);
-
-        for (size_t i = 0; i < argsCount; i += 2)
-        {
-            setClause += argsArray[i];
-            setClause += " = '";
-            setClause += argsArray[i + 1];
-            setClause += "'";
-
-            if (i + 2 < argsCount)
-            {
-                setClause += ", ";
-            }
-        }
-    }
-
-    template<typename... Args>
-    static std::string makeUpdateQuery(const std::string& tableName, const std::string& whereClause, Args... args)
-    {
-        std::string setClause;
-        processUpdateArgs(setClause, std::forward<Args>(args)...);
-
-        return "UPDATE " + tableName + " SET " + setClause + " WHERE " + whereClause + ";";
-    }
-
+    static std::string makeLogMonitorInsertQuery(std::string& table, const Document& doc);
+    static std::string makeEventInsertQuery(std::string& table, const Document& doc);
+    static std::string makeLogInsertQuery(const std::string& tableName,
+                                          const std::vector<std::pair<std::string, std::string>>& columns);
+    static std::string makeErrorMsgQuery(const int err_id, const Document& doc);
 };

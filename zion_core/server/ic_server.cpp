@@ -223,7 +223,7 @@ void* ICServer::socketThread(std::unique_ptr<ClientSockThreadData> threadData)
         int nErrorCode = parentThread->processor(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY),
                 threadData->info, pData.data(), nPacketSize);
 
-        if (nErrorCode != (int)ErrorCommon::COMMON_ERR_NONE)
+        if (nErrorCode != (int)ERROR_COMM::COMMON_ERR_NONE)
         {
             LOG_ERROR("Classifier Error {} ", nErrorCode);
         }
@@ -231,6 +231,7 @@ void* ICServer::socketThread(std::unique_ptr<ClientSockThreadData> threadData)
 
     parentThread->removeClient(threadData->info.socket);
 	parentThread->closeSocket(threadData->info.socket);
+    EventManager::callError(static_cast<int>(ERROR_IC::IC_ERR_DISCONNECT_SLAVE), __FILE__, __LINE__);
 
 	return NULL;
 }

@@ -103,7 +103,7 @@ int TaskManager::commandTask(int id, const ic::ServerInfo& info, const ic::IC_MS
 
     }
 
-    return (int)ErrorCommon::COMMON_ERR_NONE;
+    return (int)ERROR_COMM::COMMON_ERR_NONE;
 }
 
 // future que detect the message after complete task,
@@ -119,7 +119,7 @@ void TaskManager::watchFuture()
             {
                 int result = it->resultFuture.get();
                 // originally, intend to send message after task.
-                // but message_sender have responsiblity to send message,
+                // but message_sender have responsibility to send message,
                 // until now, there is no process with sending message after task.
                 // someday i have to implement with correct context
 //                makeSendMsg(it->info, it->taskMsg, result);
@@ -144,7 +144,9 @@ void TaskManager::workerThread()
     {
         std::unique_lock<std::mutex> lock(jobMutex_);
         cv_job_.wait(lock, [this]()
-        { return !this->jobs.empty() || stop_all_; });
+        {
+            return !this->jobs.empty() || stop_all_;
+        });
 
         if (stop_all_ && this->jobs.empty())
         {
@@ -155,44 +157,4 @@ void TaskManager::workerThread()
         lock.unlock();
         job();
     }
-//}
-//
-//void TaskManager::makeSendMsg(ic::ServerInfo& info, std::shared_ptr<ic::IC_MSG> ptrMsg, int result)
-//{
-//
-//    if (result < (int)ErrorCommon::COMMON_ERR_NONE)
-//    {
-//        LOG_WARN(" Captured future return is ERR {} ", result);
-//        return;
-//    }
-//
-//    Document sndDoc(kObjectType);
-//    Document::AllocatorType &allocator = sndDoc.GetAllocator();
-//
-//    if (result == (int)ErrorCommon::COMMON_ERR_TYPE_NAME_STRING)
-//    {
-//        Document recvDoc;
-////        recvDoc.Parse(ptrMsg->txt);
-//        std::string outfile;
-//        if (recvDoc.HasMember("output"))
-//            outfile = recvDoc["output"].GetString();
-//
-//        std::string str_token = Configurator::get().generateToken();
-//        LOG_INFO(" Generated token {} ", str_token.c_str());
-//
-//        sndDoc.AddMember(PROTOCOL_TYPE, "REQUEST", allocator);
-//        sndDoc.AddMember(PROTOCOL_COMMAND, "NOTIFY", allocator);
-//        sndDoc.AddMember(PROTOCOL_SUBCOMMAND, "PROCESS_DONE", allocator);
-//        sndDoc.AddMember(PROTOCOL_ACTION, "action", allocator);
-//        sndDoc.AddMember(PROTOCOL_TOKEN, str_token, allocator); // token..
-//        sndDoc.AddMember(PROTOCOL_FROM, "ICS", allocator);
-//        sndDoc.AddMember(PROTOCOL_TO, "SR1", allocator);
-//        sndDoc.AddMember(PROTOCOL_DATA, "set", allocator);
-//        sndDoc.AddMember("output", outfile, allocator);
-//    }
-//
-//    std::string strSendString = convertDocumentForSend(sndDoc);
-////    msgmanager_->insertEventTable(sndDoc, (int)ic::MSG_TYPE::MSG_TYPE_SND);
-////    msgmanager_->onRcvSndMessage(ptrMsg->socket, strSendString);
-
 }

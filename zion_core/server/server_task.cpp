@@ -43,26 +43,25 @@ int ServerTaskManager::eventTask(int id, const ic::ServerInfo& info, const ic::I
         e_msg.Data = info.name;
         msgSender_->parseAndSend(info, e_msg);
 //        dbManager_->insertLog(info, e_msg);
-        return (int)ErrorCommon::COMMON_ERR_NONE;
+        return SUCCESS;
     }
 
-    return (int)ErrorCommon::COMMON_ERR_NONE;
+    return SUCCESS;
 }
 
-int ServerTaskManager::errorTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task)
+int ServerTaskManager::errorTask(int err_id, const ic::ServerInfo& info, const ic::IC_MSG& msg)
 {
-    LOG_DEBUG("errorTask is called !! {} ", id);
+    LOG_DEBUG("errorTask is called !! {} ", err_id);
 
-    if (id == (int)ic::EVENT_ID::EVENT_ID_TCP_LOG_START)
+    if (err_id == (int)ic::EVENT_ID::EVENT_ID_TCP_LOG_START)
     {
         ic::IC_MSG e_msg;
         e_msg.Command = "TCP_LOG_START";
         e_msg.Token = Configurator::get().generateToken();
-        e_msg.Data = info.name;
-        msgSender_->parseAndSend(info, e_msg);
-//        dbManager_->insertLog(info, e_msg);
-        return (int)ErrorCommon::COMMON_ERR_NONE;
+
+//        ->insertLog(info, e_msg);
+        return SUCCESS;
     }
 
-    return (int)ErrorCommon::COMMON_ERR_NONE;
+    return SUCCESS;
 }

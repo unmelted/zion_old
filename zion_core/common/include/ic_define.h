@@ -49,7 +49,7 @@
 #include "logger.h"
 #include "message_queue.h"
 #include "ic_util.h"
-#include "error_manager.h"
+#include "error_define.h"
 #include "ic_convertor.h"
 
 
@@ -137,6 +137,7 @@ enum class EVENT_ID
     EVENT_ID_SIZE,
 };
 
+
 enum class COMMAND_CLASS
 {
     COMMAND_NONE = 0,
@@ -216,6 +217,18 @@ enum class DB_LOG_MONITOR_COLUMN
     DB_LOG_MONITOR_COLUMN_DATA,
     DB_LOG_MONITOR_COLUMN_SIZE,
 };
+
+enum class DB_ERROR_COLUMN
+{
+//    DB_ERROR_COLUMN_DATE, // date is default value in sqlite3
+    DB_ERROR_COLUMN_ID,
+    DB_ERROR_COLUMN_FROM,
+    DB_ERROR_COLUMN_WHERE,
+    DB_ERROR_COLUMN_MESSAGE,
+    DB_ERROR_COLUMN_ETC,
+    DB_ERROR_COLUMN_SIZE,
+};
+
 
 #pragma pack(push, 1)
 struct ProtocolHeader

@@ -169,7 +169,7 @@ void ICClient::receiveThread(std::unique_ptr<ServerSockThreadData> threadData)
 
         int nErrorCode = parentThread->processor(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY),
                 threadData->info, pData.data(), nPacketSize);
-        if (nErrorCode != static_cast<int>(ErrorCommon::COMMON_ERR_NONE))
+        if (nErrorCode != static_cast<int>(ERROR_COMM::COMMON_ERR_NONE))
         {
             LOG_ERROR("Classifier Error {} ", nErrorCode);
         }

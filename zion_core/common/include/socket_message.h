@@ -35,6 +35,7 @@ public:
     void onRcvMessage(const ic::ServerInfo info, ic::IC_MSG msg_t);
     void onRcvSndMessage(const ic::ServerInfo& info, const ic::IC_MSG& msg);
     void insertEventTable(const Document& doc);
+    int errorMsg(int err_id, const char* file, int line);
 
 protected :
     void rcvMSGThread();
