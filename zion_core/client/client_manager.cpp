@@ -105,7 +105,9 @@ int ClientManager::processor(int mode, const ic::ServerInfo& info, char* pData, 
 
     if (command == "TCP_LOG_START")
     {
-        Logger::update_tcp_status(server_info_list_[1]->socket);
+        const int socket_order_of_log = 1; //will set by config file or db during construct
+        Logger::update_tcp_status(server_info_list_[socket_order_of_log]->socket,
+                server_info_list_[socket_order_of_log]->name);
     }
 
     msg_manager_->insertEventTable(document);

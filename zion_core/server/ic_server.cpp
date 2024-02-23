@@ -146,16 +146,16 @@ void ICServer::runSocket()
         std::string c_name = "Slave_" + std::to_string(client_socket);
         ic::ClientInfo cinfo(c_name, client_ip, info_->port, client_socket);
 
-        if (!addClient(cinfo, header.nSize) != SUCCESS)
+        if (addClient(cinfo, header.nSize) != SUCCESS)
         {
             LOG_ERROR("addClient failed : IP {} Socket {}", client_ip, client_socket);
             continue;
         }
 
+        LOG_INFO("runSocket endd loop, will start socketThread. name {} socket {} port {} ",
+                cinfo.name,  cinfo.socket ,info_->port);
  		std::unique_ptr<ClientSockThreadData> threadData = std::make_unique<ClientSockThreadData>(cinfo, this);
         std::thread(&ICServer::socketThread, this, std::move(threadData)).detach();
-
-        LOG_INFO("runSocket function is end loop. port {} ", info_->port);
 
 	}
 
@@ -170,7 +170,7 @@ void ICServer::runSocket()
 
 void* ICServer::socketThread(std::unique_ptr<ClientSockThreadData> threadData)
 {
-    LOG_DEBUG("socketThread is started.");
+    LOG_DEBUG("socketThread is started. name {} socket {}", threadData->info.name, threadData->info.socket);
 
 	ICServer* parentThread = threadData->pthis;
     ic::ClientInfo info = threadData->info;
@@ -236,7 +236,7 @@ void* ICServer::socketThread(std::unique_ptr<ClientSockThreadData> threadData)
 }
 
 
-bool ICServer::addClient(const ic::ClientInfo& info, int packetSize)
+int ICServer::addClient(ic::ClientInfo& info, int packetSize)
 {
     int str_len = 0;
     std::vector<char> pData;
@@ -244,14 +244,14 @@ bool ICServer::addClient(const ic::ClientInfo& info, int packetSize)
     if ((str_len = receive(info.socket, pData.data(), packetSize, 0)) == 0)
     {
         LOG_INFO("Client disconnected or error occurred: Socket {}", info.socket);
-        return false;
+        return FAIL;
     }
 
-    processor(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY), info, pData.data(), packetSize);
-//    {
-//        LOG_ERROR("Classifier Error");
-//        return false;
-//    }
+    if (processor(static_cast<int>(ic::MANAGE::MESSAGE_CLASSIFY), info, pData.data(), packetSize) != SUCCESS)
+    {
+        LOG_ERROR("Classifier Error");
+        return FAIL;
+    }
 
     std:string message = pData.data();
     Document document;
@@ -263,17 +263,18 @@ bool ICServer::addClient(const ic::ClientInfo& info, int packetSize)
     if (command != "WHOAMI")
     {
         LOG_ERROR("CONNECT Command Error. {} ", document[PROTOCOL_COMMAND].GetString());
-        return false;
+        return FAIL;
     }
 
     std::string clientName = document[PROTOCOL_DATA].GetString();
 
     infoMutex_.lock();
+    info.name = clientName;
     clientMap_[clientName] = info;
     infoMutex_.unlock();
 
     LOG_INFO("Client Connected and addClient success: {} ", clientName);
-    return true;
+    return SUCCESS;
 }
 
 void ICServer::removeClient(const int socket)

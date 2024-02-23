@@ -57,20 +57,19 @@ public :
         close(socket_);
     }
 
-    void update_tcp_status(int socket)
+    void update_tcp_status(int socket, const std::string& name)
     {
-        std::cout << "update tcp status : " << socket << std::endl;
-        if(socket > 0)
+        std::cout << "update tcp status : " << name << std::endl;
+        if(name != "")
         {
-            socket_ = socket;
             isConnected = true;
-            std::string socket_str = std::to_string(socket_);
-            sendDocument.AddMember("From", Value(socket_str.c_str(), *allocator), *allocator);
+            socket_ = socket;
+            sendDocument.AddMember("From", Value(name.c_str(), *allocator), *allocator);
         }
         else
         {
-            socket = -1;
             isConnected = false;
+            socket_ = -1;
         }
     }
 
@@ -120,7 +119,7 @@ protected:
     }
 
 private:
-    int socket_;
-    bool isConnected;
+    int socket_ = -1;
+    bool isConnected = false;
 
 };

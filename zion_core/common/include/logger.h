@@ -64,7 +64,7 @@ public:
     ~Logger();
 
     static void init();
-    static void update_tcp_status(int socket);
+    static void update_tcp_status(int socket, const std::string& name);
 
 private :
     static void set_sink_type(std::array<bool, 4> sink_type);

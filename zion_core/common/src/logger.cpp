@@ -47,12 +47,12 @@ void Logger::set_sink_type(std::array<bool, 4> sink_type)
     }
 }
 
-void Logger::update_tcp_status(int socket)
+void Logger::update_tcp_status(int socket, const std::string& name)
 {
-    std::cout << "update_tcp_status in Logger : " << socket << std::endl;
-    if(sink_type_list_[static_cast<int>(sink_enum::tcp_sink)] and socket > 0)
+    std::cout << "update_tcp_status in Logger : " << name << std::endl;
+    if(sink_type_list_[static_cast<int>(sink_enum::tcp_sink)] and name != "")
     {
-        tcp_log_sink_->update_tcp_status(socket);
+        tcp_log_sink_->update_tcp_status(socket, name);
     }
 }
 

@@ -98,7 +98,7 @@ int ServerManager::processor(int mode, const ic::ClientInfo& info, char* pData, 
 
 	std::string command = document[PROTOCOL_COMMAND].GetString();
 
-//	LOG_INFO("validateMsg command : {}", command);
+//	LOG_INFO("validateMsg command : {}", command);1
 
     if (command == "TCP_LOG")
     {

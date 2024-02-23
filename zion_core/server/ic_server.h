@@ -51,8 +51,7 @@ private:
     void closeServer();
 
     void* socketThread(std::unique_ptr<ClientSockThreadData> threadData);
-//    int receive(int clnt_sock, char* pRecv, int nSize, int flags);
-    bool addClient(const ic::ClientInfo& info, int packetSize);
+    int addClient(ic::ClientInfo& info, int packetSize);
     void removeClient(const int socket);
 
 private:
