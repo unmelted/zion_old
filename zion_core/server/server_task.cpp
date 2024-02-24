@@ -34,18 +34,22 @@ ServerTaskManager::~ServerTaskManager()
 int ServerTaskManager::eventTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task)
 {
     LOG_DEBUG("eventTask is called !! {} ", id);
+    ic::IC_MSG e_msg;
 
-    if (id == (int)ic::EVENT_ID::EVENT_ID_TCP_LOG_START)
+    if (id == static_cast<int>(ic::EVENT_ID::EVENT_ID_TCP_LOG_START))
     {
-        ic::IC_MSG e_msg;
         e_msg.Command = "TCP_LOG_START";
         e_msg.Token = Configurator::get().generateToken();
         e_msg.Data = info.name;
-        msgSender_->parseAndSend(info, e_msg);
-//        dbManager_->insertLog(info, e_msg);
-        return SUCCESS;
+        msg_sender_->parseAndSend(info, e_msg);
+
+    }
+    else if (id == static_cast<int>(ic::EVENT_ID::EVENT_ID_REQUEST_INFO))
+    {
+
     }
 
+    storeEventTask(id, e_msg);
     return SUCCESS;
 }
 
@@ -63,5 +67,15 @@ int ServerTaskManager::errorTask(int err_id, const ic::ServerInfo& info, const i
         return SUCCESS;
     }
 
+    return SUCCESS;
+}
+
+int ServerTaskManager::storeEventTask(int id, ic::IC_MSG& msg)
+{
+    return SUCCESS;
+}
+
+int ServerTaskManager::storeErrorTask(int id, ic::IC_MSG& msg)
+{
     return SUCCESS;
 }

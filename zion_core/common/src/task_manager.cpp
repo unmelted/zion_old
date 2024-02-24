@@ -33,7 +33,8 @@ TaskManager::TaskManager(size_t num_worker_)
     }
 
     watcher_ = std::make_unique<std::thread>(&TaskManager::watchFuture, this);
-    msgSender_ = std::make_unique<MessageSender>();
+    db_manager_ = std::make_shared<DBManager>(static_cast<int>(ic::DB_TYPE::DB_TYPE_LIVSMED));
+    msg_sender_ = std::make_unique<MessageSender>();
 }
 
 TaskManager::~TaskManager()
@@ -53,6 +54,11 @@ TaskManager::~TaskManager()
         watcher_->join();
     }
     LOG_DEBUG("TaskManager Destroyed Done.");
+}
+
+void TaskManager::setDBManager(std::shared_ptr<DBManager>& db_manager)
+{
+    this->db_manager_ = db_manager;
 }
 
 template <class F, class... Args>

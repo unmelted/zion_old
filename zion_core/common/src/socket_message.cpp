@@ -27,7 +27,7 @@ SocketMsgManager::SocketMsgManager()
     rcvMSGThread_ = std::make_unique<std::thread>(&SocketMsgManager::rcvMSGThread, this);
     sndMSGThread_ = std::make_unique<std::thread>(&SocketMsgManager::sndMSGThread, this);
 
-    msgSender_ = std::make_unique<MessageSender>();
+    msg_sender_ = std::make_unique<MessageSender>();
 }
 
 SocketMsgManager::~SocketMsgManager()
@@ -49,7 +49,7 @@ SocketMsgManager::~SocketMsgManager()
 
 void SocketMsgManager::setDBManager(std::shared_ptr<DBManager>& dbManager)
 {
-    this->dbManager_ = dbManager;
+    this->db_manager_ = dbManager;
 }
 
 // this function is called by task_manager for sending a message.
@@ -109,7 +109,7 @@ void SocketMsgManager::sndMSGThread()
             ic::IC_MSG msg = dequeuedItem->second;
 
             LOG_INFO(" SndMsg thread target {} command  {} ", info.ip, msg.Command);
-            msgSender_->parseAndSend(info, msg);
+            msg_sender_->parseAndSend(info, msg);
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(ic::QUEUE_EMPTY_CHECK));
@@ -121,7 +121,7 @@ void SocketMsgManager::insertEventTable(const Document& doc)
 {
     std::string table = "event_history";
     std::string query = QueryMaker::makeEventInsertQuery(table, doc);
-    dbManager_->enqueueQuery(query);
+    db_manager_->enqueueQuery(query);
 }
 
 int SocketMsgManager::errorMsg(int err_id, const char* file, int line)
@@ -136,7 +136,7 @@ int SocketMsgManager::errorMsg(int err_id, const char* file, int line)
     doc.AddMember("etc", "", allocator);
 
     std::string query = QueryMaker::makeErrorMsgQuery(doc);
-    dbManager_->enqueueQuery(query);
+    db_manager_->enqueueQuery(query);
 
     return SUCCESS;
 }

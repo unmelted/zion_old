@@ -63,21 +63,7 @@ namespace ic
 const int TASKPOOL_SIZE = 5;
 const int CONNECT_WAIT_TIME = 5; //seconds
 const int QUEUE_EMPTY_CHECK = 50; //milliseconds
-const int SOCKET_DATA_BUFFER_LIMIT = 5000000; //bytes
-
-//const int
-
-enum class ROBOT_TYPE
-{
-    ROBOT_TYPE_NONE,
-    ROBOT_TYPE_MC,
-    ROBOT_TYPE_SR,
-    ROBOT_TYPE_CR,
-    ROBOT_TYPE_VCB,
-    ROBOT_TYPE_IC,
-    ROBOT_TYPE_SIZE,
-};
-
+const int SOCKET_DATA_BUFFER_LIMIT = 5000000; //bytes - tcp data limit
 
 enum class DB_TYPE
 {
@@ -100,8 +86,8 @@ enum class SERVER_TYPE
 {
     SERVER_TYPE_NONE,
     SERVER_ROBOT_CONTROL,
-    SERVER_ROBOT_ALIVE,
     SERVER_ROBOT_LOGMONITOR,
+    SERVER_ICS_GUI,
 };
 
 const int SERVER_PORT[] =

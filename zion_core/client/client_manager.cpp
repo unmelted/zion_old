@@ -66,6 +66,7 @@ ClientManager::ClientManager()
 
     msg_manager_ = std::make_unique<ClientMsgManager>();
     msg_manager_->setDBManager(db_manager_);
+    task_manager_->setDBManager(db_manager_);
 }
 
 ClientManager::~ClientManager()

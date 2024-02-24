@@ -21,7 +21,6 @@
 #include "ic_define.h"
 #include "event_manager.h"
 #include "task_manager.h"
-#include "db_manager.h"
 
 template <typename T, typename U>
 class ICManager

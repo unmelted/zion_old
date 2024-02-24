@@ -43,6 +43,9 @@ public:
                 static_cast<int>(EventHandlerID::HANDLER_EVENT_TASK);
         getInstance().ev_map_[static_cast<int>(ic::EVENT_ID::EVENT_ID_TCP_LOG_START)] =
                 static_cast<int>(EventHandlerID::HANDLER_EVENT_TASK);
+        getInstance().ev_map_[static_cast<int>(ic::EVENT_ID::EVENT_ID_REQUEST_INFO)] =
+                static_cast<int>(EventHandlerID::HANDLER_EVENT_TASK);
+
 
         getInstance().err_map_[static_cast<int>(ERROR_IC::IC_ERR_DISCONNECT_SLAVE)] =
                 static_cast<int>(ErrHandlerID::HANDLER_MSG_STORE);

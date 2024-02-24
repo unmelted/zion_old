@@ -47,8 +47,8 @@ private :
     MessageQueue<std::shared_ptr<std::pair<ic::ServerInfo, ic::IC_MSG>>> queRcvMSG_;
     MessageQueue<std::shared_ptr<std::pair<ic::ServerInfo, ic::IC_MSG>>> queSndMSG_;
 
-    std::shared_ptr<DBManager> dbManager_;
-    std::unique_ptr<MessageSender> msgSender_;
+    std::shared_ptr<DBManager> db_manager_;
+    std::unique_ptr<MessageSender> msg_sender_;
 
     bool isRMSGThread_;
     bool isSMSGThread_;

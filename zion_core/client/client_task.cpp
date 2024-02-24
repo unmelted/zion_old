@@ -41,7 +41,7 @@ int ClientTaskManager::eventTask(int id, const ic::ServerInfo& info, const ic::I
         e_msg.Command = "WHOAMI";
         e_msg.Token = Configurator::get().generateToken();
         e_msg.Data = info.name;
-        msgSender_->parseAndSend(info, e_msg);
+        msg_sender_->parseAndSend(info, e_msg);
         return static_cast<int>(ERROR_COMM::COMMON_ERR_NONE);
     }
 
@@ -58,7 +58,7 @@ int ClientTaskManager::errorTask(int id, const ic::ServerInfo& info, const ic::I
         e_msg.Command = "WHOAMI";
         e_msg.Token = Configurator::get().generateToken();
         e_msg.Data = info.name;
-        msgSender_->parseAndSend(info, e_msg);
+        msg_sender_->parseAndSend(info, e_msg);
         return static_cast<int>(ERROR_COMM::COMMON_ERR_NONE);
     }
 

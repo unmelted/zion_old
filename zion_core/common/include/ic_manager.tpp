@@ -24,6 +24,7 @@ ICManager<T, U>::ICManager()
     Configurator::get().setDirectory();
     db_manager_ = std::make_shared<DBManager>(static_cast<int>(ic::DB_TYPE::DB_TYPE_LIVSMED));
     task_manager_ = std::make_unique<U>();
+
     EventManager::initialize();
     EventManager::addEventHandler(
             [task_manager = task_manager_.get()](int id, void* context1, void* context2) -> int

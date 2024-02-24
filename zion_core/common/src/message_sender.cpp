@@ -42,40 +42,9 @@ void MessageSender::runThread(const ic::ServerInfo& info, const ic::IC_MSG& msg)
 {
     LOG_INFO("Recv in parseThread: {} {} ", msg.Command, msg.Data);
 
-//	Document document;
-//	document.Parse(msg.c_str());
-//
-//	string strError;
-//	ic::Protocol protocol;
-//	int nResultCode = getBasicReturnJson(document, protocol);
     int nResultCode = SUCCESS;
 	Document sendDocument(kObjectType);
     convertMSGToDocument(msg, sendDocument);
-//	Document::AllocatorType& allocator = sendDocument.GetAllocator();
-//
-//	sendDocument.AddMember(PROTOCOL_TYPE, msg.Type, allocator);
-//	sendDocument.AddMember(PROTOCOL_COMMAND, msg.Command, allocator);
-//	sendDocument.AddMember(PROTOCOL_SUBCOMMAND, msg.SubCommand, allocator);
-//	sendDocument.AddMember(PROTOCOL_ACTION, msg.Action, allocator);
-//	sendDocument.AddMember(PROTOCOL_TOKEN, msg.Token, allocator);
-//	sendDocument.AddMember(PROTOCOL_FROM, msg.To, allocator);
-//	sendDocument.AddMember(PROTOCOL_TO, msg.From, allocator);
-//	sendDocument.AddMember(PROTOCOL_DATA, msg.Data, allocator);
-//	sendDocument.AddMember(PROTOCOL_RESULTCODE, "", allocator);
-//	sendDocument.AddMember(PROTOCOL_ERRORMSG, "", allocator);
-
-//	if (nResultCode != SUCCESS) // this parts will be considered when the result of task have be sent.
-//	{
-//		sendDocument[PROTOCOL_ERRORMSG].SetString(getErrorCodeToString(nResultCode), allocator);
-//		std::string sendString = convertDocumentForSend(sendDocument);
-//		if (this->sendData(info, sendString))
-//		{
-//            LOG_ERROR("sendData failed in parsThread: {}", sendString);
-//		}
-//		return;
-//	}
-
-//	LOG_DEBUG("section {} {} {}", strSection1, strSection2, strSection3);
 
 	std::string strSendString = convertDocumentForSend(sendDocument);
 	this->sendData(info, strSendString);

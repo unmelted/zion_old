@@ -28,4 +28,7 @@ public:
     int eventTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task);
     int errorTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task);
 
+private:
+    int storeEventTask(int id, ic::IC_MSG& msg);
+    int storeErrorTask(int id, ic::IC_MSG& msg);
 };

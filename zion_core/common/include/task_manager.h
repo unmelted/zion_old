@@ -19,6 +19,7 @@
 
 #pragma once
 #include "ic_define.h"
+#include "db_manager.h"
 #include "message_sender.h"
 
 class TaskManager
@@ -43,12 +44,14 @@ public:
     TaskManager(size_t num_worker_);
     ~TaskManager();
 
+    void setDBManager(std::shared_ptr<DBManager>& db_manager);
     int commandTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task);
     virtual int eventTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task) = 0;
     virtual int errorTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task) = 0;
 
 protected:
-    std::unique_ptr<MessageSender> msgSender_;
+    std::unique_ptr<MessageSender> msg_sender_;
+    std::shared_ptr<DBManager> db_manager_;
 
 private:
     void watchFuture();

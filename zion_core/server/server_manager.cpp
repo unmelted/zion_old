@@ -63,6 +63,7 @@ ServerManager::ServerManager()
     msg_manager_ = std::make_unique<SeverMsgManager>();
     msg_manager_->setDBManager(db_manager_);
     msg_manager_->setDBManagerForMonitor(db_manager_monitor);
+    task_manager_->setDBManager(db_manager_);
 }
 
 ServerManager::~ServerManager()
