@@ -19,16 +19,22 @@
 #pragma once
 #include "ic_define.h"
 #include "task_manager.h"
+#include "server_message.h"
 
 class ServerTaskManager : public TaskManager
 {
 public:
     ServerTaskManager();
     ~ServerTaskManager();
+
+    void setMsgManager(std::shared_ptr<SeverMsgManager> msg_manager);
     int eventTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task);
     int errorTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task);
 
 private:
     int storeEventTask(int id, ic::IC_MSG& msg);
     int storeErrorTask(int id, ic::IC_MSG& msg);
+
+private :
+    std::shared_ptr<SeverMsgManager> msg_manager_;
 };

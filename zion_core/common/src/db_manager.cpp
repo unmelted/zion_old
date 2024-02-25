@@ -122,7 +122,7 @@ int DBManager::createTable(int db_name_idx)
                 catch (const std::runtime_error& e)
                 {
                     LOG_ERROR("Failed to execute query: {}", e.what());
-                    return -1;
+                    return FAIL;
                 }
             }
         }
@@ -140,7 +140,7 @@ int DBManager::createTable(int db_name_idx)
         catch (const std::exception& e)
         {
             std::cout << "create table query error : " << e.what() << std::endl;
-            return -1;
+            return FAIL;
         }
     }
     LOG_DEBUG("Create Table Done.");
@@ -168,7 +168,7 @@ int DBManager::enqueueQuery(const std::string& query)
     if(!isQueryThread_)
     {
         LOG_ERROR("DBManager is already stopped.");
-        return -1;
+        return FAIL;
     }
 
     std::lock_guard<std::mutex> lock(queryMutex_);
@@ -176,7 +176,7 @@ int DBManager::enqueueQuery(const std::string& query)
     queQuery_.Enqueue(p_query);
     cv_query_.notify_one();
 
-    return 0;
+    return SUCCESS;
 }
 
 void DBManager::queryThread()
@@ -227,8 +227,8 @@ int DBManager::runQuery(const std::shared_ptr<std::string>& query)
     catch (const std::runtime_error& e)
     {
         LOG_ERROR("Failed to execute query: {}", e.what());
-        return -1;
+        return FAIL;
     }
 
-    return 0;
+    return SUCCESS;
 }

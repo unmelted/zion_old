@@ -86,14 +86,14 @@ int ClientManager::initialize()
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
-    return 0;
+    return SUCCESS;
 }
 
 int ClientManager::processor(int mode, const ic::ServerInfo& info, char* pData, int nDataSize)
 {
     if(ICManager::processor(mode, info, pData, nDataSize) != SUCCESS)
     {
-        return -1;
+        return FAIL;
     }
 
     std::string strMessage = pData;
@@ -109,6 +109,10 @@ int ClientManager::processor(int mode, const ic::ServerInfo& info, char* pData, 
         const int socket_order_of_log = 1; //will set by config file or db during construct
         Logger::update_tcp_status(server_info_list_[socket_order_of_log]->socket,
                 server_info_list_[socket_order_of_log]->name);
+    }
+    else if (command == "GET_INFO")
+    {
+
     }
 
     msg_manager_->insertEventTable(document);

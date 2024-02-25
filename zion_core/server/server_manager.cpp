@@ -60,10 +60,11 @@ ServerManager::ServerManager()
         }
     }
 
-    msg_manager_ = std::make_unique<SeverMsgManager>();
+    msg_manager_ = std::make_shared<SeverMsgManager>();
     msg_manager_->setDBManager(db_manager_);
     msg_manager_->setDBManagerForMonitor(db_manager_monitor);
     task_manager_->setDBManager(db_manager_);
+    task_manager_->setMsgManager(msg_manager_);
 }
 
 ServerManager::~ServerManager()
@@ -86,7 +87,7 @@ int ServerManager::initialize()
         socket->setHandler(std::bind(&ServerManager::processor, this, std::placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4));
     }
 
-    return 0;
+    return SUCCESS;
 }
 
 // this function check the command format
@@ -96,7 +97,7 @@ int ServerManager::processor(int mode, const ic::ClientInfo& info, char* pData, 
 {
     if(ICManager::processor(mode, info, pData, nDataSize) != SUCCESS)
     {
-        return -1;
+        return FAIL;
     }
 
     std::string strMessage = pData;

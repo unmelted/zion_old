@@ -48,7 +48,7 @@ public:
 
 
         getInstance().err_map_[static_cast<int>(ERROR_IC::IC_ERR_DISCONNECT_SLAVE)] =
-                static_cast<int>(ErrHandlerID::HANDLER_MSG_STORE);
+                static_cast<int>(ErrHandlerID::HANDLER_MSG_STORE); // just store message
 
 
     }

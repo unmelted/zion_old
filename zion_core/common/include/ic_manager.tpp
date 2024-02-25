@@ -62,7 +62,7 @@ int ICManager<T, U>::processor(int mode, const ic::ServerInfo& info, char* pData
     if (isSuccess)
     {
         LOG_ERROR("Json Parsing Fail {} ", strMessage);
-        return 0;
+        return FAIL;
     }
 
     if (document.HasMember("Type"))
@@ -81,7 +81,7 @@ int ICManager<T, U>::processor(int mode, const ic::ServerInfo& info, char* pData
         || !document.HasMember("Token"))
     {
         LOG_ERROR("Json component missing. Cannot execute.");
-        return 0;
+        return FAIL;
     }
 
     return SUCCESS;

@@ -31,22 +31,29 @@ ServerTaskManager::~ServerTaskManager()
 
 }
 
+void ServerTaskManager::setMsgManager(std::shared_ptr<SeverMsgManager> msg_manager)
+{
+    msg_manager_ = msg_manager;
+}
+
 int ServerTaskManager::eventTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task)
 {
     LOG_DEBUG("eventTask is called !! {} ", id);
     ic::IC_MSG e_msg;
+    e_msg.Type = "REQUEST";
+    e_msg.Token = Configurator::get().generateToken();
+    e_msg.From = "ICS_SERVER";
 
     if (id == static_cast<int>(ic::EVENT_ID::EVENT_ID_TCP_LOG_START))
     {
         e_msg.Command = "TCP_LOG_START";
-        e_msg.Token = Configurator::get().generateToken();
         e_msg.Data = info.name;
         msg_sender_->parseAndSend(info, e_msg);
-
     }
     else if (id == static_cast<int>(ic::EVENT_ID::EVENT_ID_REQUEST_INFO))
     {
-
+        e_msg.Command = "GET_INFO";
+        msg_sender_->parseAndSend(info, e_msg);
     }
 
     storeEventTask(id, e_msg);
@@ -56,26 +63,29 @@ int ServerTaskManager::eventTask(int id, const ic::ServerInfo& info, const ic::I
 int ServerTaskManager::errorTask(int err_id, const ic::ServerInfo& info, const ic::IC_MSG& msg)
 {
     LOG_DEBUG("errorTask is called !! {} ", err_id);
+    ic::IC_MSG e_msg;
 
     if (err_id == (int)ic::EVENT_ID::EVENT_ID_TCP_LOG_START)
     {
-        ic::IC_MSG e_msg;
-        e_msg.Command = "TCP_LOG_START";
-        e_msg.Token = Configurator::get().generateToken();
-
-//        ->insertLog(info, e_msg);
         return SUCCESS;
     }
 
+    storeErrorTask(err_id, e_msg);
     return SUCCESS;
 }
 
 int ServerTaskManager::storeEventTask(int id, ic::IC_MSG& msg)
 {
+    Document doc;
+    convertMSGToDocument(msg, doc);
+    msg_manager_->insertEventTable(doc);
     return SUCCESS;
 }
 
 int ServerTaskManager::storeErrorTask(int id, ic::IC_MSG& msg)
 {
+    Document doc;
+    convertMSGToDocument(msg, doc);
+    msg_manager_->insertEventTable(doc);
     return SUCCESS;
 }
