@@ -1,0 +1,12 @@
+{
+  "create_table1": {
+    "event_log": "CREATE TABLE IF NOT EXISTS event_history (date DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', '+9 hours')), type TEXT, command TEXT, subcommand TEXT, action TEXT, token TEXT, from_where TEXT, to_where TEXT, data TEXT);",
+    "user_history": "CREATE TABLE IF NOT EXISTS user_history (date DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', '+9 hours')), id TEXT, action TEXT, etc TEXT);",
+    "error": "CREATE TABLE IF NOT EXISTS error (date DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', '+9 hours')), id TEXT, from_ TEXT, where_ TEXT, message TEXT, etc TEXT);",
+    "user": "CREATE TABLE IF NOT EXISTS user (date DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', '+9 hours')), id TEXT, preset TEXT, idelete TEXT);",
+    "user_preset": "CREATE TABLE IF NOT EXISTS user_preset (number INTEGER PRIMARY KEY AUTOINCREMENT, date DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', '+9 hours')), id TEXT, preset TEXT, data TEXT);"
+  },
+  "create_table2": {
+    "log_monitor": "CREATE TABLE IF NOT EXISTS log_monitor (date DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', '+9 hours')), from_where TEXT, data TEXT);"
+  }
+}

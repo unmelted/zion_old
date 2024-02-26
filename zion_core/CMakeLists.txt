@@ -1,35 +1,44 @@
 #Created by EunKyung Ma(ekma@livsmed.com) on 2024/01/05.
 
-cmake_minimum_required(VERSION 3.12)
-project(zion)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.12)
+PROJECT(ic)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+SET(CMAKE_CXX_STANDARD 17)
+SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(spdlog REQUIRED)
+FIND_PACKAGE(spdlog REQUIRED)
 
-add_definitions(-D_DEBUG)
+ADD_DEFINITIONS(-D_DEBUG)
 
-set(PRJ_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-file(GLOB PRJ_SRC
-    common/*.cpp
-    manager/*.cpp
-    main.cpp
-)
+SET(PRJ_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
-file(GLOB PRJ_INC manager common daemon)
-set(CURL_INC_DIR ${PRJ_PATH}/_3rdparty_/curl/include)
-set(RJSON_INC_DIR ${PRJ_PATH}/_3rdparty_/rapidjson/include)
+FILE(GLOB COMMON_INC ${PRJ_PATH}/common/include)
+SET(CURL_INC_DIR ${PRJ_PATH}/_3rdparty_/curl/include)
+SET(RJSON_INC_DIR ${PRJ_PATH}/_3rdparty_/rapidjson/include)
+
+SET(ics_common_src
+        ${PRJ_PATH}/common/src/db_manager.cpp
+        ${PRJ_PATH}/common/src/error_define.cpp
+        ${PRJ_PATH}/common/src/ic_util.cpp
+        ${PRJ_PATH}/common/src/logger.cpp
+        ${PRJ_PATH}/common/src/message_sender.cpp
+        ${PRJ_PATH}/common/src/socket_message.cpp
+        ${PRJ_PATH}/common/src/task_manager.cpp
+        ${PRJ_PATH}/common/src/socket_abstraction.cpp
+        ${PRJ_PATH}/common/src/query_maker.cpp)
+
+ADD_LIBRARY(ics_common ${ics_common_src})
 
 INCLUDE_DIRECTORIES(
         /opt/homebrew/include
         /usr/local/include
-        ${PRJ_INC}
+        ${COMMON_INC}
         ${RJSON_INC_DIR})
 
 LINK_DIRECTORIES(
         /opt/homebrew/lib
-        /usr/local/lib)
+        /usr/local/lib
+        /opt/homebrew/opt/zlib/lib)
 
-add_executable(zion ${PRJ_SRC})
-target_link_libraries(zion spdlog::spdlog fmt)
+ADD_SUBDIRECTORY(client)
+ADD_SUBDIRECTORY(server)
