@@ -30,7 +30,6 @@
 #include <spdlog/sinks/msvc_sink.h>
 #include <iostream>
 #include <sstream>
-#include <fmt/format.h>
 #include <sqlite3.h>
 #include "tcp_sink.h"
 

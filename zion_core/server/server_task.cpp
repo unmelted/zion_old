@@ -38,7 +38,6 @@ void ServerTaskManager::setMsgManager(std::shared_ptr<SeverMsgManager> msg_manag
 
 int ServerTaskManager::eventTask(int id, const ic::ServerInfo& info, const ic::IC_MSG& task)
 {
-    LOG_DEBUG("eventTask is called !! {} ", id);
     ic::IC_MSG e_msg;
     e_msg.Type = "REQUEST";
     e_msg.Token = Configurator::get().generateToken();
@@ -55,14 +54,13 @@ int ServerTaskManager::eventTask(int id, const ic::ServerInfo& info, const ic::I
         e_msg.Command = "GET_INFO";
         msg_sender_->parseAndSend(info, e_msg);
     }
-
+    LOG_DEBUG("eventTask sent !! Command {} id {} ", e_msg.Command, id);
     storeEventTask(id, e_msg);
     return SUCCESS;
 }
 
 int ServerTaskManager::errorTask(int err_id, const ic::ServerInfo& info, const ic::IC_MSG& msg)
 {
-    LOG_DEBUG("errorTask is called !! {} ", err_id);
     ic::IC_MSG e_msg;
 
     if (err_id == (int)ic::EVENT_ID::EVENT_ID_TCP_LOG_START)
@@ -70,6 +68,7 @@ int ServerTaskManager::errorTask(int err_id, const ic::ServerInfo& info, const i
         return SUCCESS;
     }
 
+    LOG_DEBUG("errorTask sent !! Command {} id {} ", e_msg.Command, err_id);
     storeErrorTask(err_id, e_msg);
     return SUCCESS;
 }

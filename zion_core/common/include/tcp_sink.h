@@ -19,7 +19,6 @@
 #pragma once
 
 #include "spdlog/sinks/base_sink.h"
-#include <fmt/format.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

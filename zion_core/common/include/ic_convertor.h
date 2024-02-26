@@ -94,17 +94,17 @@ static int convertDocumentToMSG(Document& document, Protocol& msg)
     if (document.HasMember(PROTOCOL_TYPE))
         msg.Type = document[PROTOCOL_TYPE].GetString();
     else
-        return static_cast<int>(ERROR_COMM::COMMON_ERR_NOT_FOUND_SEC1);
+        return static_cast<int>(ERROR_COMM::COMMON_ERR_NOT_FOUND_TYPE);
 
     if (document.HasMember(PROTOCOL_COMMAND))
         msg.Command = document[PROTOCOL_COMMAND].GetString();
     else
-        return static_cast<int>(ERROR_COMM::COMMON_ERR_NOT_FOUND_SEC2);
+        return static_cast<int>(ERROR_COMM::COMMON_ERR_NOT_FOUND_COMMAND);
 
     if (document.HasMember(PROTOCOL_SUBCOMMAND))
         msg.SubCommand = document[PROTOCOL_SUBCOMMAND].GetString();
     else
-        return static_cast<int>(ERROR_COMM::COMMON_ERR_NOT_FOUND_SEC3);
+        return static_cast<int>(ERROR_COMM::COMMON_ERR_NOT_FOUND_SUBCOMMAND);
 
     if (document.HasMember(PROTOCOL_ACTION))
         msg.Action = document[PROTOCOL_ACTION].GetString();
@@ -136,6 +136,7 @@ static int convertDocumentToMSG(Document& document, Protocol& msg)
 
 static int convertMSGToDocument(const Protocol msg, Document& document)
 {
+    document.SetObject();
     Document::AllocatorType& allocator = document.GetAllocator();
     document.AddMember(PROTOCOL_TYPE, Value(msg.Type.c_str(), allocator), allocator);
     document.AddMember(PROTOCOL_COMMAND, Value(msg.Command.c_str(), allocator), allocator);

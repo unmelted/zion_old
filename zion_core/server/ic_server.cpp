@@ -180,8 +180,10 @@ void* ICServer::socketThread(std::unique_ptr<ClientSockThreadData> threadData)
         LOG_DEBUG("callEvent EVENT_ID_TCP_LOG_START");
         EventManager::callEvent(static_cast<int>(ic::EVENT_ID::EVENT_ID_TCP_LOG_START), (void *)&threadData->info, nullptr);
     }
-
-    EventManager::callEvent(static_cast<int>(ic::EVENT_ID::EVENT_ID_REQUEST_INFO), (void *)&threadData->info, nullptr);
+    else
+    {
+        EventManager::callEvent(static_cast<int>(ic::EVENT_ID::EVENT_ID_REQUEST_INFO), (void *)&threadData->info, nullptr);
+    }
 
 	while (parentThread->isThreadRunning_)
 	{

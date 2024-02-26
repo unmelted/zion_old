@@ -112,7 +112,7 @@ int ClientManager::processor(int mode, const ic::ServerInfo& info, char* pData, 
     }
     else if (command == "GET_INFO")
     {
-
+        LOG_DEBUG("Get info command is arrived");
     }
 
     msg_manager_->insertEventTable(document);
